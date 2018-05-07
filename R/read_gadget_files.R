@@ -60,9 +60,7 @@ read_gadget_stockfiles <- function(stockfiles, main = NULL, path = NULL) {
         }
         stockfiles <- main$stockfiles
     }
-    if (!is.null(path)) {
-        stocks2get <- paste(path, stockfiles, sep = "/")
-    } else {stocks2get <- stockfiles}
+    stocks2get <- check_path(stockfiles)
     stocks <-
         lapply(stocks2get, function(x) {
             tmp <- readLines(x)
@@ -97,9 +95,7 @@ read_gadget_fleet <- function(fleetfiles, main = NULL, path = NULL) {
         }
         fleetfiles <- main$fleetfiles
     }
-    if (!is.null(path)) {
-        fleets2get <- paste(path, fleetfiles, sep = "/")
-    } else {fleets2get <- fleetfiles}
+    fleets2get <- check_path(fleetfiles)
     tmp <- readLines(fleets2get)
     tmp <- tmp[-(grep("^;", tmp))]
     comp_loc <- grep("^\\[component\\]$|^\\[fleetcomponent\\]$", tmp)
@@ -112,11 +108,11 @@ read_gadget_fleet <- function(fleetfiles, main = NULL, path = NULL) {
                    type = split_tab(tmp[comp_loc + 1], ind = 1),
                    livesonareas = split_tab(tmp[comp_loc + 2], ind = 2),
                    multiplicative = split_tab(tmp[comp_loc + 3], ind = 2),
-                   amount = split_tab(tmp[get_index("amount", tmp)], ind = 2),
+                   amount = split_tab(tmp[grep("amount", tmp)], ind = 2),
                    stringsAsFactors = FALSE)
     prey_ind <-
         lapply(seq_along(suit_loc), function(y) {
-            return((suit_loc[y] + 1):(get_index("amount", tmp)[y] - 1))
+            return((suit_loc[y] + 1):(grep("amount", tmp)[y] - 1))
         })
     prey_ind <- setNames(prey_ind, fleet_info$fleet)
     suit_info <-
@@ -132,4 +128,61 @@ read_gadget_fleet <- function(fleetfiles, main = NULL, path = NULL) {
             return(dat)
         }, n = names(prey_ind)))
     return(list(fleet = fleet_info, prey = suit_info))
+}
+
+
+#' Read Gadget likelihood file
+#'
+#' @param likelihoodfiles Character. The name of the likelihood file
+#' @param main
+#' @param path
+#'
+#' @return
+#' @export
+#'
+#' @examples
+read_gadget_likelihood <- function(likelihoodfiles, main = NULL, path = NULL) {
+    if (!is.null(main)) {
+        if (!("gadget.main" %in% class(main))) {
+            stop("If main is specified you must supply a list of class gadget.main")
+        }
+        likelihoodfiles <- main$likelihood
+    }
+    likelihoodfiles <- check_path(likelihoodfiles)
+    lik <- readLines(likelihoodfiles)
+    lik <- gf2list(strip_comments(lik), list_names = TRUE)
+    get_lik_ <- function(lik_comp, object) {
+            return(split_tab(lik_comp[grep(object, lik_comp)], ind = 2))
+    }
+    get_lik_name <- function(lik_comp, object = "^name") {
+        return(get_lik_(lik_comp, object))
+    }
+    get_lik_type <- function(lik_comp, object = "^type") {
+        return(get_lik_(lik_comp, object))
+    }
+    get_lik_weight <- function(lik_comp, object = "^weight") {
+        return(as.numeric(get_lik_(lik_comp, object)))
+    }
+    organize_comp <- function(comp) {
+        comp_names <- split_tab(comp, ind = 1)
+        dat <- data.frame(split_tab_list(comp, ind = -1),
+                             stringsAsFactors = FALSE)
+        dat <- setNames(dat, comp_names)
+        attr(dat, "class") <- c(get_lik_type(comp), "data.frame")
+        return(dat)
+    }
+    temp <-lapply(lik, organize_comp)
+    lik_types <- unique(vapply(temp, function(x) class(x)[1], character(1)))
+    out <-
+        lapply(lik_types, function(x) {
+            do.call("rbind", c(lapply(temp, function(y) {
+                if (x %in% class(y)) {
+                    class(y) <- "data.frame"
+                    return(y)
+                } else {return(NULL)}
+            }), make.row.names = FALSE))
+        })
+    out <- setNames(out, lik_types)
+    class(out) <- c("gadget.likelihood", class(out))
+    return(out)
 }
