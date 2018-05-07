@@ -1,0 +1,15 @@
+Package: gadgetSim
+Title: Create Gadget replicates for use in simulation studies
+Version: 0.0.0.9999
+Authors@R: "Paul Frater <pnfrater@gmail.com> [aut, cre]"
+Description: This package creates new variants of Gadget models to use as model
+    replicates for simulation studies. It takes an already existing Gadget model,
+    reads model output,and creates sampled-like index, age, and length data to run simulations on.
+Depends: R (>= 3.4.3)
+License: MIT + file LICENSE
+LazyData: true
+Author: Paul Frater
+Maintainer: Paul Frater <pnfrater@gmail.com>
+Suggests: Rgadget,
+    tidyverse
+RoxygenNote: 6.0.1
