@@ -134,13 +134,25 @@ read_gadget_fleet <- function(fleetfiles, main = NULL, path = NULL) {
 #' Read Gadget likelihood file
 #'
 #' @param likelihoodfiles Character. The name of the likelihood file
-#' @param main
-#' @param path
+#' @param main Optional. A mainfile that contains a vector named "likelihoodfiles"
+#' @param path Optional. A path specifying the directory to look for the \code{likelihoodfiles}
 #'
-#' @return
+#' @details There are a number of different likelihood types in a Gadget model. This
+#' function will retrieve the likelihood file, sort and organize each component into its
+#' respective likelihood type, and return a list with each item of the list containing a
+#' \code{data.frame} of all the components within a respective likelihood type.
+#'
+#' @return A list of \code{data.frame}s; one for each likelihood type.
+#' The returned list also has class \code{gadget.likelihood}
 #' @export
 #'
 #' @examples
+#' lik <- read_gadget_likelihood(system.file("gadget_model/likelihood", package = "gadgetSim"))
+#'
+#' ## Using the main and path arguments instead
+#' path <- system.file(gad_mod_dir, package = "gadgetSim")
+#' main <- read_gadget_main(path = path)
+#' lik <- read_gadget_likelihood(main = main, path = path)
 read_gadget_likelihood <- function(likelihoodfiles, main = NULL, path = NULL) {
     if (!is.null(main)) {
         if (!("gadget.main" %in% class(main))) {

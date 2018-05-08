@@ -75,10 +75,10 @@ get_index <- function(x, vec) {
 #'
 #' @examples
 #' check_path("main")
-check_path <- function(x) {
-    if (exists("path")) {
-        if (!is.null(path)) {
-            x <- paste(path, x, sep = "/")
+check_path <- function(x, env = parent.frame()) {
+    if (exists("path", envir = env)) {
+        if (!is.null(env$path)) {
+            x <- paste(env$path, x, sep = "/")
         }
     }
     return(x)
@@ -123,7 +123,6 @@ gf2list <- function(x, split = "^\\[component\\]$", list_names = FALSE) {
 }
 
 
-
 #' Strip comments from a character vector
 #'
 #' @param x Character vector
@@ -136,4 +135,57 @@ gf2list <- function(x, split = "^\\[component\\]$", list_names = FALSE) {
 strip_comments <- function(x, comment = ";") {
     comments_ind <- grep(paste0("^", comment), x)
     return(x[-comments_ind])
+}
+
+
+#' Simple function to capitalize all words of a character vector
+#'
+#' @param x Character vector
+#'
+#' @return A character vector with each word capitalized
+#'
+#' @examples
+#' .simpleCap("may the force be with you")
+.simpleCap <- function(x) {
+    s <- vapply(x, function(x) strsplit(x, " ")[[1]], character(1))
+    paste(toupper(substring(s, 1, 1)), substring(s, 2),
+          sep = "", collapse = "")
+}
+
+
+#' Replace an underscore with a period
+#'
+#' @param x Character vector containing an underscore
+#'
+#' @return Character vector with underscores replaced by period
+#'
+#' @examples
+#' us2dot("what's up with www_google_com")
+us2dot <- function(x) {
+    return(gsub("_", ".", x))
+}
+
+
+#' Format the class of a printfile component to look like that given in Gadget manual
+#'
+#' @param printfile_comp A list of class pertaining to a Gadget printfile component,
+#' see \code{\link{update_printfile}}
+#'
+#' @return Character vector of the class of \code{printfile_comp}
+#'
+#' @examples
+#' get_pf_type(stock_std)
+get_pf_type <- function(printfile_comp) {
+   paste(.simpleCap(unlist(strsplit(class(printfile_comp)[1], split = "_"))), collapse = "")
+}
+
+#' Some default labels
+#'
+#' These are just basic default labels for some things that are used frequently
+#' throughout functions in this package.
+comp_lab <- "[component]"
+comp_regex <- "^\\[component\\]$"
+aggfile_header <- function(af_type) {
+    return(sprintf("; %s aggfile created by gadgetSim %s on %s",
+                   af_type, packageVersion("gadgetSim"), date()))
 }

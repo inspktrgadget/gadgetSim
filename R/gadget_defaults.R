@@ -65,13 +65,19 @@ quotafleet <-
               class = c("gadget.fleet", "list"))
 
 
-
-
-
+#' Switch defaults
+#'
+#' These are vectors of the switches that are used in when calling Gadget
+#' from the command line, but you figured out a different way to implement this
+#' You can probably delete these objects
+#'
+#' @name switches
 single_switch <- c("s", "l", "n", "v", "h", "i", "opt", "main",
                    "p", "o", "print", "precision", "log", "loglevel",
                    "seed", "m", "printinitial", "printfinal", "maxratio")
 
+#' @rdname switches
 double_switch <- c("version", "help")
 
+#' @rdname switches
 file_switch <- single_switch[6:length(single_switch)]

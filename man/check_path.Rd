@@ -4,7 +4,7 @@
 \alias{check_path}
 \title{Paste path variable and file name together if path exists}
 \usage{
-check_path(x)
+check_path(x, env = parent.frame())
 }
 \arguments{
 \item{x}{Character. Name of file}

@@ -9,8 +9,28 @@ read_gadget_likelihood(likelihoodfiles, main = NULL, path = NULL)
 \arguments{
 \item{likelihoodfiles}{Character. The name of the likelihood file}
 
-\item{path}{}
+\item{main}{Optional. A mainfile that contains a vector named "likelihoodfiles"}
+
+\item{path}{Optional. A path specifying the directory to look for the \code{likelihoodfiles}}
+}
+\value{
+A list of \code{data.frame}s; one for each likelihood type.
+The returned list also has class \code{gadget.likelihood}
 }
 \description{
 Read Gadget likelihood file
+}
+\details{
+There are a number of different likelihood types in a Gadget model. This
+function will retrieve the likelihood file, sort and organize each component into its
+respective likelihood type, and return a list with each item of the list containing a
+\code{data.frame} of all the components within a respective likelihood type.
+}
+\examples{
+lik <- read_gadget_likelihood(system.file("gadget_model/likelihood", package = "gadgetSim"))
+
+## Using the main and path arguments instead
+path <- system.file(gad_mod_dir, package = "gadgetSim")
+main <- read_gadget_main(path = path)
+lik <- read_gadget_likelihood(main = main, path = path)
 }
