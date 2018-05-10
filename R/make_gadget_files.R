@@ -1,15 +1,62 @@
 # functions to make R versions of various gadget files
 # to be used when exporting R objects to gadget-readable files
 
-#' Values for  may only be one of the following: \code{stock_std, stock_full,
-#' stock, predator, predator_over, prey_over, stock_prey_full, stock_prey, predator_prey,
-#' likelihood, likelihood_summary}.
 
+#' Create a list of class gadget.main
+#'
+#' @param ... Either a list with named objects pertaining to the main file for
+#' Gadget or any number of objects named similarly
+#'
+#' @return A list of class \code{gadget.main}
+#' @export
+#'
+#' @examples
+#' main <- list(timefile = "time", areafile = "area", stockfiles = "cod")
+#' make_gadget_mainfile(main)
+make_gadget_mainfile <- function(...) {
+    dots <- dots2list(...)
+    out <- structure(modifyList(gadget_main_default, dots),
+                     class = c("gadget.main", "list"))
+    if (!isTRUE(all.equal(names(out), names(gadget_main_default)))) {
+        stop("You have either removed an argument from mainfile or added one not recognized")
+    } else if (is.null(out$stockfiles) | out$stockfiles == "") {
+        warning("You have no stock in this mainfile")
+    }
+    return(out)
+}
+
+
+#' Make Gadget printfile and write out to file
+#'
+#' @param ... Any number of lists containing details of Gadget printfile components. Arguments to
+#' \code{...} must be the same name as one of the default printfile lists,
+#' see \code{\link{printfileDefaults}}
+#'
+#' @param main List of class \code{gadget.main} or character vector of the main file to be read
+#' @param file Character. A path to where the printfile will be written
+#' @param path Optional. Path to Gadget model
+#' @param output Character. Path to the directory where printfiles will be written
+#' @param aggfile_dir Character. Path to the directory where aggfiles will be written
+#' @param printatstart A numeric value of 0 or 1. 0 indicates printing at end of timesteps.
+#' 1 indicates printing at the start
+#' @param steps The steps in which to print the various printfile components.
+#' Can be numeric or \code{"all"}
+#'
+#' @return NULL. Writes the printfiles provided in \code{...} to the directory
+#' provided by \code{output}
+#' @export
+#'
+#' @examples
+#' make_gadget_printfile(stock_std = list(stockname = "cod"), file = "printfile", path = gad_mod_dir)
 make_gadget_printfile <- function(..., main = "main", file, path = NULL,
-                                  output = "out", aggfiles = "print.aggfiles",
+                                  output = "out", aggfile_dir = "print.aggfiles",
                                   printatstart = 1, steps = "all") {
     if (!is.null(path)) {
-        main <- read_gadget_main(check_path(main))
+        if ("gadget.main" %in% class(main)) {
+            main <- main
+        } else {
+            main <- read_gadget_main(file = main, path = path)
+        }
         dir_name <- basename(path)
     } else {
         main <- read_gadget_main(main)
@@ -20,23 +67,43 @@ make_gadget_printfile <- function(..., main = "main", file, path = NULL,
     lik_files <- main$likelihood
     header <- sprintf("; printfile for %s - created by gadgetSim %s on %s",
                       dir_name, packageVersion("gadgetSim"), date())
+    # check to see if dots is given as a list or a number of named objects
+    dots <- list(...)
+    dot_len <- length(dots)
+    if (dot_len < 1) {
+        stop("You must provide a named object in ...")
+    } else if (dot_len == 1) {
+        if (!is.null(names(dots))) {
+            dots <- dots
+        } else {
+            dots <- as.list(...)
+            if (!any(names(dots) %in% pf_types)) {
+                stop(cat("... must have names",
+                         paste0("* ", pf_types),
+                         "or be a list of objects with names as such",
+                         sep = "\n"))
+            }
+        }
+    } else {
+        dots <- dots
+    }
     # plug the information given in ... into the appropriate printfile component template
     updated_printfiles <-
-        lapply(seq_along(list(...)), function(x) {
-                pf_template <- getFromNamespace(names(list(...))[x], ns = "gadgetSim")
-                new_pf <- update_printfile(pf_template, list(...)[[x]])
+        lapply(seq_along(dots), function(x) {
+                pf_template <- getFromNamespace(names(dots)[x], ns = "gadgetSim")
+                new_pf <- update_printfile(pf_template, dots[[x]])
                 if (is.null(new_pf$printfile)) {
                     type_label <- gsub("_", "\\.", class(new_pf)[1])
-                    get_stocks <- unlist(new_pf[grep("name", names(new_pf))])
+                    stocks2get <- unlist(new_pf[grep("name", names(new_pf))])
                     if (!is.null(output)) {
                         new_pf$printfile <-
                             sprintf("%s/%s.%s",
                                     output,
-                                    paste(get_stocks, collapse = "."),
+                                    paste(stocks2get, collapse = "."),
                                     type_label)
                     } else {
                         new_pf$printfile <-
-                            sprintf("%s.%s", paste(get_stocks, collapse = "."),
+                            sprintf("%s.%s", paste(stocks2get, collapse = "."),
                                     type_label)
                     }
                 } else if (!is.null(output)) {
@@ -44,99 +111,18 @@ make_gadget_printfile <- function(..., main = "main", file, path = NULL,
                 }
                 return(new_pf)
             })
-    # figure out which printfile components need aggregation files and what types
-    stocks2agg <-
-        lapply(updated_printfiles, function(x) {
-            x_nms <- names(x)
-            x_stocknames <- grep("names", x_nms)
-            x_agg_ind <- grep("aggfile", x_nms)
-            null_agg_ind <-
-                vapply(seq_along(x), function(y) {
-                    if (is.null(x[[y]]) & (y %in% x_agg_ind)) {
-                        return(y)
-                    } else {return(0)}
-                }, numeric(1))
-            return(x[c(x_stocknames, null_agg_ind)])
-        })
-    # make the aggregate files
-    agg_info <-
-        lapply(seq_along(updated_printfiles), function(x) {
-            if (length(stocks2agg[[x]]) == 0) {
-                return(NULL)
-            }
-        })
-    updated_printfiles <-
-        lapply(updated_printfiles, update_printfile_dirs,
-               print_dir = output, aggfile = aggfiles)
-    formatted_printfiles <-
-        lapply(updated_printfiles, format_printfile)
-    likfile2print <- paste(c(header, formatted_printfiles), collapse = "\n")
+    # make and add aggregate files for those components that need them
+    added_aggfiles <- lapply(updated_printfiles, make_aggfiles,
+                             aggfile_dir = aggfile_dir, path = path)
+    null_list <- lapply(added_aggfiles, write_aggfiles,
+                        aggfile_dir = aggfile_dir, path = path)
+    formatted_printfiles <- lapply(added_aggfiles, format_printfile)
+    likfile2print <- paste(c(header, formatted_printfiles), collapse = "\n;\n")
     # create directories for file writing
-    if (!dir.exists(check_path(aggfiles))) {
-        dir.create(check_path(aggfiles))
-    }
     if (!dir.exists(check_path(output))) {
         dir.create(check_path(output))
     }
     write(likfile2print, file = check_path(file))
-    # first get and format the likelihood components
-    likelihood <- read_gadget_likelihood(lik_files, path = path)
-    lik_comps <- likelihood[-grep("penalty|understocking", names(likelihood))]
-    lik_comps <-
-        as.vector(unlist(lapply(lik_comps, function(x) {
-            return(unique(x$name))
-        })))
-    lik_printers <- paste(comp_lab,
-                          sprintf("type\t%s", lik_comps),
-                          sprintf("printfile\t%s/%s", output, lik_comps),
-                          sep = "\n", collapse = "\n;\n")
-    # next get and format the stocks
-    stocks <- read_gadget_stockfiles(stockfiles, path = path)
-    stocks2print <- as.vector(unlist(lapply(stocks, function(x) return(x$stockname))))
-    stock_std <-
-        paste(comp_lab,
-              "type\tstockstdprinter",
-              sprintf("stockname\t%s", stocks2print),
-              sprintf("printfile\t%s/%s.std", output, stocks2print),
-              sprintf("printatstart\t%s", printatstart),
-              sprintf("yearsandsteps\t%s\t%s", "all", steps),
-              sep = "\n", collapse = "\n;\n")
-    stock_full_aggfiles <-
-        lapply(stocks, function(x) {
-            areas <- sprintf("area%1$s\t%1$s", x$livesonareas)
-            age <- paste("allages",
-                         paste(as.numeric(x$minage):as.numeric(x$maxage), collapse = "\t"),
-                         sep = "\t")
-            stock_len <- as.numeric(x$minlength):as.numeric(x$maxlength)
-            len <-
-                paste(paste0("len", stock_len[-1]),
-                      stock_len[-length(stock_len)], stock_len[-1],
-                      sep = "\t", collapse = "\n")
-            null_list <-
-                lapply(c("areas", "age", "len"), function(y) {
-                    tmp <- get(y, envir = parent.frame(n=2))
-                    header <-
-                        sprintf("; %s aggregation file for %s created with gadgetSim %s at %s",
-                                y, x$stockname, packageVersion("gadgetSim"), date())
-                    out <- paste(header, tmp, sep = "\n")
-                    write(out,
-                          file = paste(check_path(aggfiles, env = parent.frame(n=4)),
-                                       sprintf("%s.%s.agg", x$stockname, y),
-                                       sep = "/"))
-                })
-        })
-    stock_full <-
-        paste(comp_lab,
-              "type\tstockprinter",
-              sprintf("stocknames\t%s", stocks2print),
-              sprintf("areaaggfile\t%s/%s.area.agg", aggfiles, stocks2print),
-              sprintf("ageaggfiles\t%s/%s.age.agg", aggfiles, stocks2print),
-              sprintf("lenaggfile\t%s/%s.len.agg", aggfiles, stocks2print),
-              sprintf("printfile\t%s/%s.full", output, stocks2print),
-              sprintf("printatstart\t%s", printatstart),
-              sprintf("yearsandsteps\tall\t%s", steps),
-              sep = "\n", collapse = "\n;\n")
-    # lastly get and format fleets
-
-
 }
+
+

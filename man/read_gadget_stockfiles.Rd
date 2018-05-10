@@ -9,9 +9,9 @@ read_gadget_stockfiles(stockfiles, main = NULL, path = NULL)
 \arguments{
 \item{stockfiles}{Character vector of stocknames present in Gadget model}
 
-\item{main}{List of class \code{gadget.main}}
+\item{main}{Optional. A list of class \code{gadget.main}}
 
-\item{path}{Optional. Path to Gadget model}
+\item{path}{Optional. Character vector of path to the directory where Gadget files are located}
 }
 \value{
 A list of class \code{gadget.stocks} consisting of \code{gadget.stock}
@@ -21,7 +21,8 @@ one or more gadget.stock objects
 Get stockfiles used in a Gadget model
 }
 \examples{
-main <- read_gadget_main("main", path = system.file(gad_mod_dir, package = "gadgetSim"))
-stocks <- read_gadget_stockfiles(main = main)
+path <- system.file(gad_mod_dir, package = "gadgetSim")
+main <- read_gadget_main(path = gad_mod_dir)
+stocks <- read_gadget_stockfiles(main = main, path = path)
 head(stocks[[1]])
 }

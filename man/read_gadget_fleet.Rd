@@ -9,9 +9,9 @@ read_gadget_fleet(fleetfiles, main = NULL, path = NULL)
 \arguments{
 \item{fleetfiles}{Character name of fleet file in Gadget model as specified in main file}
 
-\item{main}{Optional. Object of class \code{gadget.main} used to search for fleet file}
+\item{main}{Optional. A list of class \code{gadget.main}}
 
-\item{path}{Character name of path to Gadget model}
+\item{path}{Optional. Character vector of path to the directory where Gadget files are located}
 }
 \value{
 A list detailing the fleets included in Gadget model,
@@ -21,6 +21,7 @@ stocks included, and suitability
 Read Gadget fleet file
 }
 \examples{
-main <- read_gadget_main(path = system.file(gad_mod_dir, package = "gadgetSim"))
-read_gadget_fleet(main = main, path = system.file(gad_mod_dir, package = "gadgetSim"))
+path <- system.file(gad_mod_dir, package = "gadgetSim")
+main <- read_gadget_main(path = path)
+read_gadget_fleet(main = main, path = path)
 }

@@ -4,34 +4,35 @@
 \alias{call_gadget}
 \title{Call Gadget executable on the command line}
 \usage{
-call_gadget(path, switches = list(s = TRUE, i = "params.in"),
-  fit.dir = NULL, gadget.exe = "gadget", print.out = TRUE,
-  print.err = TRUE)
+call_gadget(switches = list(s = TRUE, i = "params.in"), path = NULL,
+  fit_dir = NULL, gadget_exe = "gadget", print_out = TRUE,
+  print_err = TRUE)
 }
 \arguments{
-\item{path}{A path to the directory where Gadget files are housed}
-
 \item{switches}{List of named switches to supply to Gadget executable.
 Names correspond to the switch; values correspond to additional arguments.
 If no argument is needed the value should be logical \code{TRUE}.}
 
-\item{fit.dir}{Directory where final optimized values are supplied. e.g. "WGTS"}
+\item{path}{Optional. Character vector of path to the directory where Gadget files are located}
 
-\item{gadget.exe}{The Gadget executable to use}
+\item{fit_dir}{Directory where final optimized values are supplied. (e.g. "WGTS")}
 
-\item{print.out}{Logical. Should Gadget command line output be printed.}
+\item{gadget_exe}{The Gadget executable to use}
 
-\item{print.err}{Logical. Should Gadget command line errors be printed.}
+\item{print_out}{Logical. Should Gadget command line output be printed.}
+
+\item{print_err}{Logical. Should Gadget command line errors be printed.}
 }
 \value{
-If \code{print.out = TRUE} or \code{print.err = TRUE}, a character vector giving the output
+If \code{print_out = TRUE} or \code{print_err = TRUE}, a character vector giving the output
 of the command, one line per string, else nothing
 }
 \description{
 This function will call the gadget command with the given switches as arguments
 }
 \examples{
-call_gadget("gadget_model", switches = list(s = TRUE, i = "params.in", log = "logfile"))
-call_gadget("gadget_model", switches = list(s = TRUE, i = "params.in", main = "main.final"),
-            fit.dir = "WGTS")
+path <- system.file(gad_mod_dir, package = "gadgetSim")
+call_gadget(switches = list(s = TRUE, i = "params.in", log = "logfile"), path = path)
+call_gadget(switches = list(s = TRUE, i = "params.final", main = "main.final"), path = path,
+            fit_dir = "WGTS")
 }

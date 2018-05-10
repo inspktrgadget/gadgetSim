@@ -60,10 +60,3 @@ write_gadget_main <- function(obj = NULL, file = "main") {
     main <- unlist(main)
     write(main, file = file, sep = "\n")
 }
-
-
-write_printfile <- function(file, printatstart = 1, steps = "all") {
-
-}
-
-

@@ -8,6 +8,8 @@ read_gadget_main(file = "main", path = NULL)
 }
 \arguments{
 \item{file}{Character. Name of the main file to be read}
+
+\item{path}{Optional. Character vector of path to the directory where Gadget files are located}
 }
 \value{
 List of class \code{gadget.main} with each name corresponding to a type of file

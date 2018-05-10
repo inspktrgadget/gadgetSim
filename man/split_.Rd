@@ -3,17 +3,23 @@
 \name{split_}
 \alias{split_}
 \alias{split_tab}
+\alias{split_ws}
 \alias{split_list_}
 \alias{split_tab_list}
+\alias{split_ws_list}
 \title{Split and unlist a character vector}
 \usage{
 split_(vec, split, ind = NULL)
 
 split_tab(vec, ind = NULL)
 
+split_ws(vec, ind = NULL)
+
 split_list_(vec, split, ind = NULL)
 
 split_tab_list(vec, ind = NULL)
+
+split_ws_list(vec, ind = NULL)
 }
 \arguments{
 \item{vec}{Character}

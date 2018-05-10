@@ -2,9 +2,15 @@
 % Please edit documentation in R/utilities.R
 \name{strip_comments}
 \alias{strip_comments}
+\alias{strip_comments.character}
+\alias{strip_comments.list}
 \title{Strip comments from a character vector}
 \usage{
-strip_comments(x, comment = ";")
+strip_comments(x, comment, keep_with = NULL)
+
+\method{strip_comments}{character}(x, comment = ";", keep_with = NULL)
+
+\method{strip_comments}{list}(x, comment = ";", keep_with = NULL)
 }
 \arguments{
 \item{x}{Character vector}

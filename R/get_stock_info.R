@@ -35,11 +35,11 @@ get_stock_areas <- function(stocks) {
 }
 
 #' @rdname getStockInfo
-get_stockname <- function(stocks) {
+get_stocknames <- function(stocks) {
     if (class(stocks) == "gadget.stock") {
         return(stocks$stockname)
     } else if (class(stocks) == "gadget.stocks") {
-        return(unique(unlist(lapply(stocks, get_stockname))))
+        return(unique(unlist(lapply(stocks, get_stocknames))))
     } else {
         stop("You must supply a list of class gadget.stock or gadget.stocks")
     }

@@ -7,7 +7,8 @@
 printfile_name_check(printfile_comp)
 }
 \arguments{
-\item{printfile_comp}{List. The printfile component to be checked}
+\item{printfile_comp}{A list of class pertaining to a Gadget printfile component,
+see \code{\link{update_printfile}}}
 }
 \value{
 NULL. Only returns an error message if any non-optional arguments are missing

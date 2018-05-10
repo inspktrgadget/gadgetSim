@@ -2,16 +2,40 @@
 % Please edit documentation in R/make_gadget_files.R
 \name{make_gadget_printfile}
 \alias{make_gadget_printfile}
-\title{Values for  may only be one of the following: \code{stock_std, stock_full,
-stock, predator, predator_over, prey_over, stock_prey_full, stock_prey, predator_prey,
-likelihood, likelihood_summary}.}
+\title{Make Gadget printfile and write out to file}
 \usage{
 make_gadget_printfile(..., main = "main", file, path = NULL,
-  output = "out", aggfiles = "print.aggfiles", printatstart = 1,
+  output = "out", aggfile_dir = "print.aggfiles", printatstart = 1,
   steps = "all")
 }
+\arguments{
+\item{...}{Any number of lists containing details of Gadget printfile components. Arguments to
+\code{...} must be the same name as one of the default printfile lists,
+see \code{\link{printfileDefaults}}}
+
+\item{main}{List of class \code{gadget.main} or character vector of the main file to be read}
+
+\item{file}{Character. A path to where the printfile will be written}
+
+\item{path}{Optional. Path to Gadget model}
+
+\item{output}{Character. Path to the directory where printfiles will be written}
+
+\item{aggfile_dir}{Character. Path to the directory where aggfiles will be written}
+
+\item{printatstart}{A numeric value of 0 or 1. 0 indicates printing at end of timesteps.
+1 indicates printing at the start}
+
+\item{steps}{The steps in which to print the various printfile components.
+Can be numeric or \code{"all"}}
+}
+\value{
+NULL. Writes the printfiles provided in \code{...} to the directory
+provided by \code{output}
+}
 \description{
-Values for  may only be one of the following: \code{stock_std, stock_full,
-stock, predator, predator_over, prey_over, stock_prey_full, stock_prey, predator_prey,
-likelihood, likelihood_summary}.
+Make Gadget printfile and write out to file
+}
+\examples{
+make_gadget_printfile(stock_std = list(stockname = "cod"), file = "printfile", path = gad_mod_dir)
 }

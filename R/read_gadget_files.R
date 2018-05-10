@@ -3,6 +3,7 @@
 #' Read Gadget mainfile
 #'
 #' @param file Character. Name of the main file to be read
+#' @inheritParams call_gadget
 #'
 #' @return List of class \code{gadget.main} with each name corresponding to a type of file
 #' and each object corresponding to a filename as used by Gadget
@@ -12,21 +13,19 @@
 #' read_gadget_main(path = system.file(gad_mod_dir, package = "gadgetSim"))
 #' read_gadget_main("WGTS/main.final")
 read_gadget_main <- function(file = "main", path = NULL) {
-    if (!is.null(path)) {
-        file <- paste(path, file, sep = "/")
-    }
+    file <- check_path(file)
     if (!file.exists(file)) {
         stop("Main file not found")
     }
-    main <- sub(" +$", "", readLines(file))
+    main <- readLines(file)
     if (length(main) == 0) {
         stop(sprintf("Error in read.gadget.main, file %s is empty", file))
     }
-    comments <- grep("^;", main)
+    main <- strip_comments(main)
     keywords <- grep("^\\[", main)
-    main <- main[-c(comments, keywords)]
-    typeoffile <- sapply(strsplit(main, "\t"), function(x) x[1])
-    filenames <- sapply(strsplit(main, "\t"), function(x) x[-1])
+    main <- main[-c(keywords)]
+    typeoffile <- sapply(strsplit(main, "\\s+"), function(x) x[1])
+    filenames <- sapply(strsplit(main, "\\s+"), function(x) x[-1])
     main <- lapply(filenames, function(x) {
         if (any(grepl("^;", x))) {
             return(x[!grepl("^;", x)])
@@ -42,16 +41,17 @@ read_gadget_main <- function(file = "main", path = NULL) {
 #' Get stockfiles used in a Gadget model
 #'
 #' @param stockfiles Character vector of stocknames present in Gadget model
-#' @param main List of class \code{gadget.main}
-#' @param path Optional. Path to Gadget model
+#' @param main Optional. A list of class \code{gadget.main}
+#' @inheritParams read_gadget_main
 #'
 #' @return A list of class \code{gadget.stocks} consisting of \code{gadget.stock}
 #' one or more gadget.stock objects
 #' @export
 #'
 #' @examples
-#' main <- read_gadget_main("main", path = system.file(gad_mod_dir, package = "gadgetSim"))
-#' stocks <- read_gadget_stockfiles(main = main)
+#' path <- system.file(gad_mod_dir, package = "gadgetSim")
+#' main <- read_gadget_main(path = gad_mod_dir)
+#' stocks <- read_gadget_stockfiles(main = main, path = path)
 #' head(stocks[[1]])
 read_gadget_stockfiles <- function(stockfiles, main = NULL, path = NULL) {
     if (!is.null(main)) {
@@ -78,16 +78,16 @@ read_gadget_stockfiles <- function(stockfiles, main = NULL, path = NULL) {
 #' Read Gadget fleet file
 #'
 #' @param fleetfiles Character name of fleet file in Gadget model as specified in main file
-#' @param main Optional. Object of class \code{gadget.main} used to search for fleet file
-#' @param path Character name of path to Gadget model
+#' @inheritParams read_gadget_stockfiles
 #'
 #' @return A list detailing the fleets included in Gadget model,
 #' stocks included, and suitability
 #' @export
 #'
 #' @examples
-#' main <- read_gadget_main(path = system.file(gad_mod_dir, package = "gadgetSim"))
-#' read_gadget_fleet(main = main, path = system.file(gad_mod_dir, package = "gadgetSim"))
+#' path <- system.file(gad_mod_dir, package = "gadgetSim")
+#' main <- read_gadget_main(path = path)
+#' read_gadget_fleet(main = main, path = path)
 read_gadget_fleet <- function(fleetfiles, main = NULL, path = NULL) {
     if (!is.null(main)) {
         if (!("gadget.main" %in% class(main))) {
@@ -134,8 +134,7 @@ read_gadget_fleet <- function(fleetfiles, main = NULL, path = NULL) {
 #' Read Gadget likelihood file
 #'
 #' @param likelihoodfiles Character. The name of the likelihood file
-#' @param main Optional. A mainfile that contains a vector named "likelihoodfiles"
-#' @param path Optional. A path specifying the directory to look for the \code{likelihoodfiles}
+#' @inheritParams read_gadget_stockfiles
 #'
 #' @details There are a number of different likelihood types in a Gadget model. This
 #' function will retrieve the likelihood file, sort and organize each component into its
@@ -197,4 +196,42 @@ read_gadget_likelihood <- function(likelihoodfiles, main = NULL, path = NULL) {
     out <- setNames(out, lik_types)
     class(out) <- c("gadget.likelihood", class(out))
     return(out)
+}
+
+
+#' Read the output from a StockStdPrinter printfile component
+#'
+#' This function reads specifically the output from a StockStdPrinter printfile component from Gadget
+#' and formats the output into a useable \code{data.frame} in R
+#'
+#' @param output_dir Character. Path to the directory where output is housed
+#' @inheritParams read_gadget_stockfiles
+#'
+#' @return \code{data.frame} of the output from a StockStdPrinter printfile component
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' path <- system.file(gad_mod_dir, package = "gadgetSim")
+#' make_gadget_printfile(stock_std = list(stockname = "cod", printfile = "printfile"),
+#'                       main = "WGTS/main.final", file = "WGTS/printfile", path = path,
+#'                       aggfile_dir = "WGTS/aggfiles")
+#' call_gadget(switches = list(s = TRUE, i = "WGTS/params.final", main = "WGTS/main.final"),
+#'             path = path)
+#' read_gadget_stock_std("out", path = paste("WGTS", path, sep = "/"))
+#' }
+read_gadget_stock_std <- function(output_dir, path = NULL) {
+    output <- check_path(output_dir)
+    files_in_dir <- dir(output_dir)
+    files2read <- grep("stock.std", files_in_dir, value = TRUE)
+    stock_std_names <- c("year", "step", "area", "age", "number",
+                         "length", "weight", "length.sd",
+                         "consumed", "biomass")
+    stock_std <-
+        lapply(files2read, function(x) {
+            tmp <- read.table(paste(c("output_dir", x), collapse = "/"),
+                              sep = "\t", comment.char = ";")
+            tmp <- setNames(tmp, stock_std_names)
+        })
+    return(stock_std)
 }

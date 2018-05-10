@@ -4,7 +4,7 @@
 \alias{getStockInfo}
 \alias{get_stock_ages}
 \alias{get_stock_areas}
-\alias{get_stockname}
+\alias{get_stocknames}
 \alias{get_stock_lengths}
 \title{Functions to retrieve basic information about Gadget stocks}
 \usage{
@@ -12,7 +12,7 @@ get_stock_ages(stocks)
 
 get_stock_areas(stocks)
 
-get_stockname(stocks)
+get_stocknames(stocks)
 
 get_stock_lengths(stocks)
 }
