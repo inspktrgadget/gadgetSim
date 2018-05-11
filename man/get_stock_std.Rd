@@ -5,7 +5,7 @@
 \title{Make and retrieve output from the StockStdPrinter printfile component of a Gadget model}
 \usage{
 get_stock_std(main = "main", params_file = "params.in", path = NULL,
-  fit_dir = NULL, gadget_exe = "gadget", ...)
+  fit_dir = "FIT", gadget_exe = "gadget", ...)
 }
 \arguments{
 \item{main}{Optional. A list of class \code{gadget.main}}

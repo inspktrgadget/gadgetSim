@@ -1,8 +1,8 @@
 # functions that are needed for this package
 # x - write out stock.std - could just use Rgadget
 # x - read in stock.std
-# compute length groups
-# simulate indices
+# x - compute length groups
+# x - simulate indices
 #   -pre-baked selectivity functions
 # functions to write out data files
 #   -ages, lengths, indices
@@ -14,6 +14,15 @@
 #   2. spits out gadget model
 #   3. performs above procedure
 # but for now let's just start with the above
+
+##-------------------------------------------------------
+# to do
+# add the common selectivity functions to selectivity_functions.R
+# set up tests for all current functions
+# begin running simulations
+
+
+
 
 #' Call Gadget executable on the command line
 #'
@@ -136,4 +145,87 @@ get_stock_std <- function(main = "main", params_file = "params.in", path = NULL,
             read_gadget_stock_std(output_dir = output_dir, path = path)
         return(stock_std)
     }
+}
+
+
+
+#' Create length distributions and sample Gadget output
+#'
+#' These functions create length distributions from Gadget StockStdPrinter output and sample
+#' that output to simulate surveys. Error can be added to simulated surveys
+#'
+#'
+#' @param stock_data A \code{data.frame} of stock data retrieved via \code{\link{read_gadget_stock_std}}
+#' @param length_groups Numeric vector of length groups to distribute by. Probably should be the
+#' same as dl in Gadget model
+#' @param keep_zero_counts Logical. Keep year/step/area/age combinations with no individuals
+#'
+#' @details Length-structured population information from Gadget is output as mean length and standard
+#' deviation for each year, step, area, and age combination. \code{add_lengthgroups} takes
+#' output from \code{\link{get_stock_std}} and distributes the number for each respective
+#' combination into numbers at each length specified by \code{length_groups}.
+#' The return value for \code{add_lengthgroups} is a wide \code{data.frame} that can then be
+#' fed into \code{survey_select}, which simulates surveys given the selectivity provided in
+#' \code{survey_suitability} and error given by \code{survey_sigma}
+#'
+#'
+#' @return \code{add_lengthgroup} returns a wide \code{data.frame} similar to that of
+#' \code{stock_data}, but with values distributed across each length group which are represented
+#' as each column. The output of \code{add_lengthgroup} is meant to go directly to
+#' \code{survey_gadget} which returns a \code{data.frame} similar to \code{stock_data}, but
+#' disaggregated by length.
+#'
+#' @export
+#'
+#' @name gadget_simulate
+#'
+#' @examples
+#' path <- system.file(gad_mod_dir, package = "gadgetSim")
+#' cod_stock_std <- get_stock_std(main = "WGTS/main.final", params_file = "WGTS/params.final",
+#'                                path = path, fit_dir = "WGTS")
+#' lengrps <- seq(0.5, 50.5, by = 1)
+#' cod_lendist <- add_lengthgroups(cod_stock_std$cod0, lengrps)
+add_lengthgroups <- function(stock_data, length_groups, keep_zero_counts = FALSE) {
+    if (length(length_groups) < 2) {
+        stop("Length group should have at least 2 members")
+    }
+    if (!keep_zero_counts) {
+        stock_data <- stock_data[stock_data$number > 0, ]
+    }
+    lengrp_lower <- length_groups[-length(length_groups)]
+    lengrp_upper <- length_groups[-1]
+    len_dist <- function(len) {
+        pnorm(rep(len, each = nrow(stock_data)), stock_data$length, stock_data$length.sd)
+    }
+    stock_number <- rep(stock_data$number, times = length(lengrp_upper))
+    stock_len_numbers <- stock_number * (len_dist(lengrp_upper) - len_dist(lengrp_lower))
+    lengrp_names <- list(c(), paste("length", lengrp_lower, lengrp_upper, sep = "_"))
+    lengrp_matrix <-
+        as.data.frame(matrix(stock_len_numbers,
+                             dimnames = lengrp_names,
+                             ncol = length(lengrp_lower)))
+    return(cbind(stock_data, lengrp_matrix))
+}
+
+
+#' @rdname gadget_simulate
+#' @param survey_suitability Numeric vector the same length as \code{length_groups} representing the
+#' selection probability for each length in \code{length_groups}
+#' @param survey_sigma Numeric value of multiplicative error to place on samples
+survey_gadget <- function(stock_data, length_groups, survey_suitability, survey_sigma) {
+    lengrp_lower <- length_groups[-length(length_groups)]
+    lengrp_upper <- length_groups[-1]
+    base_names <- grep("^length|^weight|^number",
+                       names(stock_data), value = TRUE, invert = TRUE)
+    base_data <- stock_data[, base_names, drop = FALSE]
+    do.call("rbind", lapply(seq_len(length(lengrp_lower)), function(i) {
+        length_col <-
+            paste("length", lengrp_lower[[i]], lengrp_upper[[i]], sep = "_")
+        out <- base_data
+        out$length <- mean(c(lengrp_upper[[i]], lengrp_lower[[i]]))
+        out$weight <- stock_data$weight
+        mult_error <- exp(rnorm(nrow(base_data), 0, survey_sigma) - survey_sigma/2)
+        out$number <- round(stock_data[, length_col] * mult_error * survey_suitability[[i]])
+        return(out)
+    }))
 }
