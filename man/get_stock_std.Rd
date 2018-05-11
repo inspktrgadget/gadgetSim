@@ -14,8 +14,6 @@ get_stock_std(main = "main", params_file = "params.in", path = NULL,
 
 \item{path}{Optional. Character vector of path to the directory where Gadget files are located}
 
-\item{fit_dir}{Directory where final optimized values are supplied. (e.g. "WGTS")}
-
 \item{gadget_exe}{The Gadget executable to use}
 
 \item{...}{Additional arguments to include}

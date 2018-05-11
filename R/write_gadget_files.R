@@ -14,7 +14,7 @@
 #' @examples
 #' write_gadget_main(gadget_main_default)
 #' write_gadget_main()
-write_gadget_main <- function(obj = NULL, file = "main") {
+write_gadget_main <- function(obj = NULL, file = "main", path = NULL) {
     if (is.null(obj)) {
         obj <- gadget_main_default
         warning(paste("No Gadget main file found. Writing the default to file",
@@ -58,5 +58,5 @@ write_gadget_main <- function(obj = NULL, file = "main") {
             }
         }, n = names(main_template))
     main <- unlist(main)
-    write(main, file = file, sep = "\n")
+    write(main, file = check_path(file), sep = "\n")
 }

@@ -4,7 +4,7 @@
 \alias{write_gadget_main}
 \title{Write Gadget mainfile to a text file}
 \usage{
-write_gadget_main(obj = NULL, file = "main")
+write_gadget_main(obj = NULL, file = "main", path = NULL)
 }
 \arguments{
 \item{obj}{A list also containing class \code{gadget.main}}

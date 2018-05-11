@@ -23,7 +23,6 @@
 #' Names correspond to the switch; values correspond to additional arguments.
 #' If no argument is needed the value should be logical \code{TRUE}.
 #' @param path Optional. Character vector of path to the directory where Gadget files are located
-#' @param fit_dir Directory where final optimized values are supplied. (e.g. "WGTS")
 #' @param gadget_exe The Gadget executable to use
 #' @param print_out Logical. Should Gadget command line output be printed.
 #' @param print_err Logical. Should Gadget command line errors be printed.
@@ -35,11 +34,10 @@
 #' @examples
 #' path <- system.file(gad_mod_dir, package = "gadgetSim")
 #' call_gadget(switches = list(s = TRUE, i = "params.in", log = "logfile"), path = path)
-#' call_gadget(switches = list(s = TRUE, i = "params.final", main = "main.final"), path = path,
-#'             fit_dir = "WGTS")
+#' call_gadget(switches = list(s = TRUE, i = "WGTS/params.final", main = "WGTS/main.final"),
+#'             path = path)
 call_gadget <- function(switches = list(s = TRUE, i = "params.in"), path = NULL,
-                        fit_dir = NULL, gadget_exe = "gadget",
-                        print_out = TRUE, print_err = TRUE) {
+                        gadget_exe = "gadget", print_out = TRUE, print_err = TRUE) {
     switch_names <- paste0("-", names(switches))
     long_form_switch <- grep("version|help", switch_names)
     if (length(long_form_switch > 0)) {
@@ -86,41 +84,45 @@ get_stock_std <- function(main = "main", params_file = "params.in", path = NULL,
         }
     } else {
         main <- read_gadget_main(main, path = path)
-        if (!dir.exists(fit_dir)) {
-            dir.create(fit_dir)
+        if (!dir.exists(check_path(fit_dir))) {
+            dir.create(check_path(fit_dir))
         }
         stocks <- get_stocknames(read_gadget_stockfiles(main = main, path = path))
         dots <- lapply(stocks, function(x) {
-            return(stocknames = x)
+            return(list(stockname = x))
         })
         names(dots) <- rep("stock_std", length(dots))
-        file <- "printfile.fit"
+        output_dir <- "out.fit"
+        printfile <- "printfile.fit"
         aggfile_dir <- "print.aggfiles"
         if (!is.null(fit_dir)) {
-            file <- paste(fit_dir, file, sep = "/")
-            output <- paste(fit_dir, output, sep = "/")
+            printfile <- paste(fit_dir, file, sep = "/")
+            output_dir <- paste(fit_dir, output_dir, sep = "/")
             aggfile_dir <- paste(fit_dir, aggfile_dir, sep = "/")
             main_print <-
-                modifyList(main, list(printfile = file))
+                modifyList(main, list(printfiles = printfile))
             write_gadget_main(main_print,
-                              file = paste(fit_dir, "main.print", sep = "/"))
+                              file = paste(fit_dir, "main.print", sep = "/"),
+                              path = path)
             switches <-
                 list(s = TRUE, i = params.file,
                      main = paste(fit_dir, "main.print", sep = "/"))
         } else {
             main_print <-
-                modifyList(main, list(printfile = file))
+                modifyList(main, list(printfile = printfile))
             write_gadget_main(main_print,
-                              file = "main.print")
+                              file = "main.print",
+                              path = path)
             switches <-
                 list(s = TRUE, i = params.file,
                      main = "main.print")
         }
-        make_gadget_printfile(dots, file = file, path = path,
-                              output = output, aggfile_dir = aggfile_dir)
-        call_gadget(switches = switches, path = path, fit_dir = fit_dir,
-                    gadget_exe = gadget_exe, stdout = FALSE, stderr = FALSE)
+        make_gadget_printfile(dots, printfile = printfile, path = path,
+                              output_dir = output_dir, aggfile_dir = aggfile_dir)
+        call_gadget(switches = switches, path = path, gadget_exe = gadget_exe,
+                    stdout = FALSE, stderr = FALSE)
         stock_std <-
             read_gadget_stock_std(output_dir = output, path = path)
+        return(stock_std)
     }
 }

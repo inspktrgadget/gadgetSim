@@ -4,22 +4,22 @@
 \alias{make_gadget_printfile}
 \title{Make Gadget printfile and write out to file}
 \usage{
-make_gadget_printfile(..., main = "main", file, path = NULL,
-  output = "out", aggfile_dir = "print.aggfiles", printatstart = 1,
-  steps = "all")
+make_gadget_printfile(..., main = "main", printfile, path = NULL,
+  fit_dir = NULL, output_dir = "out", aggfile_dir = "print.aggfiles",
+  printatstart = 1, steps = "all")
 }
 \arguments{
 \item{...}{Any number of lists containing details of Gadget printfile components. Arguments to
 \code{...} must be the same name as one of the default printfile lists,
 see \code{\link{printfileDefaults}}}
 
-\item{main}{List of class \code{gadget.main} or character vector of the main file to be read}
+\item{main}{List of class \code{gadget.main} or character vector of the main printfile to be read}
 
-\item{file}{Character. A path to where the printfile will be written}
+\item{printfile}{Character. A path to where the printfile will be written}
 
 \item{path}{Optional. Path to Gadget model}
 
-\item{output}{Character. Path to the directory where printfiles will be written}
+\item{output_dir}{Character. Path to the directory where printfiles will be written}
 
 \item{aggfile_dir}{Character. Path to the directory where aggfiles will be written}
 
@@ -31,11 +31,11 @@ Can be numeric or \code{"all"}}
 }
 \value{
 NULL. Writes the printfiles provided in \code{...} to the directory
-provided by \code{output}
+provided by \code{output_dir}
 }
 \description{
 Make Gadget printfile and write out to file
 }
 \examples{
-make_gadget_printfile(stock_std = list(stockname = "cod"), file = "printfile", path = gad_mod_dir)
+make_gadget_printfile(stock_std = list(stockname = "cod"), printfile = "printfile", path = gad_mod_dir)
 }

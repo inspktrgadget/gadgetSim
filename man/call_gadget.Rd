@@ -5,8 +5,7 @@
 \title{Call Gadget executable on the command line}
 \usage{
 call_gadget(switches = list(s = TRUE, i = "params.in"), path = NULL,
-  fit_dir = NULL, gadget_exe = "gadget", print_out = TRUE,
-  print_err = TRUE)
+  gadget_exe = "gadget", print_out = TRUE, print_err = TRUE)
 }
 \arguments{
 \item{switches}{List of named switches to supply to Gadget executable.
@@ -14,8 +13,6 @@ Names correspond to the switch; values correspond to additional arguments.
 If no argument is needed the value should be logical \code{TRUE}.}
 
 \item{path}{Optional. Character vector of path to the directory where Gadget files are located}
-
-\item{fit_dir}{Directory where final optimized values are supplied. (e.g. "WGTS")}
 
 \item{gadget_exe}{The Gadget executable to use}
 
@@ -33,6 +30,6 @@ This function will call the gadget command with the given switches as arguments
 \examples{
 path <- system.file(gad_mod_dir, package = "gadgetSim")
 call_gadget(switches = list(s = TRUE, i = "params.in", log = "logfile"), path = path)
-call_gadget(switches = list(s = TRUE, i = "params.final", main = "main.final"), path = path,
-            fit_dir = "WGTS")
+call_gadget(switches = list(s = TRUE, i = "WGTS/params.final", main = "WGTS/main.final"),
+            path = path)
 }

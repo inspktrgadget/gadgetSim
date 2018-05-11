@@ -508,11 +508,11 @@ write_aggfiles <- function(printfile_comp, aggfile_dir, path) {
     if (any(isNULL_aggfiles(printfile_comp))) {
         missing_agg <- names(printfile_comp)[isNULL_aggfiles(printfile_comp)]
         stop(sprintf("Required argument %s is missing", missing_agg))
+    } else if (!any(grepl("aggfile", names(printfile_comp)))) {
+        return(printfile_comp)
     } else {
         if (!dir.exists(check_path(aggfile_dir))) {
             dir.create(check_path(aggfile_dir))
-        } else if (dir.exists(check_path(aggfile_dir))) {
-            unlink(paste(c(check_path(aggfile_dir), "*"), collapse = "/"))
         }
         agg_types <- grep("aggfile", names(printfile_comp), value = TRUE)
         null_list <-
