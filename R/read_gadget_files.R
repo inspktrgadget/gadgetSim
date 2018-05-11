@@ -221,7 +221,7 @@ read_gadget_likelihood <- function(likelihoodfiles, main = NULL, path = NULL) {
 #' read_gadget_stock_std("out", path = paste("WGTS", path, sep = "/"))
 #' }
 read_gadget_stock_std <- function(output_dir, path = NULL) {
-    output <- check_path(output_dir)
+    output_dir <- check_path(output_dir)
     files_in_dir <- dir(output_dir)
     files2read <- grep("stock.std", files_in_dir, value = TRUE)
     stock_std_names <- c("year", "step", "area", "age", "number",
@@ -229,9 +229,9 @@ read_gadget_stock_std <- function(output_dir, path = NULL) {
                          "consumed", "biomass")
     stock_std <-
         lapply(files2read, function(x) {
-            tmp <- read.table(paste(c("output_dir", x), collapse = "/"),
-                              sep = "\t", comment.char = ";")
+            tmp <- read.table(paste(c(output_dir, x), collapse = "/"),
+                              sep = "", comment.char = ";", stringsAsFactors = FALSE)
             tmp <- setNames(tmp, stock_std_names)
         })
-    return(stock_std)
+    return(setNames(stock_std, gsub(".stock.std", "", files2read)))
 }

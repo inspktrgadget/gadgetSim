@@ -1,6 +1,6 @@
 # functions that are needed for this package
 # x - write out stock.std - could just use Rgadget
-# read in stock.std
+# x - read in stock.std
 # compute length groups
 # simulate indices
 #   -pre-baked selectivity functions
@@ -73,16 +73,27 @@ call_gadget <- function(switches = list(s = TRUE, i = "params.in"), path = NULL,
 #' stocks_data <- get_stock_std(path = path)
 #' }
 get_stock_std <- function(main = "main", params_file = "params.in", path = NULL,
-                          fit_dir = NULL, gadget_exe = "gadget", ...) {
-    fit_dir <- check_path(fit_dir)
+                          fit_dir = "FIT", gadget_exe = "gadget", ...) {
     if (requireNamespace("Rgadget", quietly = TRUE)) {
-        if (dir.exists(fit_dir)) {
+        if (dir.exists(check_path(fit_dir))) {
             if ("WGTS.Rdata" %in% dir(check_path(fit_dir))) {
-                load(paste(fit_dir, "WGTS.Rdata", sep = "/"))
-                return(out$stock.std)
+                load(paste(check_path(fit_dir), "WGTS.Rdata", sep = "/"))
+                if (exists(out)) {
+                    got_stock_std <- TRUE
+                    return(out$stock.std)
+                } else {
+                    got_stock_std <- FALSE
+                }
+            } else {
+                got_stock_std <- FALSE
             }
+        } else {
+            got_stock_std <- FALSE
         }
     } else {
+        got_stock_std <- FALSE
+    }
+    if (!got_stock_std) {
         main <- read_gadget_main(main, path = path)
         if (!dir.exists(check_path(fit_dir))) {
             dir.create(check_path(fit_dir))
@@ -95,8 +106,8 @@ get_stock_std <- function(main = "main", params_file = "params.in", path = NULL,
         output_dir <- "out.fit"
         printfile <- "printfile.fit"
         aggfile_dir <- "print.aggfiles"
-        if (!is.null(fit_dir)) {
-            printfile <- paste(fit_dir, file, sep = "/")
+        if (!is.null(check_path(fit_dir))) {
+            printfile <- paste(fit_dir, printfile, sep = "/")
             output_dir <- paste(fit_dir, output_dir, sep = "/")
             aggfile_dir <- paste(fit_dir, aggfile_dir, sep = "/")
             main_print <-
@@ -105,7 +116,7 @@ get_stock_std <- function(main = "main", params_file = "params.in", path = NULL,
                               file = paste(fit_dir, "main.print", sep = "/"),
                               path = path)
             switches <-
-                list(s = TRUE, i = params.file,
+                list(s = TRUE, i = params_file,
                      main = paste(fit_dir, "main.print", sep = "/"))
         } else {
             main_print <-
@@ -114,15 +125,15 @@ get_stock_std <- function(main = "main", params_file = "params.in", path = NULL,
                               file = "main.print",
                               path = path)
             switches <-
-                list(s = TRUE, i = params.file,
+                list(s = TRUE, i = params_file,
                      main = "main.print")
         }
         make_gadget_printfile(dots, printfile = printfile, path = path,
                               output_dir = output_dir, aggfile_dir = aggfile_dir)
         call_gadget(switches = switches, path = path, gadget_exe = gadget_exe,
-                    stdout = FALSE, stderr = FALSE)
+                    print_out = FALSE, print_err = FALSE)
         stock_std <-
-            read_gadget_stock_std(output_dir = output, path = path)
+            read_gadget_stock_std(output_dir = output_dir, path = path)
         return(stock_std)
     }
 }
