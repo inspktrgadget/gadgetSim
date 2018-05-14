@@ -2,10 +2,10 @@
 
 export(add_lengthgroups)
 export(call_gadget)
+export(constant_selectivity)
 export(gad_mod_dir)
 export(gadget_main_default)
 export(get_stock_std)
-export(logistic_selectivity)
 export(make_gadget_mainfile)
 export(make_gadget_printfile)
 export(read_gadget_fleet)

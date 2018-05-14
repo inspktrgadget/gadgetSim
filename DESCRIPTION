@@ -11,5 +11,6 @@ LazyData: true
 Author: Paul Frater
 Maintainer: Paul Frater <pnfrater@gmail.com>
 Suggests: Rgadget,
-    tidyverse
+    tidyverse,
+    testthat
 RoxygenNote: 6.0.1

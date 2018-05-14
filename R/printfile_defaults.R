@@ -138,7 +138,7 @@ likelihood <-
     ), class = c("likelihood", "list"))
 
 #' @rdname printfileDefaults
-likelihood_summary <-
+likelihoodsummary <-
     structure(list(
         type = "likelihoodsummaryprinter",
         printfile = NULL
@@ -183,4 +183,4 @@ predator_prey_args <- rm_optional_args(predator_prey, "precision")
 likelihood_args <- names(likelihood)
 
 #' @rdname printfileArgs
-likelihood_summary_args <- names(likelihood_summary)
+likelihood_summary_args <- names(likelihoodsummary)

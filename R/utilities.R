@@ -88,7 +88,9 @@ get_index <- function(x, vec) {
 #' @examples
 #' check_path("main")
 check_path <- function(x, env = parent.frame()) {
-    if (exists("path", envir = env)) {
+    if (is.null(x)) {
+        return(x)
+    } else if (exists("path", envir = env)) {
         if (!is.null(env$path)) {
             x <- paste(env$path, x, sep = "/")
         }
@@ -113,7 +115,7 @@ check_path <- function(x, env = parent.frame()) {
 #'
 #' @examples
 #' path <- system.file(gad_mod_dir, package = "gadgetSim")
-#' raw_lie <- readLines(paste(path, "likelihood", sep = "/"))
+#' raw_lik <- readLines(paste(path, "likelihood", sep = "/"))
 #' gf2list(raw_lik)
 #' gf2list(raw_lik, list_names = TRUE)
 gf2list <- function(x, split = "^\\[component\\]$", list_names = FALSE) {
@@ -289,8 +291,13 @@ dots2list <- function(...) {
 #'
 #' @examples
 #' is_list_element_null(list(a = 1, b = 2, c = NULL, d = NULL))
-is_list_element_null <- function(lst) {
-    unlist(lapply(lst, is.null))
+is_list_element_null <- function(lst, keep_names = FALSE) {
+    tmp <- unlist(lapply(lst, is.null))
+	if (keep_names) {
+		return(tmp)
+	} else {
+		return(as.vector(tmp))
+	}
 }
 
 #' Some default labels

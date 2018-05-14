@@ -2,30 +2,65 @@
 % Please edit documentation in R/selectivity_functions.R
 \name{selectivity}
 \alias{selectivity}
+\alias{constant_selectivity}
+\alias{straightline_selectivity}
 \alias{logistic_selectivity}
+\alias{exponential_l50_selectivity}
+\alias{andersen_fleet_selectivity}
+\alias{gamma_selectivity}
 \title{Selectivity functions}
 \usage{
-logistic_selectivity(length, alpha, l50, max_prop)
+constant_selectivity(lengths, alpha)
+
+straightline_selectivity(lengths, alpha, beta)
+
+logistic_selectivity(lengths, alpha, l50, max_prop)
+
+exponential_l50_selectivity(lengths, alpha, l50, max_prop)
+
+andersen_fleet_selectivity(lengths, p0, p1, p2, p3)
+
+gamma_selectivity(lengths, alpha, beta, gamma)
 }
 \arguments{
-\item{length}{Numeric. Length to evaluate selectivity on}
+\item{alpha}{Numeric. Steepness parameter for \code{logistic} and \code{exponential_l50 functions},
+constant proportion for \code{constant} function and slope for \code{straightline} selectivity.
+Left to right scaling parameter for the \code{gamma} function}
 
-\item{alpha}{Numeric. Steepness parameter}
+\item{beta}{Numeric. Intercept for the \code{straightline} function. Controls amoung of doming
+on the \code{gamma} selectivity}
 
 \item{l50}{Numeric. Half-saturation parameter}
 
-\item{max_prop}{Numeric.}
+\item{max_prop}{Numeric in \eqn{[0,1]}. This function controls the maximum level of selectivity
+in the \code{logistic} and \code{exponential_l50} selectivity.}
+
+\item{gamma}{Numeric. Controls doming along with \code{beta} in \code{gamma} selectivity}
+
+\item{length}{Numeric. Length to evaluate selectivity on}
+
+\item{p0-p3}{Numeric. These arguments controls the shape of the Andersen selectivity function.}
 }
 \value{
 Numeric vector the length of \code{length} ranging from 0 to \code{max_prop}
 }
 \description{
-Compute various selection probabilities on lengths. \code{logistic_selectivity} produces an asymptotic selection probability based on the
-logistic function: \deqn{S(l) = proportion / (1 + exp(-\alpha(l - l50)))}
+Compute various selection probabilities on lengths. \code{logistic_selectivity} produces an
+asymptotic selection probability based on the logistic function.
+\code{exponential_l50_selectivity} is the same as \code{logistic_selectivity}.
+\code{andersen_selectivity} and \code{gamma_selectivity} both produce dome-shaped selectivity
+curves. Straightline is a simple line and constant is a simple line with no slope.
 }
 \examples{
 lengths <- 1:100
-logistic_selectivity(lengths, 0.2, 50, 0.1)
-
-curve(logistic_selectivity(x, 0.2, 50, 0.1))
+curve(logistic_selectivity(x, 0.2, 50, 0.5), 0, 100,
+      ylim = c(0, 1), ylab = "Selectivity", xlab = "Length")
+curve(exponential_l50_selectivity(x, 0.2, 50, 0.5), add = TRUE, col = "red", lty = 2)
+curve(gamma_selectivity(x, 5, 0.7, 20), add = TRUE, col = 2)
+curve(andersen_fleet_selectivity(x, 0.1, 0.1, 0.5, 50), add = TRUE, col = 3)
+curve(constant_selectivity(x, 0.1), add = TRUE, col = 4)
+curve(straightline_selectivity(x, 0.001, 0.1), add = TRUE, col = 5)
+legend("topleft", legend = c("logistic", "exponential_l50", "gamma",
+                              "andersen_fleet", "constant", "straightline"),
+       col = c(1, "red", 2, 3, 4, 5), lty = c(1,2,1,1,1,1))
 }
