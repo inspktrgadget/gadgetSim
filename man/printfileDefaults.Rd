@@ -13,7 +13,7 @@
 \alias{stock_prey}
 \alias{predator_prey}
 \alias{likelihood}
-\alias{likelihood_summary}
+\alias{likelihoodsummary}
 \title{Gadget print file defaults}
 \format{An object of class \code{stock_std} (inherits from \code{list}) of length 7.}
 \usage{
@@ -37,7 +37,7 @@ predator_prey
 
 likelihood
 
-likelihood_summary
+likelihoodsummary
 }
 \description{
 Pre-baked defaults of printfile types for use in functions

@@ -2,12 +2,15 @@
 % Please edit documentation in R/get_stock_info.R
 \name{getStockInfo}
 \alias{getStockInfo}
+\alias{get_stock_anything}
 \alias{get_stock_ages}
 \alias{get_stock_areas}
 \alias{get_stocknames}
 \alias{get_stock_lengths}
 \title{Functions to retrieve basic information about Gadget stocks}
 \usage{
+get_stock_anything(stocks, what2get)
+
 get_stock_ages(stocks)
 
 get_stock_areas(stocks)
@@ -19,9 +22,11 @@ get_stock_lengths(stocks)
 \arguments{
 \item{stocks}{A list of class \code{gadget.stocks} containing one (or typically more)
 lists of class \code{gadget.stock}}
+
+\item{what2get}{Character vector of which component of a stockfile to get.}
 }
 \value{
-A vector of values found in the Gadget stock file
+A vector of values found in the Gadget stock file possibly coerced to numeric if appropriate
 }
 \description{
 Functions to retrieve basic information about Gadget stocks
@@ -29,5 +34,9 @@ Functions to retrieve basic information about Gadget stocks
 \examples{
 cod <- read_gadget_stockfiles("cod", path = gad_mod_dir)
 get_stock_ages(cod)
-
+get_stock_areas(cod)
+get_stocknames(cod)
+get_stock_lengths(cod)
+get_stock_anything(cod, "normalparamfile")
+get_stock_anything(cod, "dl")
 }

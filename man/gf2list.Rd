@@ -25,7 +25,7 @@ the direct output from, say, a \code{readLines(x)} call into a list that can be 
 }
 \examples{
 path <- system.file(gad_mod_dir, package = "gadgetSim")
-raw_lie <- readLines(paste(path, "likelihood", sep = "/"))
+raw_lik <- readLines(paste(path, "likelihood", sep = "/"))
 gf2list(raw_lik)
 gf2list(raw_lik, list_names = TRUE)
 }

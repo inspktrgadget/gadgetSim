@@ -220,10 +220,13 @@ read_gadget_likelihood <- function(likelihoodfiles, main = NULL, path = NULL) {
 #'             path = path)
 #' read_gadget_stock_std("out", path = paste("WGTS", path, sep = "/"))
 #' }
-read_gadget_stock_std <- function(output_dir, path = NULL) {
+read_gadget_stock_std <- function(output_dir, files = NULL, path = NULL) {
     output_dir <- check_path(output_dir)
-    files_in_dir <- dir(output_dir)
-    files2read <- grep("stock.std", files_in_dir, value = TRUE)
+    if (!is.null(file)) {
+        files2read <- files
+    } else {
+        files2read <- grep("stock.std", dir(output_dir), value = TRUE)
+    }
     stock_std_names <- c("year", "step", "area", "age", "number",
                          "length", "weight", "length.sd",
                          "consumed", "biomass")

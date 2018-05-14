@@ -392,8 +392,8 @@ check_agg_type <- function(printfile_comp, agg_type, stocks, aggfile_dir) {
 
 #' @rdname makeAggfileHelpers
 isNULL_aggfiles <- function(printfile_comp) {
-    vapply(subset(printfile_comp, grepl("aggfile", names(printfile_comp))),
-           is.null, logical(1))
+    as.vector(vapply(subset(printfile_comp, grepl("aggfile", names(printfile_comp))),
+					 is.null, logical(1)))
 }
 
 #' Check the names of a printfile component to ensure all mandatory arguments are present
@@ -445,18 +445,34 @@ printfile_name_check <- function(printfile_comp) {
 #' cod <- list(stockname = "cod", printfile = "cod.stock.std")
 #' cod_std <- update_printfile(stock_std, cod)
 #' cod_std <- update_printfile_dirs(stock_std, print_dir = "printfile")
-update_printfile_dirs <- function(printfile_comp, print_dir = NULL, aggfile_dir = NULL) {
-    pf <- "printfile"
+update_printfile_dirs <- function(printfile_comp, printfile = NULL,
+                                  print_dir = NULL, aggfile_dir = NULL) {
+    pf <- printfile_comp$printfile
+    pd_b4_pf <- is.null(printfile) & !(is.null(print_dir))
+    printfile <- paste(c(print_dir, printfile), collapse = "/")
     if (any(names(printfile_comp) == "printfile")) {
-        if (!is.null(print_dir)) {
-            printfile_comp$printfile <- paste(print_dir, printfile_comp$printfile, sep = "/")
+        if (is.null(pf)) {
+            if (pd_b4_pf) {
+                stop("You need to have a printfile before you can have a directory to put it in")
+            }
+            printfile_comp$printfile <- printfile
+        } else if (pf == "") {
+            if (pd_b4_pf) {
+                stop("You need to have a printfile before you can have a directory to put it in")
+            }
+            printfile_comp$printfile <- printfile
         }
-    }
+    } else {
+        if (pd_b4_pf) {
+            stop("You need to have a printfile before you can have a directory to put it in")
+        }
+        printfile_comp$printfile <- printfile
+	}
     agg_index <- grep("aggfile", names(printfile_comp))
     if (length(agg_index) > 0) {
         if (!is.null(aggfile_dir)) {
-            printfile_comp[[agg_index]] <-
-                paste(aggfile_dir, printfile_comp[[agg_index]], sep = "/")
+            printfile_comp[agg_index] <-
+                paste(aggfile_dir, printfile_comp[agg_index], sep = "/")
         }
     }
     return(printfile_comp)
@@ -537,4 +553,4 @@ write_aggfiles <- function(printfile_comp, aggfile_dir, path) {
 pf_types <- c("stock_std", "stock_full", "stock",
               "predator", "predator_over", "prey_over",
               "stock_prey_full", "stock_prey", "predator_prey",
-              "likelihood", "likelihood_summary")
+              "likelihood", "likelihoodsummary")

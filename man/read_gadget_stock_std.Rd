@@ -4,7 +4,7 @@
 \alias{read_gadget_stock_std}
 \title{Read the output from a StockStdPrinter printfile component}
 \usage{
-read_gadget_stock_std(output_dir, path = NULL)
+read_gadget_stock_std(output_dir, files = NULL, path = NULL)
 }
 \arguments{
 \item{output_dir}{Character. Path to the directory where output is housed}

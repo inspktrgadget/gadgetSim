@@ -2,17 +2,37 @@
 
 #' Functions to retrieve basic information about Gadget stocks
 #'
-#' @param stocks A list of class \code{gadget.stocks} containing one (or typically more)
+#' @param stocks A list of class \code{gadget.stock} or a list of class \code{gadget.stocks} containing one (or typically more)
 #' lists of class \code{gadget.stock}
+#' @param what2get Character vector of which component of a stockfile to get.
 #'
-#' @return A vector of values found in the Gadget stock file
+#' @return A vector of values found in the Gadget stock file possibly coerced to numeric if appropriate
 #'
 #' @name getStockInfo
 #'
 #' @examples
 #' cod <- read_gadget_stockfiles("cod", path = gad_mod_dir)
 #' get_stock_ages(cod)
-#'
+#' get_stock_areas(cod)
+#' get_stocknames(cod)
+#' get_stock_lengths(cod)
+#' get_stock_anything(cod, "normalparamfile")
+#' get_stock_anything(cod, "dl")
+get_stock_anything <- function(stocks, what2get) {
+	if (class(stocks) == "gadget.stock") {
+		tmp <- tryCatch(as.numeric(stocks[[what2get]]),
+					warning = function(w) return(stocks[[what2get]]),
+					error = function(e) return(stocks[[what2get]])
+				)
+		return(tmp)
+	} else if (class(stocks) == "gadget.stocks") {
+	    return(unique(unlist(lapply(stocks, get_stock_anything, what2get = what2get))))
+	} else {
+	    stop("You must supply a list of class gadget.stock or gadget.stocks and something to fetch")
+	}
+}
+
+#' @rdname getStockInfo
 get_stock_ages <- function(stocks) {
     if (class(stocks) == "gadget.stock") {
         return(as.numeric(stocks$minage):(as.numeric(stocks$maxage)))
@@ -26,7 +46,7 @@ get_stock_ages <- function(stocks) {
 #' @rdname getStockInfo
 get_stock_areas <- function(stocks) {
     if (class(stocks) == "gadget.stock") {
-        return(stocks$livesonareas)
+        return(as.numeric(stocks$livesonareas))
     } else if (class(stocks) == "gadget.stocks") {
         return(unique(unlist(lapply(stocks, get_stock_areas))))
     } else {

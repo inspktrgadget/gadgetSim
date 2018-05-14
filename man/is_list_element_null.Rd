@@ -4,7 +4,7 @@
 \alias{is_list_element_null}
 \title{Check to see if elements of a list are null}
 \usage{
-is_list_element_null(lst)
+is_list_element_null(lst, keep_names = FALSE)
 }
 \arguments{
 \item{lst}{Any list}
