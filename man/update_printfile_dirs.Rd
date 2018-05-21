@@ -4,7 +4,8 @@
 \alias{update_printfile_dirs}
 \title{Update path for printfile and aggfiles to include directories to write to}
 \usage{
-update_printfile_dirs(printfile_comp, print_dir = NULL, aggfile_dir = NULL)
+update_printfile_dirs(printfile_comp, printfile = NULL, print_dir = NULL,
+  aggfile_dir = NULL)
 }
 \arguments{
 \item{printfile_comp}{A list of class pertaining to a Gadget printfile component,

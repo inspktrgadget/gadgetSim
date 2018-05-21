@@ -45,7 +45,7 @@ test_that("read_gadget_stock_std appropriately reads files structures for StockS
     cod_std <- read_gadget_stock_std(output_dir = "WGTS/out.fit", file = "cod.std", path = path)
     stock_std_names <-
         c("year", "step", "area", "age", "number", "length",
-          "weight", "length.sd", "consumed", "biomass")
+          "weight", "length.sd", "number.consumed", "biomass.consumed")
     expect_equal(names(cod_std$cod.std), stock_std_names)
     expect_is(cod_std, "list")
     expect_is(cod_std$cod.std, "data.frame")

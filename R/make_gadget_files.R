@@ -25,6 +25,108 @@ make_gadget_mainfile <- function(...) {
     return(out)
 }
 
+#' Make Gadget timefile
+#'
+#' @param st_year Integer. The starting year of the Gadget model
+#' @param end_year Integer. The final year of the Gadget model
+#' @param timesteps Either a numeric vector giving the number of timesteps and the breakdown of
+#' months, or, more commonly and conventiently one of "annually", "biannually", "quarterly",
+#' "monthly'
+#'
+#' @return A list of class \code{gadget.time}
+#' @export
+#'
+#' @examples
+#' make_gadget_timefile(1985, 2015, "quarterly")
+#' make_gadget_timefile(1985, 2015, c(6, 2, 1, 3, 3, 1, 2))
+make_gadget_timefile <- function(st_year, end_year, timesteps) {
+    if (is.character(timesteps)) {
+        timesteps <-
+            switch(timesteps,
+                   annually = c(1,12),
+                   biannual = c(2, 6, 6),
+                   quarterly = c(4, rep(3, 4)),
+                   monthly = c(12, rep(1, 12)))
+    }
+    tf <- list(firstyear = st_year,
+               firststep = 1,
+               lastyear = end_year,
+               laststep = timesteps[1],
+               notimesteps = timesteps)
+    out <- modifyList(gadget_timefile_default, tf)
+    return(out)
+}
+
+#' Make Gadget areafile
+#'
+#' Creates a list of class \code{gadget.area} that can be used to write out a Gadget areafile
+#'
+#' @param areas Numeric vector describing the different areas
+#' @param size Size of each area
+#' @param temp_data Data.frame with 4 columns containing year, step, area, and mean temperature
+#'
+#' @return A list of class \code{gadget.area}
+#' @export
+#'
+#' @examples
+#' make_gadget_areafile(areas = 1, size = 1e6,
+#'                      temp_data = expand.grid(year = 1:5, step = 1:4, area = 1, temp = 3))
+#' make_gadget_areafile(areas = 1:2, size = c(1e6, 1.5e6),
+#'                      temp_data = expand.grid(year = 1:2, step = 1:4, area = 1:2, temp = 3))
+make_gadget_areafile <- function(areas, size, temp_data) {
+    out <- modifyList(gadget_areafile_default,
+                      list(areas = areas,
+                           size = size,
+                           temperature = temp_data))
+    return(out)
+}
+
+#' Make Gadget stockfile
+#'
+#' Make a list of class \code{gadget.stock} that can be used to write out a Gadget stockfile
+#'
+#' @param ... A list of named elements. The names correspond to arguments found in Gadget stockfiles
+#'
+#' @return A list of class \code{gadget.stock} containing information about that stock to be used
+#' by Gadget
+#' @export
+#'
+#' @examples
+#'
+make_gadget_stockfile <- function(...) {
+    dots <- dots2list(...)
+    out <- modifyList(gadget_stockfile_default, dots)
+    if (is.null(out$stockname)) {
+        stop("You must specify a stockname")
+    }
+    if (any(is_list_element_null(list(out$minlength, out$maxlength, out$dl)))) {
+        stop("You must specify length information (i.e. minlength, maxlength, dl)")
+    } else {
+        reflength <- seq(out$minlength, out$maxlength, by = out$dl)
+        lenaggfile <- sprintf("Aggfiles/%s.stock.len.agg", out$stockname)
+        attr(out, "lenaggfile") <<-
+            data.frame(sprintf("len%s", reflength[2:length(reflength)]),
+                       reflength[-length(reflength)],
+                       reflength[-1])
+    }
+    # checking and plugging in various components
+    refwgt <- check_refweightfile(out)
+    grweatlen <- check_growthandeatlengths(out)
+    growth <- check_stock_growth(out)
+    nat_mort <- check_stock_m(out)
+    iseaten <- check_stock_iseaten(out)
+    predator <- check_stock_predator(out)
+    initcond <- check_stock_initcond(out)
+    # # todo:
+    # migration
+    # maturation
+    # doesmove
+    # doesrenew
+    # doesspawn
+    # doesstray
+
+}
+
 
 #' Make Gadget printfile and write out to file
 #'

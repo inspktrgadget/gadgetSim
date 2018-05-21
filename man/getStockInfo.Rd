@@ -20,7 +20,7 @@ get_stocknames(stocks)
 get_stock_lengths(stocks)
 }
 \arguments{
-\item{stocks}{A list of class \code{gadget.stocks} containing one (or typically more)
+\item{stocks}{A list of class \code{gadget.stock} or a list of class \code{gadget.stocks} containing one (or typically more)
 lists of class \code{gadget.stock}}
 
 \item{what2get}{Character vector of which component of a stockfile to get.}

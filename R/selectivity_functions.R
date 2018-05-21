@@ -45,6 +45,7 @@ constant_selectivity <- function(lengths, alpha) {
 }
 
 #' @rdname selectivity
+#' @export
 straightline_selectivity <- function(lengths, alpha, beta) {
     selectivity <- (alpha * lengths) + beta
     if (any(selectivity > 1)) {
@@ -54,6 +55,7 @@ straightline_selectivity <- function(lengths, alpha, beta) {
 }
 
 #' @rdname selectivity
+#' @export
 logistic_selectivity <- function(lengths, alpha, l50, max_prop) {
     if (max_prop > 1) {
         stop("If max_prop is >1 you increase the population rather than sample it")
@@ -62,21 +64,20 @@ logistic_selectivity <- function(lengths, alpha, l50, max_prop) {
 }
 
 #' @rdname selectivity
+#' @export
 exponential_l50_selectivity <- logistic_selectivity
 
 #' @rdname selectivity
+#' @export
 andersen_fleet_selectivity <- function(lengths, p0, p1, p2, p3) {
     selectivity <- p0 + ((1 - p0) * exp(-(((log(p3 / lengths) - p1)^2) / p2)))
     return(selectivity)
 }
 
 #' @rdname selectivity
+#' @export
 gamma_selectivity <- function(lengths, alpha, beta, gamma) {
     selectivity <-
         ((lengths / ((alpha - 1) * beta * gamma)) ^ (alpha - 1)) *
         exp(alpha - 1 - (lengths / (beta * gamma)))
 }
-
-
-
-
