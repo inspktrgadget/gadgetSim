@@ -92,39 +92,53 @@ make_gadget_areafile <- function(areas, size, temp_data) {
 #' @export
 #'
 #' @examples
-#'
+#' stock_info <-
+#'     list(stockname = "cod", livesonareas = 1, minage = 1, maxage = 10,
+#'          minlength = 1, maxlength = 100, dl = 1)
+#' grw_params <-
+#'     c(to_gadget_formula(quote(cod.linf)), to.gadget.formula(quote(cod.k)),
+#'       0.001, 3)
+#' stock_growth <-
+#'     list(doesgrow = 1, growthfunction = "lengthvbsimple",
+#'          growthparameters = grw_params)
+#' stock_m <- list(naturalmortality = rep(0.2, 10))
+#' stock_list <- c(stock_info, stock_growth, stock_m)
+#' make_gadget_stockfile(stock_list)
 make_gadget_stockfile <- function(...) {
     dots <- dots2list(...)
-    out <- modifyList(gadget_stockfile_default, dots)
-    if (is.null(out$stockname)) {
+    tmp <- modifyList(gadget_stockfile_default, dots)
+    if (is.null(tmp$stockname)) {
         stop("You must specify a stockname")
     }
-    if (any(is_list_element_null(list(out$minlength, out$maxlength, out$dl)))) {
+    if (any(is_list_element_null(list(tmp$minlength, tmp$maxlength, tmp$dl)))) {
         stop("You must specify length information (i.e. minlength, maxlength, dl)")
     } else {
-        reflength <- seq(out$minlength, out$maxlength, by = out$dl)
-        lenaggfile <- sprintf("Aggfiles/%s.stock.len.agg", out$stockname)
-        attr(out, "lenaggfile") <<-
+        reflength <- seq(tmp$minlength, tmp$maxlength, by = tmp$dl)
+        lenaggfile <- sprintf("Aggfiles/%s.stock.len.agg", tmp$stockname)
+        attr(tmp, "lenaggfile") <-
             data.frame(sprintf("len%s", reflength[2:length(reflength)]),
                        reflength[-length(reflength)],
                        reflength[-1])
     }
     # checking and plugging in various components
-    refwgt <- check_refweightfile(out)
-    grweatlen <- check_growthandeatlengths(out)
-    growth <- check_stock_growth(out)
-    nat_mort <- check_stock_m(out)
-    iseaten <- check_stock_iseaten(out)
-    predator <- check_stock_predator(out)
-    initcond <- check_stock_initcond(out)
-    # # todo:
-    # migration
-    # maturation
-    # doesmove
-    # doesrenew
-    # doesspawn
-    # doesstray
-
+    header <- tmp[c("stockname", "livesonareas", "minage", "maxage",
+                     "minlength", "maxlength", "dl")]
+    refwgt <- check_refweightfile(tmp)
+    grweatlen <- check_growthandeatlengths(tmp)
+    growth <- check_stock_growth(tmp)
+    nat_mort <- check_stock_m(tmp)
+    iseaten <- check_stock_iseaten(tmp)
+    predator <- check_stock_predator(tmp)
+    initcond <- check_stock_initcond(tmp)
+    migration <- check_stock_migration(tmp)
+    maturation <- check_stock_maturity(tmp)
+    movement <- check_stock_movement(tmp)
+    renewal <- check_stock_renewal(tmp)
+    spawning <- check_stock_spawning(tmp)
+    straying <- check_stock_straying(tmp)
+    out <- c(header, refwgt, grweatlen, growth, nat_mort, iseaten, predator, initcond,
+             migration, maturation, movement, renewal, spawning, straying)
+    return(out)
 }
 
 

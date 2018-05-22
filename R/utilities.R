@@ -197,6 +197,24 @@ strip_comments.list <- function(x, comment = ";", keep_with = NULL) {
 }
 
 
+#' Convert input to quoted variables
+#'
+#' This function is stolen from plyr::as.quoted. Converts characters to quoted variables
+#'
+#' @param x input to quote
+#' @param env environment in which unbounded symbols in expression should be evaluated. Defaults
+#' to the environment in which \code{as.quoted} was executed
+#'
+#' @return a list of quoted variables
+#'
+#' @examples
+#' as.quoted(c("a", "b", "log(d)"))
+as_quoted_ <- function(x, env = parent.frame()) {
+    structure(lapply(x, function(x) parse(text = x)[[1]]), env = env,
+              class = "quoted")
+}
+
+
 #' Simple function to capitalize all words of a character vector
 #'
 #' @param x Character vector
