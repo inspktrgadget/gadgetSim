@@ -55,19 +55,19 @@ check_growthandeatlengths <- function(stockfile) {
 
 #' @rdname check_stockfile_funs
 check_stock_growth <- function(stockfile) {
-    if (stockfile$growth == 1) {
-        if (!(grepl("^growthfunction", names(stockfile)))) {
+    if (stockfile$doesgrow == 1) {
+        if (check_sf_names("^growthfunction")) {
             stop("You set growth equal to 1, but did not specify a growth function")
         }
         grw_ind <- grep("^doesgrow", names(stockfile))
-        if (!(grepl("^beta&^maxlengthgroupgrowth", names(stockfile)))) {
+        if (check_sf_names("^beta&^maxlengthgroupgrowth")) {
             mort_ind <- grep("^naturalmortality", names(stockfile))
             growth <- as.list(stockfile[grw_ind:mort_ind-1])
             if (!(grepl("^beta", names(stockfile)))) {
                 beta <- to_gadget_formula(quote(bbin.mult * bbin))
                 growth$beta <- beta
             }
-            if (!(grepl("^maxlengthgroupgrowth", names(stockfile)))) {
+            if (check_sf_names("^maxlengthgroupgrowth")) {
                 growth$maxlengthgroupgrowth <- 15
             }
         } else {
@@ -93,12 +93,12 @@ check_stock_m <- function(stockfile) {
 #' @rdname check_stockfile_funs
 check_stock_iseaten <- function(stockfile) {
     if (stockfile$iseaten == 1) {
-        if (!(grepl("^preylengths&^energyconent", names(stockfile)))) {
+        if (check_sf_names("^preylengths&^energyconent")) {
             iseaten <- as.list(stockfile$iseaten)
-            if (!(grepl("^preylengths", names(stockfile)))) {
+            if (check_sf_names("^preylengths")) {
                 iseaten$preylengths <- lenaggfile
             }
-            if (!(grepl("^energycontent", names(stockfile)))) {
+            if (check_sf_names("^energycontent")) {
                 iseaten$energycontent <- 1
             }
         } else {
@@ -143,6 +143,7 @@ check_stock_initcond <- function(stockfile) {
                              paste(paste0(" * ",
                                           c("normalcondfile", "normalparamfile", "numberfile")),
                                    sep = "\n"),
+                             "see ?stock_distribution_funs",
                              sep = "\n"))
                 }
             } else {
@@ -152,7 +153,7 @@ check_stock_initcond <- function(stockfile) {
             initcond <- as.list(stockfile[initcond_ind:(doesmigrate_ind) - 1])
         }
     } else {
-        stop("You have not entered any information abstockfile initial conditions")
+        stop("You have not entered any information for stockfile initial conditions")
     }
     return(initcond)
 }
@@ -185,9 +186,9 @@ check_stock_maturity <- function(stockfile) {
     if (stockfile$doesmature == 1) {
         maturity <-
             list(doesmature = 1)
-        if (!("maturityfunction" %in% names(stockfile))) {
+        if (check_sf_names("^maturityfunction")) {
             stop("You must specify a maturity function")
-        } else if (!("maturityfile" %in% names(stockfile))) {
+        } else if (check_sf_names("^maturityfile")) {
             stop("You must specify appropriate parameters for the maturity function")
         } else {
             maturity$maturityfunction <- stockfile$maturityfunction
@@ -204,9 +205,9 @@ check_stock_maturity <- function(stockfile) {
 #' @rdname check_stockfile_funs
 check_stock_movement <- function(stockfile) {
     if (stockfile$doesmove == 1) {
-        if (!("transitionstocksandratios" %in% names(stockfile))) {
+        if (check_sf_names("^transitionstocksandratios")) {
             stop("You must specify transition stocks and ratios")
-        } else if (!("transitionstep" %in% names(stockfile))) {
+        } else if (check_sf_names("transitionstep")) {
             stop("You must specify the transition step")
         } else {
             movement <-
@@ -262,7 +263,7 @@ check_stock_renewal <- function(stockfile) {
 #' @rdname check_stockfile_funs
 check_stock_spawning <- function(stockfile) {
     if (stockfile$doesspawn == 1) {
-        if (!grepl("spawnfile", names(stockfile))) {
+        if (check_sf_names("^spawnfile")) {
             stop("You have not entered any spawning information")
         } else {
             spawning <-
@@ -288,6 +289,10 @@ check_stock_straying <- function(stockfile) {
         straying <- list(doesstray = 0)
     }
     return(straying)
+}
+
+check_sf_names <- function(name) {
+    return(!any(grepl(name, names(nogrowth))))
 }
 
 #' Functions to produce initial conditions or renewal distribution data

@@ -141,6 +141,44 @@ make_gadget_stockfile <- function(...) {
     return(out)
 }
 
+#' Create a list of class "gadget_spawnfile" that can be used to write to file
+#'
+#' This function creates a list of class "gadget_spawnfile". This list can then be used to
+#' write a spawnfile for a stock to be used by Gadget
+#'
+#' @param stockname Character. The stockname desired (used to define switches)
+#' @param start_year Numeric. The first year spawning will take place
+#' @param end_year Numeric. The last year spawning will take place
+#' @param ... Other vectors to be added. Should be named elements corresponding to those needed
+#' for a Gadget spawnfile, see Gadget User Guide.
+#'
+#' @return A list of class "gadget_spawnfile"
+#' @export
+#'
+#' @examples
+#' make_gadget_spawnfile("cod", 1, 10)
+make_gadget_spawnfile <- function(stockname, start_year, end_year, ...) {
+    spawn_params <- list(
+        spawnsteps = 1,
+        spawnareas = 1,
+        firstspawnyear = start_year,
+        lastspawnyear = end_year,
+        spawnstocksandratios = paste(stockname, 1, sep = "\t"),
+        proportionfunction = paste("constant", 1, sep = "\t"),
+        mortalityfunction = paste("constant", 0, sep = "\t"),
+        weightlossfunction = paste("constant", 0, sep = "\t"),
+        recruitment = bev_holt_formula(stockname),
+        stockparameters = paste(sprintf("#%s.recl", stockname),
+                                sprintf("#%s.rec.sd", stockname),
+                                paste0(c("0.0001", "3"),
+                                       collapse = "\t"),
+                                sep = "\t")
+    )
+    override_defaults <- dots2list(...)
+    spawn_params <- modifyList(spawn_params, override_defaults)
+    class(spawn_params) <- c("gadget_spawnfile", "list")
+    return(spawn_params)
+}
 
 #' Make Gadget printfile and write out to file
 #'

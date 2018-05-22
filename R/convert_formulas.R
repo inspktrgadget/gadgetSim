@@ -1,5 +1,24 @@
 # functions to convert functions and math to gadget-readable functions (i.e. reverse polish notation)
 
+#' Turn R expression into Gadget formula string
+#'
+#' This function is stolen directly from Rgadget::to.gadget.formulae. It takes an unevaluated R
+#' expression (e.g. quote(2 + log(moo - 1))) and converts it into a character string that is readable
+#' by Gadget
+#'
+#' @param ex An unevaluated R expression (i.e. enclosed in quotes)
+#' @param stocknames Optional. Character vector of stocknames to add to any formula variable names
+#'
+#' @details Gadget uses reverse Polish notation to read formulas (i.e. the operator comes first,
+#' followed by the items to be operated on; 2 + 2 is read as (+ 2 2)). This function will take
+#' an expression recognizable by R and convert it to one that is recognizable by Gadget
+#'
+#' @return A character vector that is readable as a Gadget formula
+#' @export
+#'
+#' @examples
+#' to_gadget_formula(quote(2 + 2))
+#' to_gadget_formula(quote(2 + log(moo - 1)))
 to_gadget_formula <- function(ex, stocknames = NULL) {
     if (is.name(ex)) {
         return(paste0("#", ex))
