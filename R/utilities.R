@@ -98,6 +98,24 @@ check_path <- function(x, env = parent.frame()) {
     return(x)
 }
 
+#' Logical test to see if name(s) are in an object
+#'
+#' This function tests to see if names \code{x} are found in an object and returns TRUE if they are
+#'
+#' @param x Character. Regular expression of name
+#' @param obj Named object. Can be a vector, list, data.frame, or any other object that has a
+#' names attribute
+#'
+#' @return Logical. TRUE if names \code{x} exist in \code{obj}
+#'
+#' @examples
+#' dat <- data.frame(a = 1, b = 2)
+#' check_names("a", dat)
+#' check_names("c", dat)
+check_names <- function(x, obj) {
+    return(any(grepl(x, names(obj))))
+}
+
 
 #' Convert a Gadget file to a list of components based on a regular expression
 #'

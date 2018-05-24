@@ -9,8 +9,9 @@ vb <- function(linf, k, t0, age) {
 #' @param stockname Character. The stockname desired for variables in the von Bertalanffy function
 #' @param age Numeric vector of ages
 #'
-#' @return A character vector of the von Bertalanffy function the same length as \code{age}. Format is
-#' as a Gadget formula, see \code{\link{to_gadget_formula}}
+#' @return A character vector of the von Bertalanffy function the same length as \code{age}.
+#' Format is as a Gadget formula, see \code{\link{to_gadget_formula}}
+#'
 #' @export
 #'
 #' @examples

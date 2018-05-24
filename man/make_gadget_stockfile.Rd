@@ -17,16 +17,63 @@ by Gadget
 Make a list of class \code{gadget.stock} that can be used to write out a Gadget stockfile
 }
 \examples{
+# setup basic stock information
+minage <- 1
+maxage <- 10
+minlength <- 1
+maxlength <- 100
+dl <- 1
+alpha <- 1e-04
+beta <- 3
+reflength <- seq(minlength, maxlength, dl)
 stock_info <-
     list(stockname = "cod", livesonareas = 1, minage = 1, maxage = 10,
-         minlength = 1, maxlength = 100, dl = 1)
-grw_params <-
-    c(to_gadget_formula(quote(cod.linf)), to.gadget.formula(quote(cod.k)),
-      0.001, 3)
+         minlength = minlength, maxlength = maxlength, dl = dl)
+
+# setup refweightfile
+stock_refwgt <-
+    data.frame(len = reflength,
+               weight = alpha * reflength ^ beta)
+
+# setup growth
 stock_growth <-
-    list(doesgrow = 1, growthfunction = "lengthvbsimple",
-         growthparameters = grw_params)
+    list(growthfunction = "lengthvbsimple",
+         growthparameters =
+             c(to_gadget_formula(quote(cod.linf)), to_gadget_formula(quote(cod.k)),
+               0.001, 3))
+# setup naturalmortality
 stock_m <- list(naturalmortality = rep(0.2, 10))
-stock_list <- c(stock_info, stock_growth, stock_m)
-make_gadget_stockfile(stock_list)
+
+# setup initial conditions
+init_data <-
+    normalparamfile(age = seq(minage, maxage, 1),
+                    area = 1,
+                    age.factor = "#cod.init.age",
+                    area.factor = "#cod.init.area",
+                    mean = vb_formula("cod", minage:maxage),
+                    sd = 1:10,
+                    alpha = alpha,
+                    beta = beta)
+stock_initcond <- list(normalparamfile = init_data)
+
+# setup spawning
+spawnfile <-
+    make_gadget_spawnfile(
+      stockname = "cod",
+      start_year = 1,
+      end_year = 10,
+      recruitment = ricker_formula("cod")
+    )
+stock_spawnfile <-
+    list(spawnfile = spawnfile)
+
+# create gadget stockfile
+cod <-
+   make_gadget_stockfile(stock = stock_info,
+                         refweightfile = stock_refwgt,
+                         growth = stock_growth,
+                         naturalmortality = stock_m,
+                         iseaten = 1,
+                         initialconditions = stock_initcond,
+                         doesspawn = stock_spawnfile)
 }

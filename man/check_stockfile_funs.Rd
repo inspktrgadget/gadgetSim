@@ -2,8 +2,8 @@
 % Please edit documentation in R/check_stockfile_functions.R
 \name{check_stockfile_funs}
 \alias{check_stockfile_funs}
-\alias{check_refweightfile}
-\alias{check_growthandeatlengths}
+\alias{check_stock_refweightfile}
+\alias{check_stock_grw_eat_len}
 \alias{check_stock_growth}
 \alias{check_stock_m}
 \alias{check_stock_iseaten}
@@ -17,15 +17,17 @@
 \alias{check_stock_straying}
 \title{Check various entries when making a stockfile using make_gadget_stockfile()}
 \usage{
-check_refweightfile(stockfile)
+check_stock_refweightfile(stockfile)
 
-check_growthandeatlengths(stockfile)
+check_stock_grw_eat_len(stockfile, lenaggfile = get("lenaggfile", env =
+  parent.frame()))
 
 check_stock_growth(stockfile)
 
 check_stock_m(stockfile)
 
-check_stock_iseaten(stockfile)
+check_stock_iseaten(stockfile, lenaggfile = get("lenaggfile", env =
+  parent.frame()))
 
 check_stock_predator(stockfile)
 
