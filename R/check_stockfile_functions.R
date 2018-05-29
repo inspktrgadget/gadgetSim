@@ -35,10 +35,11 @@ check_stock_info <- function(dots) {
 check_stock_refweightfile <- function(dots) {
     if (check_names("^refweightfile", dots)) {
         if (class(dots$refweightfile) == "data.frame") {
+            filename <- sprintf("Modelfiles/%s.refweightfile", dots$stock$stockname)
             refwgt <-
                 structure(list(
-                    refweightfile = sprintf("Modelfiles/%s.refweightfile", dots$stock$stockname)),
-                    refweightfile = dots$refweightfile)
+                    refweightfile = filename),
+                    refweightfile = structure(dots$refweightfile, filename = filename))
         } else {
             stop("You must either provide a data.frame for refweightfile or rely on the default")
         }
@@ -49,10 +50,13 @@ check_stock_refweightfile <- function(dots) {
                 reflength <- seq(stock$minage, stock$maxlength, stock$dl)
                 rfwt_p <- as.numeric(dots$growth$growthparameters[3:4])
                 ref_wts <- rfwt_p[1] * reflength ^ rfwt_p[2]
+                filename <- sprintf("Modelfiles/%s.refweightfile", stock$stockname)
                 refwgt <-
                     structure(list(
-                        refweightfile = sprintf("Modelfiles/%s.refweightfile", stock$stockname)),
-                        refweightfile = data.frame(length = reflength, weight = ref_wts))
+                        refweightfile = filename),
+                        refweightfile =
+                            structure(data.frame(length = reflength, weight = ref_wts),
+                                      filename = filename))
             } else {
                 refwgt <- list(refweightfile = "")
                 warning("Sorry, gadgetSim is not smart enough to creat a refweightfile for
@@ -70,19 +74,21 @@ check_stock_refweightfile <- function(dots) {
 check_stock_grw_eat_len <- function(dots,
                                     lenaggfile = get("lenaggfile", env = parent.frame())) {
     if (!check_names("^growthandeatlengths", dots)) {
+        filename <- lenaggfile[1]
         grw_eat_len <-
             structure(list(
-                growthandeatlengths = lenaggfile[1]),
-                lenaggfile = attr(lenaggfile, "lenaggfile"))
+                growthandeatlengths = filename),
+                lenaggfile = structure(attr(lenaggfile, "lenaggfile"), filename = filename))
     } else {
         if (class(dots$growthandeatlengths) != "data.frame") {
             stop("You must either provide a data.frame specifying the aggfile for
                   growth and eat lengths or rely on the default")
         } else {
+            filename <- sprintf("Aggfiles/%s.stock.len.agg", dots$stock$stockname)
             grw_eat_len <-
                 structure(list(
-                    growthandeatlengths = sprintf("Aggfiles/%s.stock.len.agg", dots$stock$stockname)),
-                    lenaggfile = dots$growthandeatlengths)
+                    growthandeatlengths = filename),
+                    lenaggfile = structure(dots$growthandeatlengths, filename = filename))
         }
     }
     return(grw_eat_len)
@@ -96,7 +102,7 @@ check_stock_growth <- function(dots) {
         growth <-
             c(list(doesgrow = 1), dots$growth)
         if (!check_names("^beta", dots$growth)) {
-            growth$beta <- sprintf("(* %1$s.bbin.mult %1$s.bbin)", dots$stock$stockname)
+            growth$beta <- sprintf("(* #%1$s.bbin.mult #%1$s.bbin)", dots$stock$stockname)
         }
         if (!check_names("^maxlengthgroupgrowth", dots$growth)) {
             growth$maxlengthgroupgrowth <- 15
@@ -111,7 +117,10 @@ check_stock_m <- function(dots) {
         m <- list(naturalmortality = rep(0.2, times = ((dots$stock$maxage - dots$stock$minage) + 1)))
         message("You did not specify a natural mortality...setting all ages to 0.2")
         return(m)
-    } else {dots$naturalmortality}
+    } else {
+        m <- list(naturalmortality = dots$naturalmortality)
+    }
+    return(m)
 }
 
 
@@ -120,35 +129,39 @@ check_stock_iseaten <- function(dots,
                                 lenaggfile = get("lenaggfile", env = parent.frame())) {
     if (check_names("^iseaten", dots)) {
         if (all(c("preylengths", "energycontent") %in% names(dots$iseaten))) {
+            filename <- sprintf("Aggfiles/%s.preylengths", dots$stock$stockname)
             iseaten <-
                 structure(list(
                     iseaten = 1,
-                    preylengths = sprintf("Aggfiles/%s.preylengths", dots$stock$stockname),
+                    preylengths = filename,
                     energycontent = dots$iseaten$energycontent),
-                    preylengths = dots$iseaten$preylengths)
+                    preylengths = structure(dots$iseaten$preylengths, filename = filename))
         } else if (check_names("^energycontent", dots$iseaten) &
                    !check_names("^preylengths", dots$iseaten)) {
+            filename <- lenaggfile[1]
             iseaten <-
                 structure(list(
                     iseaten = 1,
-                    preylengths = lenaggfile[1],
+                    preylengths = filename,
                     energycontent = dots$iseaten$energycontent),
-                    lenaggfile = attr(lenaggfile, "lenaggfile"))
+                    lenaggfile = structure(attr(lenaggfile, "lenaggfile"), filename = filename))
         } else if (check_names("^preylengths", dots$iseaten) &
                    !check_names("^energycontent", dots$iseaten)) {
+            filename <- sprintf("Aggfiles/%s.preylengths", dots$stock$stockname)
             iseaten <-
                 structure(list(
                     iseaten = 1,
-                    preylengths = sprintf("Aggfiles/%s.preylengths", dots$stock$stockname),
+                    preylengths = filename,
                     energycontent = 1),
-                    preylengths = dots$iseaten$preylengths)
+                    preylengths = structure(dots$iseaten$preylengths, filename = filename))
         } else {
+            filename <- lenaggfile[1]
             iseaten <-
                 structure(list(
                     iseaten = 1,
-                    preylengths = lenaggfile[1],
+                    preylengths = filename,
                     energycontent = 1),
-                    lenaggfile = attr(lenaggfile, "lenaggfile"))
+                    lenaggfile = structure(attr(lenaggfile, "lenaggfile"), filename = filename))
         }
     } else {
         iseaten <- list(iseaten = 0)
@@ -162,10 +175,9 @@ check_stock_predator <- function(dots) {
         req_names <- c("suitability", "preference", "maxconsumption", "halffeedingvalue")
         if (!all(req_names %in%
                  names(dots$doeseat))) {
-            stop(cat("You missed the following required items in doeseat",
-                     paste(paste(" * ",
-                                 req_names[!(req_names %in% names(dots$doeseat))]), collapse = "\n"),
-                     sep = "\n"))
+            stop("You missed the following required items in doeseat", "\n",
+                  paste(paste(" * ",
+                              req_names[!(req_names %in% names(dots$doeseat))]), collapse = "\n"))
         }
         predator <-
             c(list(doeseat = 1), dots$doeseat)
@@ -176,165 +188,162 @@ check_stock_predator <- function(dots) {
 }
 
 #' @rdname check_stockfile_funs
-check_stock_initcond <- function(stockfile) {
-    if (!is.null(stockfile)) {
-        initcond_ind <- grep("^initialconditions", names(stockfile))
-        doesmigrate_ind <- grep("^doesmigrate", names(stockfile))
-        if ((doesmigrate_ind - initcond_ind) == 1) {
-            ic_class <- class(stockfile$initialconditions)
-            if ("data.frame" %in% ic_class) {
-                initcond <-
-                    list(minage = stockfile$minage, maxage = stockfile$maxage,
-                         minlength = stockfile$minlength, maxlength = stockfile$maxlength,
-                         dl = stockfile$dl)
-                if (check_sf_names("^sdev")) {
-                    initcond$sdev <- stockfile$sdev
-                }
-                if (length(ic_class) > 1) {
-                    initcond[ic_class[1]] <-
-                        sprintf("Modelfiles/%s.init.%s", stockfile$stockname, ic_class[1])
-                    attr(initcond, paste("init", ic_class[1], sep = ".")) <-
-                        stockfile$initialconditions
-                } else {
-                    stop(cat("Initial conditions data must be of one of the following classes",
-                             paste(paste0(" * ",
-                                          c("normalcondfile", "normalparamfile", "numberfile")),
-                                   sep = "\n"),
-                             "see ?stock_distribution_funs",
-                             sep = "\n"))
-                }
+check_stock_initcond <- function(dots) {
+    if (check_names("^initialconditions|^initcond", dots)) {
+        ic_data <- dots[[grep("^initialconditions|^initcond", names(dots))]]
+        ic_file_types <- c("normalparamfile", "normalcondfile", "numberfile")
+        if ((is.list(ic_data) & length(ic_data) == 1) | (is.data.frame(ic_data))) {
+            if (is.data.frame(ic_data)) {
+                ic_file_type <- class(ic_data)[1]
+                dat <- ic_data
             } else {
-                stop("You have not entered useful information for initial conditions")
+                ic_file_type <- class(ic_data[[1]])[1]
+                dat <- ic_data[[1]]
             }
+            if (!(ic_file_type %in% ic_file_types)) {
+                stop("Initial conditions must of one of the following classes", "\n",
+                     paste(paste(" * ", ic_file_types), collapse = "\n"), "\n",
+                     "see ?stock_distribution_funs")
+            }
+            initcond <-
+                list(initialconditions = "", minage = dots$stock$minage, maxage = dots$stock$maxage,
+                     minlength = dots$stock$minlength, maxlength = dots$stock$maxlength,
+                     dl = dots$stock$dl)
+            filename <- sprintf("Modelfiles/%s.init.%s", dots$stock$stockname, ic_file_type)
+            initcond[[ic_file_type]] <- filename
+            attr(initcond, ic_file_type) <- structure(dat, filename = filename)
         } else {
-            initcond <- as.list(stockfile[initcond_ind:(doesmigrate_ind) - 1])
+            req_args <- c("minage", "maxage", "minlength", "maxlength", "dl")
+            if (!all(req_args %in% names(ic_data))) {
+                stop("You entered some, but not all initialconditions information")
+            } else {
+                initcond <-
+                    list(initialconditions = "", minage = ic_data$minage, maxage = ic_data$maxage,
+                         minlength = ic_data$minlength, maxlength = ic_data$maxlength,
+                         dl = ic_data$dl,
+                         sdev = ifelse(check_names("sdev", ic_data),
+                                       ic_data$sdev, NULL))
+                ic_data <- ic_data[!(names(ic_data) %in% c("initialconditions", req_args, "sdev"))]
+                ic_file_type <- class(ic_data[[1]])[1]
+                filename <- sprintf("Modelfiles/%s.init.%s", dots$stock$stockname, ic_file_type)
+                initcond[[ic_file_type]] <- filename
+                attr(initcond, ic_file_type) <- structure(ic_data[[1]], filename = filename)
+            }
         }
+        return(initcond)
     } else {
-        stop("You have not entered any information for stockfile initial conditions")
+        stop("You have not specified initial conditions for the stock")
     }
-    return(initcond)
 }
 
 #' @rdname check_stockfile_funs
-check_stock_migration <- function(stockfile) {
-    if (stockfile$doesmigrate == 1) {
-        if ("definematrices" %in% names(stockfile)) {
+check_stock_migration <- function(dots) {
+    if (check_names("^migration", dots)) {
+        if ("migration_matrix" %in% class(dots$migration)) {
             migration <-
                 list(doesmigrate = 1,
                      yearstepfile = sprintf("Modelfiles/%s.migration.yearstepfile",
-                                            stockfile$stockname))
-            if ("migration_matrix" %in% class(stockfile$definematrices)) {
-                migration$definematrices <-
-                    sprintf("Modelfiles/%s.migration.matrices", stockfile$stockname)
-                attr(migration, "migrationmatrix") <- format_migration(stockfile$definematrices)
-            } else if ("migration_ratios" %in% class(stockfile$definematrices)) {
-                migration$defineratios <-
-                    sprintf("Modelfiles/%s.migration.ratios", stockfile$stockname)
-                attr(migration, "migrationratios") <- format_migration(stockfile$definematrices)
-            }
+                                            dots$stock$stockname),
+                     definematrices = sprintf("Modelfiles/%s.migration.matrices",
+                                              dots$stock$stockname))
+            attr(migration, "migrationmatrix") <- format_migration(dots$migration)
+        } else if ("migration_ratios" %in% class(dots$migration)) {
+            migration <-
+                list(doesmigrate = 1,
+                     yearstepfile = sprintf("Modelfiles/%s.migration.yearstepfile",
+                                            dots$stock$stockname),
+                     defineratios = sprintf("Modelfiles/%s.migration.ratios",
+                                            dots$stock$stockname))
+            attr(migration, "migrationratios") <- format_migration(dots$migration)
         } else {
-            stop("You set doesmigrate to 1, but didn't any migration information")
+            stop("Migration information must be a data.frame of one of the following classes", "\n",
+                 paste(paste(" * ", c("migration_matrix", "migration_ratios"), collapse = "\n")),
+                 "\n", "see ?migration_funs")
         }
+    } else {
+        migration <- list(doesmigrate = 0)
     }
     return(migration)
 }
 
 #' @rdname check_stockfile_funs
-check_stock_maturity <- function(stockfile) {
-    if (stockfile$doesmature == 1) {
-        maturity <-
-            list(doesmature = 1)
-        if (check_sf_names("^maturityfunction")) {
-            stop("You must specify a maturity function")
-        } else if (check_sf_names("^maturityfile")) {
-            stop("You must specify appropriate parameters for the maturity function")
-        } else {
-            maturity$maturityfunction <- stockfile$maturityfunction
-            maturity$maturityfile <- sprintf("%s.maturityfile", stockfile$stockname)
-            attr(maturity, "maturityfile") <-
-                stockfile$maturityfile
+check_stock_maturity <- function(dots) {
+    if (check_names("^maturity", dots)) {
+        if (!check_names("^maturityfunction", dots$maturity)) {
+            stop("You must enter a maturity function with appropriate parameters for the stock")
         }
+        filename <- sprintf("Modelfiles/%s.maturityfile", dots$stock$stockname)
+        maturity <-
+            list(doesmature = 1,
+                 maturityfunction = dots$maturity$maturityfunction,
+                 maturityfile = filename)
+        attr(maturity, "maturityfile") <-
+            structrure(dots$maturity[grep("^maturityfunction", names(dots$maturity), invert = TRUE)],
+                       filename = filename)
     } else {
-        maturity <- as.list(stockfile$doesmature)
+        maturity <- list(doesmature = 0)
     }
     return(maturity)
 }
 
 #' @rdname check_stockfile_funs
-check_stock_movement <- function(stockfile) {
-    if (stockfile$doesmove == 1) {
-        if (check_sf_names("^transitionstocksandratios")) {
-            stop("You must specify transition stocks and ratios")
-        } else if (check_sf_names("transitionstep")) {
-            stop("You must specify the transition step")
-        } else {
-            movement <-
-                stockfile[grep("^doesmove|^transitionstocksandratios|^transitionstep",
-                               names(stockfile))]
-        }
+check_stock_movement <- function(dots) {
+    if (check_names("^movement|^transition", dots)) {
+        movement <-
+            c(list(doesmove = 1),
+                   dots[grep("^movement|^transition", names(dots))])
     } else {
-        movement <- list(doesmove == 0)
+        movement <- list(doesmove = 0)
     }
     return(movement)
 }
 
 #' @rdname check_stockfile_funs
-check_stock_renewal <- function(stockfile) {
-    if (stockfile$doesrenew == 1) {
-        doesspawn_ind <- grep("^doesspawn", names(stockfile))
-        renewal_ind <- grep("^doesrenew", names(stockfile))
-        if ((doesspawn_ind - renewal_ind) == 1) {
-            stop("You have not entered any renewal distribution data")
+check_stock_renewal <- function(dots) {
+    if (check_names("^renewal|^recruitment", dots)) {
+        rec_info <- dots[grep("^renewal|^recruitment", names(dots))]
+        if (length(rec_info) == 1) {
+            rec_class <- class(rec_info[[1]])[1]
+            filename <- sprintf("Modelfiles/%s.rec.%s", dots$stock$stockname, rec_class)
+            renewal <-
+                list(doesrenew = 1,
+                     minlength = dots$stock$minlength,
+                     maxlength = dots$stock$maxlength,
+                     dl = dots$stock$dl)
+            renewal[rec_class] <- filename
+            attr(renewal, rec_class) <- structure(rec_info[[1]], filename = filename)
         } else {
-            renewal <- stockfile[renewal_ind:(doesspawn_ind - 1)]
-            if (!grepl("^minlength", names(renewal))) {
-                renewal$minlength <- stockfile$minlength
-            }
-            if (!grepl("^maxlength", names(renewal))) {
-                renewal$maxlength <- stockfile$maxlength
-            }
-            if (!grepl("dl", names(renewal))) {
-                renewal$dl <- stockfile$dl
-            }
-            if (grepl("normalcondfile", names(renewal))) {
-                renewal$normalcondfile <- sprintf("Modelfiles/%s.rec.normalcond", stockfile$stockname)
-                attr(renewal, "rec.normalcondfile") <-
-                    stockfile$normalcondfile
-            } else if (grepl("normalparamfile", names(renewal))) {
-                renewal$normalcondfile <- sprintf("Modelfiles/%s.rec.normalparam", stockfile$stockname)
-                attr(renewal, "rec.normalparamfile") <-
-                    stockfile$normalparamfile
-            } else if (grepl("numberfile" %in% names(renewal))) {
-                renewal$numberfile <- sprintf("Modelfiles/%s.rec.numberfile", stockfile$stockname)
-                attr(renewal, "rec.numberfile") <-
-                    stockfile$numberfile
-            } else {
-                stop("You have not entered any renewal distribution data")
-            }
+            rec_data <- rec_info[grep("^normalparamfile|^normalcondfile|^numberfile",
+                                      names(rec_info))]
+            rec_class <- class(rec_data[[1]])[1]
+            renewal <-
+                list(doesrenew = 1,
+                     minlength = rec_info$minlength,
+                     maxlength = rec_info$maxlength,
+                     dl = rec_info$dl)
+            filename <- sprintf("Modelfiles/%s.rec.%s", dots$stock$stockname, rec_class)
+            renewal[rec_class] <- filename
+            attr(renewal, rec_class) <- structure(rec_data[[1]], filename = filename)
         }
     } else {
-        renewal <- list(doesrenew = 1)
+        renewal <- list(doesrenew = 0)
     }
     return(renewal)
 }
 
 #' @rdname check_stockfile_funs
-check_stock_spawning <- function(stockfile) {
-    if (stockfile$doesspawn == 1) {
-        if (check_sf_names("^spawnfile")) {
-            stop("You have not entered any spawning information")
+check_stock_spawning <- function(dots) {
+    if (check_names("^spawning", dots)) {
+        if (!("gadget_spawnfile" %in% class(dots$spawning))) {
+            stop("You must enter a spawnfile of class gadget_spawnfile", "\n",
+                 "see ?make_gadget_spawnfile")
         } else {
-            spawning <-    if (check_sf_names("^stockname", sf = dots$stock)) {
-                stop("You must specify a stockname")
-            }
-            if (any(is_list_element_null(list(tmp$minlength, tmp$maxlength, tmp$dl)))) {
-                stop("You must specify length information (i.e. minlength, maxlength, dl)")
-            } else if (any(is_list_element_null(list(tmp$minage, tmp$maxage)))) {
-                stop("You must specify age information (i.e. minage, maxage")
-            }
-                list(doesspawn = 1,
-                     spawnfile = sprintf("Modelfiles/%s.spawnfile", stockfile$stockname))
-            attr(spawning, "spawnfile") <- stockfile$spawnfile
+            filename <- sprintf("Modelfiles/%s.spawnfile", dots$stock$stockname)
+            spawning <-
+                structure(list(
+                    doesspawn = 1,
+                    spawnfile = filename
+                ), spawnfile = structure(dots$spawning, filename = filename))
         }
     } else {
         spawning <- list(doesspawn = 0)
@@ -343,13 +352,15 @@ check_stock_spawning <- function(stockfile) {
 }
 
 #' @rdname check_stockfile_funs
-check_stock_straying <- function(stockfile) {
-    if (stockfile$doesstray == 1) {
-        stopifnot(grepl("strayfile", names(stockfile)))
+check_stock_straying <- function(dots) {
+    if (check_names("^straying", dots)) {
+        filename <- sprintf("Modelfiles/%s.strayfile", dots$stock$stockname)
         straying <-
-            list(doesstray = 1,
-                 strayfile = sprintf("Modelfiles/%s.strayfile", stockfile$stockname))
-        attr(straying, "strayfile") <- stockfile$strayfile
+            structure(list(
+                doesstray = 1,
+                strayfile = filename
+            ))
+        attr(straying, "strayfile") <- structure(dots$straying, filename = filename)
     } else {
         straying <- list(doesstray = 0)
     }

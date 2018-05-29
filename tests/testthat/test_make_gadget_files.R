@@ -1,5 +1,23 @@
 context("Test functions to make Gadget files")
 
+test_that("make_gadget_mainfile produces correct output", {
+    main_test <-
+        structure(list(
+            timefile = "foo",
+            areafile = "bar",
+            printfiles = "; Required comment",
+            stockfiles = "baz",
+            tagfiles = "",
+            otherfoodfiles = "",
+            fleetfiles = "",
+            likelihoodfiles = "likelihood"
+        ), class = c("gadget.main", "list"))
+    expect_equal(make_gadget_mainfile(timefile = "foo", areafile = "bar",
+                                      stockfiles = "baz", likelihoodfiles = "likelihood"),
+                 main_test)
+    expect_error(make_gadget_mainfile(stock = "cod"))
+})
+
 test_that("make_gadget_timefile produces correct output under different scenarios", {
     quarterly_time <-
         list(firstyear = 1985, firststep = 1, lastyear = 2015, laststep = 4,
@@ -40,4 +58,88 @@ test_that("make_gadget_areafile returns the correct output", {
     expect_equal(make_gadget_areafile(1, 100, temp_data), area_list)
     expect_equal(make_gadget_areafile(1:2, c(100, 150), temp2_data), two_areas)
 
+})
+
+test_that("make_gadget_stockfile returns the correct output", {
+    minage <- 1
+    maxage <- 10
+    minlength <- 1
+    maxlength <- 100
+    dl <- 1
+    stock_info <-
+        list(stockname = "cod",
+             livesonareas = 1,
+             minage = minage,
+             maxage = maxage,
+             minlength = minlength,
+             maxlength = maxlength,
+             dl = dl)
+    alpha <- 0.0001
+    beta <- 3
+    stock_growth <-
+        list(growthfunction = "lengthvbsimple",
+             growthparameters = c(to_gadget_formula(quote(cod.linf)),
+                                  to_gadget_formula(quote(cod.k)),
+                                  alpha, beta))
+    stock_m <- rep(0.3, 10)
+    stock_initcond <-
+        normalparamfile(year = 1,
+                        area = 1,
+                        age.factor = 10,
+                        area.factor = 10,
+                        mean = vb_formula("cod", 1:10),
+                        stddev = 1:10,
+                        alpha = alpha,
+                        beta = beta)
+    stock_spawnfile <- make_gadget_spawnfile("cod", 1985, 2015)
+    reflength <- minlength:maxlength
+    refwgt <- data.frame(length = reflength,
+                         weight = alpha * (reflength) ^ beta)
+    lenaggfile <- attr(make_lenaggfile(dots2list(stock = stock_info)), "lenaggfile")
+    make_stockfile_test <-
+        structure(list(
+            stockname = "cod",
+            livesonareas = 1,
+            minage = minage,
+            maxage = maxage,
+            minlength = minlength,
+            maxlength = maxlength,
+            dl = dl,
+            refweightfile = "Modelfiles/cod.refweightfile",
+            growthandeatlengths = "Aggfiles/cod.stock.len.agg",
+            doesgrow = 1,
+            growthfunction = "lengthvbsimple",
+            growthparameters = c("#cod.linf", "#cod.k", 0.0001, 3),
+            beta = "(* #cod.bbin.mult #cod.bbin)",
+            maxlengthgroupgrowth = 15,
+            naturalmortality = stock_m,
+            iseaten = 0,
+            doeseat = 0,
+            initialconditions = "",
+            minage = 1,
+            maxage = 10,
+            minlength = 1,
+            maxlength = 100,
+            dl = 1,
+            normalparamfile = "Modelfiles/cod.init.normalparamfile",
+            doesmigrate = 0,
+            doesmature = 0,
+            doesmove = 0,
+            doesrenew = 0,
+            doesspawn = 1,
+            spawnfile = "Modelfiles/cod.spawnfile",
+            doesstray = 0
+        ),
+        refweightfile = structure(refwgt, filename = "Modelfiles/cod.refweightfile"),
+        growthandeatlengths = structure(lenaggfile, filename = "Aggfiles/cod.stock.len.agg"),
+        initialconditions = structure(stock_initcond,
+                                      filename = "Modelfiles/cod.init.normalparamfile"),
+        spawning = structure(stock_spawnfile, filename = "Modelfiles/cod.spawnfile"),
+        class = c("gadget.stock", "list"))
+    expect_equal(make_gadget_stockfile(stock = stock_info,
+                                       growth = stock_growth,
+                                       naturalmortality = stock_m,
+                                       initialconditions = stock_initcond,
+                                       spawning = stock_spawnfile),
+                 make_stockfile_test)
 })

@@ -159,21 +159,39 @@ make_gadget_stockfile <- function(...) {
     # checking and plugging in various components
     stock <- check_stock_info(dots)
     lenaggfile <- make_lenaggfile(dots)
-    refwgt <- check_stock_refweightfile(dots)
-    grweatlen <- check_stock_grw_eat_len(dots)
-    growth <- check_stock_growth(tmp)
-    nat_mort <- check_stock_m(tmp)
-    iseaten <- check_stock_iseaten(tmp)
-    predator <- check_stock_predator(tmp)
-    initcond <- check_stock_initcond(tmp)
-    migration <- check_stock_migration(tmp)
-    maturation <- check_stock_maturity(tmp)
-    movement <- check_stock_movement(tmp)
-    renewal <- check_stock_renewal(tmp)
-    spawning <- check_stock_spawning(tmp)
-    straying <- check_stock_straying(tmp)
-    out <- c(header, refwgt, grweatlen, growth, nat_mort, iseaten, predator, initcond,
-             migration, maturation, movement, renewal, spawning, straying)
+    refweightfile <- check_stock_refweightfile(dots)
+    growthandeatlengths <- check_stock_grw_eat_len(dots)
+    growth <- check_stock_growth(dots)
+    naturalmortality <- check_stock_m(dots)
+    iseaten <- check_stock_iseaten(dots)
+    predator <- check_stock_predator(dots)
+    initialconditions <- check_stock_initcond(dots)
+    migration <- check_stock_migration(dots)
+    maturation <- check_stock_maturity(dots)
+    movement <- check_stock_movement(dots)
+    renewal <- check_stock_renewal(dots)
+    spawning <- check_stock_spawning(dots)
+    straying <- check_stock_straying(dots)
+    stock_items <- c("stock", "refweightfile", "growthandeatlengths", "growth",
+                     "naturalmortality", "iseaten", "predator", "initialconditions",
+                     "migration", "maturation", "movement", "renewal", "spawning", "straying")
+    stock_attr <-
+        lapply(stock_items, function(x) {
+            dat <- get(x)
+            if (length(attributes(dat)) > 1) {
+                return(attributes(dat)[-1][[1]])
+            } else {
+                return(NULL)
+            }
+        })
+    stock_attr <- setNames(stock_attr, stock_items)
+    stock_attr <- Filter(Negate(is.null), stock_attr)
+    stockfile_names <- unlist(lapply(stock_items, function(x) names(get(x))))
+    out <- c(stock, refweightfile, growthandeatlengths, growth, naturalmortality,
+             iseaten, predator, initialconditions, migration, maturation, movement,
+             renewal, spawning, straying)
+    attributes(out) <- c(names = list(stockfile_names), stock_attr)
+    class(out) <- c("gadget.stock", "list")
     return(out)
 }
 
@@ -214,6 +232,10 @@ make_gadget_spawnfile <- function(stockname, start_year, end_year, ...) {
     spawn_params <- modifyList(spawn_params, override_defaults)
     class(spawn_params) <- c("gadget_spawnfile", "list")
     return(spawn_params)
+}
+
+make_gadget_fleet <- function(...) {
+
 }
 
 #' Make Gadget printfile and write out to file
