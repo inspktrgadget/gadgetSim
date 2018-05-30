@@ -1,4 +1,4 @@
-# growth functions in Gadget
+# growth and recruitment functions and formulas
 
 vb <- function(linf, k, t0, age) {
     linf * (1 - exp(-k * (age - t0)))

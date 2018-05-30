@@ -54,7 +54,7 @@ dots <- dots2list(stock = stock_info,
                   initialconditions = stock_initcond,
                   doesspawn = stock_spawnfile)
 
-lenaggfile <- make_lenaggfile(dots2list(stock = stock_info))
+lenaggfile <- make_stock_lenaggfile(dots2list(stock = stock_info))
 
 dummy_df <- data.frame(a = 1, b = 1, c = 1)
 
@@ -103,7 +103,7 @@ test_that("check_stockfile_* funs produce the correct output", {
     stock_info_test <-
         dots2list(stock = stock_info)
     expect_equal(check_stock_info(stock_info_test), stock_info)
-    # make_lenaggfile
+    # make_stock_lenaggfile
     reflen <- seq(minlength, maxlength, dl)
     lenaggfile_test <-
         structure("Aggfiles/cod.stock.len.agg",
@@ -111,7 +111,7 @@ test_that("check_stockfile_* funs produce the correct output", {
                                           lower = reflen[-length(reflen)],
                                           upper = reflen[-1],
                                           stringsAsFactors = FALSE))
-    expect_equal(make_lenaggfile(dots2list(stock = stock_info)), lenaggfile_test)
+    expect_equal(make_stock_lenaggfile(dots2list(stock = stock_info)), lenaggfile_test)
     # check_stock_refweightfile
     refwgt_test <-
         structure(list(

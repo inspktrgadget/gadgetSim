@@ -95,7 +95,7 @@ test_that("make_gadget_stockfile returns the correct output", {
     reflength <- minlength:maxlength
     refwgt <- data.frame(length = reflength,
                          weight = alpha * (reflength) ^ beta)
-    lenaggfile <- attr(make_lenaggfile(dots2list(stock = stock_info)), "lenaggfile")
+    lenaggfile <- attr(make_stock_lenaggfile(dots2list(stock = stock_info)), "lenaggfile")
     make_stockfile_test <-
         structure(list(
             stockname = "cod",
@@ -142,4 +142,24 @@ test_that("make_gadget_stockfile returns the correct output", {
                                        initialconditions = stock_initcond,
                                        spawning = stock_spawnfile),
                  make_stockfile_test)
+})
+
+test_that("make_gadget_fleet produces the correct output", {
+    base_data <- expand.grid(year = 1:10, steps = 1:4, area = 1, fleetname = "comm")
+    base_data$amount <- sample(1e5:1e6, nrow(base_data), replace = TRUE)
+    btm_fleet <-
+      list(type = "totalfleet",
+           suitability = exponentiall50_suit_formula("comm", "cod"),
+           amount = base_data)
+    fleet_test <-
+        structure(list(
+            totalfleet = "comm",
+            livesonareas = 1,
+            multiplicative = 1,
+            suitability = "cod\tfunction\tnewexponentiall50\t#cod.comm.alpha\t#cod.comm.l50",
+            amount = "Data/fleet.comm.data"),
+            amount = structure(base_data, filename = "Data/fleet.comm.data"),
+            class = c("gadget.fleet", "list"))
+    fleet_test <- structure(list(fleet_test), class = c("gadget.fleets", "list"))
+    expect_equal(make_gadget_fleet(comm = btm_fleet), fleet_test)
 })

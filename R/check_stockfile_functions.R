@@ -367,8 +367,9 @@ check_stock_straying <- function(dots) {
     return(straying)
 }
 
+
 #' @rdname check_stockfile_funs
-make_lenaggfile <- function(dots) {
+make_stock_lenaggfile <- function(dots) {
     stock <- dots$stock
     reflength <- seq(stock$minlength, stock$maxlength, by = stock$dl)
     lenaggfile <- sprintf("Aggfiles/%s.stock.len.agg", stock$stockname)

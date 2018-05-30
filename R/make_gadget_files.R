@@ -158,7 +158,7 @@ make_gadget_stockfile <- function(...) {
     }
     # checking and plugging in various components
     stock <- check_stock_info(dots)
-    lenaggfile <- make_lenaggfile(dots)
+    lenaggfile <- make_stock_lenaggfile(dots)
     refweightfile <- check_stock_refweightfile(dots)
     growthandeatlengths <- check_stock_grw_eat_len(dots)
     growth <- check_stock_growth(dots)
@@ -234,9 +234,89 @@ make_gadget_spawnfile <- function(stockname, start_year, end_year, ...) {
     return(spawn_params)
 }
 
-make_gadget_fleet <- function(...) {
 
+
+#' Create a list of class "gadget_fleet" that can be used to write out a Gadget fleet file
+#'
+#' This function takes named lists as arguments with elements that correspond to the different
+#' parameters of a Gadget fleet component (see Gadget User Guide). Names of objects passed to
+#' \code{...} will be used as the fleet names. The first element of the named list should by type,
+#' which specifies the type that fleet will be
+#' (i.e. \code{type = totalfleet, type = numberfleet}, etc.)
+#'
+#' WARNING: The implementation of this function for fleets of type quotafleet has not been
+#' adequately tested. It should be expected that this portion of the function behaves unexpectedly.
+#' If you encounter this and wish it to get fixed sooner rather than later,
+#' post an issue to \url{https://github.com/inspktrgadget/gadgetSim}
+#'
+#'
+#' @param ... Named objects corresponding to the appropriate arguments to various Gadget fleet types
+#'
+#' @return A list of class \code{gadget.fleet}
+#' @export
+#'
+#' @examples
+#' base_data <- expand.grid(year = 1:10, steps = 1:4, area = 1, fleetname = "btm")
+#' base_data$amount <- sample(1e5:1e6, nrow(base_data), replace = TRUE)
+#' btm_fleet <-
+#'   list(type = "totalfleet",
+#'        suitability = fleet_suit("cod", "exponentiall50"),
+#'        amount = base_data)
+#' lin_flt_data <- expand.grid(year = 1:10, steps = 1:4, area = 1, fleetname = "lin")
+#' lin_flt_data$scaling <- c(seq(0.01,0.8, length.out = 20), seq(0.8,0.2,length.out = 20))
+#' lin_flt <-
+#'   list(type = "linearfleet",
+#'        suitability = fleet_suit("cod", "exponentiall50"),
+#'        amount = lin_flt_data)
+#' make_gadget_fleet(comm = btm_fleet)
+#' make_gadget_fleet(comm = lin_flt)
+#' make_gadget_fleet(btm = btm_fleet, lin = lin_flt)
+make_gadget_fleet <- function(...) {
+    dots <- dots2list(...)
+    fleets <-
+        lapply(seq_along(dots), function(x, nms) {
+            fleet <- dots[[x]]
+            if (!check_names("^type", fleet)) {
+                stop("Type of fleet must be one of the following", "\n",
+                     paste(paste(" * ", fleet_types), collapse = "\n"))
+            }
+            sub_list <- function(l) {
+                return(l[names(l) != "type"])
+            }
+            modify_fleet <- function(fleet_template, fleet) {
+                out <- modifyList(fleet_template, sub_list(fleet))
+                out[[fleet$type]] <- nms[x]
+                filename <- sprintf("Data/fleet.%s.data", nms[x])
+                out$amount <- filename
+                attr(out, "amount") <- structure(fleet$amount, filename = filename)
+                return(out)
+            }
+            if (fleet$type == "totalfleet") {
+                out <- modify_fleet(totalfleet, fleet)
+            } else if (fleet$type == "numberfleet") {
+                out <- modify_fleet(numberfleet, fleet)
+            } else if (fleet$type == "linearfleet") {
+                out <- modify_fleet(linearfleet, fleet)
+            } else if (fleet$type == "effortfleet") {
+                out <- modify_fleet(effortfleet)
+            } else if (fleet$type == "quotafleet") {
+                out <- modifyList(quotafleet, sub_list(fleet))
+                out$quotafleet <- nms[x]
+                filename <- sprintf("Data/fleet.%s.data", nms[x])
+                out$amount <- filename
+                attr(out, "amount") <- structure(fleet$amount, filename = filename)
+            } else {
+                stop("Type of fleet file must be one of the following", "\n",
+                     paste(paste(" * ", fleet_types), collapse = "\n"))
+            }
+            if (!identical(names(out), names(getFromNamespace(fleet$type, ns = "gadgetSim")))) {
+                stop("You added a name that is not known to a fleet type or forgot a required one")
+            }
+            return(out)
+        }, nms = names(dots))
+    return(structure(fleets, class = c("gadget.fleets", "list")))
 }
+
 
 #' Make Gadget printfile and write out to file
 #'

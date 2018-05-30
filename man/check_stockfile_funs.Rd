@@ -2,6 +2,7 @@
 % Please edit documentation in R/check_stockfile_functions.R
 \name{check_stockfile_funs}
 \alias{check_stockfile_funs}
+\alias{check_stock_info}
 \alias{check_stock_refweightfile}
 \alias{check_stock_grw_eat_len}
 \alias{check_stock_growth}
@@ -15,35 +16,40 @@
 \alias{check_stock_renewal}
 \alias{check_stock_spawning}
 \alias{check_stock_straying}
+\alias{make_stock_lenaggfile}
 \title{Check various entries when making a stockfile using make_gadget_stockfile()}
 \usage{
-check_stock_refweightfile(stockfile)
+check_stock_info(dots)
 
-check_stock_grw_eat_len(stockfile, lenaggfile = get("lenaggfile", env =
+check_stock_refweightfile(dots)
+
+check_stock_grw_eat_len(dots, lenaggfile = get("lenaggfile", env =
   parent.frame()))
 
-check_stock_growth(stockfile)
+check_stock_growth(dots)
 
-check_stock_m(stockfile)
+check_stock_m(dots)
 
-check_stock_iseaten(stockfile, lenaggfile = get("lenaggfile", env =
+check_stock_iseaten(dots, lenaggfile = get("lenaggfile", env =
   parent.frame()))
 
-check_stock_predator(stockfile)
+check_stock_predator(dots)
 
-check_stock_initcond(stockfile)
+check_stock_initcond(dots)
 
-check_stock_migration(stockfile)
+check_stock_migration(dots)
 
-check_stock_maturity(stockfile)
+check_stock_maturity(dots)
 
-check_stock_movement(stockfile)
+check_stock_movement(dots)
 
-check_stock_renewal(stockfile)
+check_stock_renewal(dots)
 
-check_stock_spawning(stockfile)
+check_stock_spawning(dots)
 
-check_stock_straying(stockfile)
+check_stock_straying(dots)
+
+make_stock_lenaggfile(dots)
 }
 \arguments{
 \item{stockfile}{A list that contains stockfile information such as

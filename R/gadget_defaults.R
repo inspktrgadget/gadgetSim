@@ -103,8 +103,8 @@ NULL
 totalfleet <-
     structure(
         list(totalfleet = "",
-             livesonareas = "",
-             multiplicative = "",
+             livesonareas = 1,
+             multiplicative = 1,
              suitability = "",
              amount = ""),
         class = c("gadget.fleet", "list"))
@@ -133,6 +133,9 @@ quotafleet <-
              quotalevel = "",
              amount = ""),
         class = c("gadget.fleet", "list"))
+
+fleet_types <-
+    c("totalfleet", "numberfleet", "linearfleet", "effortfleet", "quotafleet")
 
 
 #' Switch defaults
