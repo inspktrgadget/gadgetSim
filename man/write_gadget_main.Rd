@@ -7,12 +7,12 @@
 write_gadget_main(obj = NULL, file = "main", path = NULL)
 }
 \arguments{
-\item{obj}{A list also containing class \code{gadget.main}}
+\item{obj}{A list also containing class \code{gadget_main}}
 
 \item{file}{Name of the file to write to}
 }
 \description{
-Writes a Gadget main file from an R list containing class gadget.main to a
+Writes a Gadget main file from an R list containing class gadget_main to a
 text file to be used by Gadget
 }
 \examples{

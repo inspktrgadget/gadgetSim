@@ -82,11 +82,13 @@ make_gadget_areafile <- function(areas, size, temp_data) {
 
 #' Make Gadget stockfile
 #'
-#' Make a list of class \code{gadget.stock} that can be used to write out a Gadget stockfile
+#' Make a list of class \code{gadget_stock} that can be used to write out a Gadget stockfile
 #'
-#' @param ... A list of named elements. The names correspond to arguments found in Gadget stockfiles
+#' @param ... A list of named elements. The names of these elements must correspond to arguments
+#' found in Gadget stockfiles (i.e. for growth, use growth = list(), for spawning, use
+#' spawning = list(), etc), see Gadget User Guide. Chapter 4. Stock Files.
 #'
-#' @return A list of class \code{gadget.stock} containing information about that stock to be used
+#' @return A list of class \code{gadget_stock} containing information about that stock to be used
 #' by Gadget
 #' @export
 #'
@@ -116,7 +118,7 @@ make_gadget_areafile <- function(areas, size, temp_data) {
 #'              c(to_gadget_formula(quote(cod.linf)), to_gadget_formula(quote(cod.k)),
 #'                0.001, 3))
 #' # setup naturalmortality
-#' stock_m <- list(naturalmortality = rep(0.2, 10))
+#' stock_m <- rep(0.2, 10)
 #'
 #' # setup initial conditions
 #' init_data <-
@@ -131,15 +133,13 @@ make_gadget_areafile <- function(areas, size, temp_data) {
 #' stock_initcond <- list(normalparamfile = init_data)
 #'
 #' # setup spawning
-#' spawnfile <-
+#' stock_spawnfile <-
 #'     make_gadget_spawnfile(
 #'       stockname = "cod",
 #'       start_year = 1,
 #'       end_year = 10,
 #'       recruitment = ricker_formula("cod")
 #'     )
-#' stock_spawnfile <-
-#'     list(spawnfile = spawnfile)
 #'
 #' # create gadget stockfile
 #' cod <-
@@ -149,7 +149,7 @@ make_gadget_areafile <- function(areas, size, temp_data) {
 #'                          naturalmortality = stock_m,
 #'                          iseaten = 1,
 #'                          initialconditions = stock_initcond,
-#'                          doesspawn = stock_spawnfile)
+#'                          spawning = stock_spawnfile)
 make_gadget_stockfile <- function(...) {
     dots <- dots2list(...)
     if (!check_names("^stock", dots)) {
@@ -259,16 +259,20 @@ make_gadget_spawnfile <- function(stockname, start_year, end_year, ...) {
 #' base_data$amount <- sample(1e5:1e6, nrow(base_data), replace = TRUE)
 #' btm_fleet <-
 #'   list(type = "totalfleet",
-#'        suitability = fleet_suit("cod", "exponentiall50"),
+#'        suitability = exponentiall50_suit_formula("btm", "cod"),
 #'        amount = base_data)
+#' make_gadget_fleet(btm = btm_fleet)
+#'
+#' # different fleet type
 #' lin_flt_data <- expand.grid(year = 1:10, steps = 1:4, area = 1, fleetname = "lin")
 #' lin_flt_data$scaling <- c(seq(0.01,0.8, length.out = 20), seq(0.8,0.2,length.out = 20))
 #' lin_flt <-
 #'   list(type = "linearfleet",
-#'        suitability = fleet_suit("cod", "exponentiall50"),
+#'        suitability = exponentiall50_suit_formula("lin", "cod"),
 #'        amount = lin_flt_data)
-#' make_gadget_fleet(comm = btm_fleet)
-#' make_gadget_fleet(comm = lin_flt)
+#' make_gadget_fleet(lin = lin_flt)
+#'
+#' # can handle multiple fleet types
 #' make_gadget_fleet(btm = btm_fleet, lin = lin_flt)
 make_gadget_fleet <- function(...) {
     dots <- dots2list(...)

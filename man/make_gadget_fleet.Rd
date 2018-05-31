@@ -30,15 +30,19 @@ base_data <- expand.grid(year = 1:10, steps = 1:4, area = 1, fleetname = "btm")
 base_data$amount <- sample(1e5:1e6, nrow(base_data), replace = TRUE)
 btm_fleet <-
   list(type = "totalfleet",
-       suitability = fleet_suit("cod", "exponentiall50"),
+       suitability = exponentiall50_suit_formula("btm", "cod"),
        amount = base_data)
+make_gadget_fleet(btm = btm_fleet)
+
+# different fleet type
 lin_flt_data <- expand.grid(year = 1:10, steps = 1:4, area = 1, fleetname = "lin")
 lin_flt_data$scaling <- c(seq(0.01,0.8, length.out = 20), seq(0.8,0.2,length.out = 20))
 lin_flt <-
   list(type = "linearfleet",
-       suitability = fleet_suit("cod", "exponentiall50"),
+       suitability = exponentiall50_suit_formula("lin", "cod"),
        amount = lin_flt_data)
-make_gadget_fleet(comm = btm_fleet)
-make_gadget_fleet(comm = lin_flt)
+make_gadget_fleet(lin = lin_flt)
+
+# can handle multiple fleet types
 make_gadget_fleet(btm = btm_fleet, lin = lin_flt)
 }

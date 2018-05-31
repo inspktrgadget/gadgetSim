@@ -76,15 +76,31 @@ get_index <- function(x, vec) {
     return(as.vector(out))
 }
 
-#' Paste path variable and file name together if path exists
+#' Checking path and directory status
+#'
+#' These functions check for the presence of an object named \code{path}
+#' (either within a function or globally). If \code{path} exists it gets attached in front of \code{x}
+#' separated by a "/"
 #'
 #' @param x Character. Name of file
+#' @param env An environment to search for the object named \code{path}
 #'
-#' @return Character. Either the file name or the \code{path} and file name pasted if
-#' \code{path} exists
+#' @return \code{check_path} returns a character of either the file name or the \code{path} and
+#' file name pasted if \code{path} exists in the environment \code{env}. \code{check_dir_exists}
+#' returns nothing. It searches for the directory \code{dir} within \code{path} if it exists and
+#' creates a directory named \code{dir} if it is not found
+#'
+#' @name path_dir_funs
 #'
 #' @examples
 #' check_path("main")
+#' path <- "test_dir"
+#' check_path("main")
+#'
+#' \dontrun{
+#' check_dir_exists("foo")
+#' check_dir_exists("bar", path = "foo",)
+#' }
 check_path <- function(x, env = parent.frame()) {
     if (is.null(x)) {
         return(x)
@@ -95,6 +111,28 @@ check_path <- function(x, env = parent.frame()) {
     }
     return(x)
 }
+
+#' @rdname path_dir_funs
+#' @param dir Character. The name of a directory to look for (and create if not found)
+check_dir_exists <- function(dir = NULL) {
+    if (is.null(dir)) {
+        invisible()
+    } else if (!dir.exists(dir)) {
+        dir.create(dir)
+    }
+}
+
+#' @rdname path_dir_funs
+check_path_dir <- function(path = NULL) {
+    if (is.null(path)) {
+        invisible()
+    } else {
+        if (!dir.exists(path)) {
+            dir.create(path)
+        }
+    }
+}
+
 
 #' Logical test to see if name(s) are in an object
 #'
@@ -348,9 +386,23 @@ is_list_element_null <- function(lst, keep_names = FALSE) {
 #'
 #' @examples
 #' aggfile_header("area")
-aggfile_header <- function(af_type) {
+aggfile_header <- function(af_type = "") {
     return(sprintf("; %s aggfile created by gadgetSim %s on %s",
                    af_type, packageVersion("gadgetSim"), date()))
+}
+
+#' @rdname def_labs
+#' @param gf Character. The type of Gadget file being written
+gadgetfile_header <- function(gf = "") {
+    return(sprintf("; Gadget %s file created by gadgetSim %s on %s",
+                   gf, packageVersion("gadgetSim"), date()))
+}
+
+#' @rdname def_labs
+#' @param df Character. The type of data file being written
+datafile_header <- function(df = "") {
+    return(sprintf("; %s data file created by gadgetSim %s on %s",
+                   df, packageVersion("gadgetSim"), date()))
 }
 #' @rdname def_labs
 comp_lab <- "[component]"

@@ -4,12 +4,18 @@
 \name{def_labs}
 \alias{def_labs}
 \alias{aggfile_header}
+\alias{gadgetfile_header}
+\alias{datafile_header}
 \alias{comp_lab}
 \alias{comp_regex}
 \title{Some default labels}
 \format{An object of class \code{character} of length 1.}
 \usage{
-aggfile_header(af_type)
+aggfile_header(af_type = "")
+
+gadgetfile_header(gf = "")
+
+datafile_header(df = "")
 
 comp_lab
 
@@ -17,6 +23,10 @@ comp_regex
 }
 \arguments{
 \item{af_type}{Character. The aggfile type to be included in header label (e.g. area, age, len)}
+
+\item{gf}{Character. The type of Gadget file being written}
+
+\item{df}{Character. The type of data file being written}
 }
 \value{
 \code{aggfile_header} returns a character to be used as a header for printing text files

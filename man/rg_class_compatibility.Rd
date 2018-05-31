@@ -21,7 +21,10 @@ rg2gs_classes(rg_obj)
 The same \code{gs_obj}, but with a class appropriate for use in Rgadget
 }
 \description{
-Convert classes of Rgadget and gadgetSim objects to be compatible with one another
+Much care has been taken in an attempt to keep gadgetSim and Rgadget as compatible as possible, but
+Rgadget uses slightly different syntax for creating classes of objects that gadgetSim.
+These functions alter classes appropriately allowing for greater compatibility between the two
+packages allowing for (hopefully) seamless integration.
 }
 \examples{
 # converting from gadgetSim to Rgadget
