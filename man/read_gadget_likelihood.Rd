@@ -9,13 +9,13 @@ read_gadget_likelihood(likelihoodfiles, main = NULL, path = NULL)
 \arguments{
 \item{likelihoodfiles}{Character. The name of the likelihood file}
 
-\item{main}{Optional. A list of class \code{gadget.main}}
+\item{main}{Optional. A list of class \code{gadget_main}}
 
 \item{path}{Optional. Character vector of path to the directory where Gadget files are located}
 }
 \value{
 A list of \code{data.frame}s; one for each likelihood type.
-The returned list also has class \code{gadget.likelihood}
+The returned list also has class \code{gadget_likelihood}
 }
 \description{
 Read Gadget likelihood file

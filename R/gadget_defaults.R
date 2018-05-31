@@ -21,7 +21,7 @@ gadget_main_default <-
              otherfoodfiles = "",
              fleetfiles = "",
              likelihoodfiles = ""),
-        class = c("gadget.main", "list"))
+        class = c("gadget_main", "list"))
 
 #' @rdname gadget_defaults
 gadget_timefile_default <-
@@ -31,7 +31,7 @@ gadget_timefile_default <-
              lastyear = NULL,
              laststep = NULL,
              notimesteps = NULL),
-        class = c("gadget.time", "list")
+        class = c("gadget_time", "list")
     )
 
 #' @rdname gadget_defaults
@@ -40,7 +40,7 @@ gadget_areafile_default <-
         list(areas = NULL,
              size = NULL,
              temperature = NULL),
-        class = c("gadget.area", "list")
+        class = c("gadget_area", "list")
     )
 #' @rdname gadget_defaults
 gadget_stockfile_default <-
@@ -65,7 +65,7 @@ gadget_stockfile_default <-
              doesrenew = 0,
              doesspawn = 0,
              doesstray = 0),
-        class = c("gadget.stock", "list")
+        class = c("gadget_stock", "list")
     )
 
 #' @rdname gadget_defaults
@@ -77,7 +77,7 @@ gadget_tagfile_default <-
              endyear = NULL,
              tagloss = NULL,
              numbers = NULL),
-        class = c("gadget.tagfile", "list")
+        class = c("gadget_tagfile", "list")
     )
 
 #' @rdname gadget_defaults
@@ -88,7 +88,7 @@ gadget_otherfood_default <-
              lengths = NULL,
              energycontent = NULL,
              amount = NULL),
-        class = c("gadget.otherfood", "list")
+        class = c("gadget_otherfood", "list")
     )
 
 
@@ -107,7 +107,7 @@ totalfleet <-
              multiplicative = 1,
              suitability = "",
              amount = ""),
-        class = c("gadget.fleet", "list"))
+        class = c("gadget_fleet", "list"))
 
 #' @rdname fleet_defaults
 numberfleet <- totalfleet
@@ -132,7 +132,7 @@ quotafleet <-
              biomasslevel = "",
              quotalevel = "",
              amount = ""),
-        class = c("gadget.fleet", "list"))
+        class = c("gadget_fleet", "list"))
 
 fleet_types <-
     c("totalfleet", "numberfleet", "linearfleet", "effortfleet", "quotafleet")

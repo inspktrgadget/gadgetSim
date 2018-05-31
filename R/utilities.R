@@ -52,8 +52,6 @@ split_ws_list <- function(vec, ind = NULL) {
 }
 
 
-
-
 #' Get the index of obect(s) in a vector
 #'
 #' @param x Object for which the index will be retrieved

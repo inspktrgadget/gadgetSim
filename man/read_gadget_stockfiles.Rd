@@ -9,13 +9,13 @@ read_gadget_stockfiles(stockfiles, main = NULL, path = NULL)
 \arguments{
 \item{stockfiles}{Character vector of stocknames present in Gadget model}
 
-\item{main}{Optional. A list of class \code{gadget.main}}
+\item{main}{Optional. A list of class \code{gadget_main}}
 
 \item{path}{Optional. Character vector of path to the directory where Gadget files are located}
 }
 \value{
-A list of class \code{gadget.stocks} consisting of \code{gadget.stock}
-one or more gadget.stock objects
+A list of class \code{gadget_stocks} consisting of \code{gadget_stock}
+one or more gadget_stock objects
 }
 \description{
 Get stockfiles used in a Gadget model

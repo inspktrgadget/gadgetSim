@@ -8,7 +8,7 @@ get_stock_std(main = "main", params_file = "params.in", path = NULL,
   fit_dir = "FIT", gadget_exe = "gadget", ...)
 }
 \arguments{
-\item{main}{Optional. A list of class \code{gadget.main}}
+\item{main}{Optional. A list of class \code{gadget_main}}
 
 \item{params_file}{Character. Path to the params file used to call Gadget}
 

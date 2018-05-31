@@ -2,8 +2,8 @@
 
 #' Functions to retrieve basic information about Gadget stocks
 #'
-#' @param stocks A list of class \code{gadget.stock} or a list of class \code{gadget.stocks} containing one (or typically more)
-#' lists of class \code{gadget.stock}
+#' @param stocks A list of class \code{gadget_stock} or a list of class \code{gadget_stocks} containing one (or typically more)
+#' lists of class \code{gadget_stock}
 #' @param what2get Character vector of which component of a stockfile to get.
 #'
 #' @return A vector of values found in the Gadget stock file possibly coerced to numeric if appropriate
@@ -19,59 +19,59 @@
 #' get_stock_anything(cod, "normalparamfile")
 #' get_stock_anything(cod, "dl")
 get_stock_anything <- function(stocks, what2get) {
-	if (class(stocks) == "gadget.stock") {
+	if (class(stocks) == "gadget_stock") {
 		tmp <- tryCatch(as.numeric(stocks[[what2get]]),
 					warning = function(w) return(stocks[[what2get]]),
 					error = function(e) return(stocks[[what2get]])
 				)
 		return(tmp)
-	} else if (class(stocks) == "gadget.stocks") {
+	} else if (class(stocks) == "gadget_stocks") {
 	    return(unique(unlist(lapply(stocks, get_stock_anything, what2get = what2get))))
 	} else {
-	    stop("You must supply a list of class gadget.stock or gadget.stocks and something to fetch")
+	    stop("You must supply a list of class gadget_stock or gadget_stocks and something to fetch")
 	}
 }
 
 #' @rdname getStockInfo
 get_stock_ages <- function(stocks) {
-    if (class(stocks) == "gadget.stock") {
+    if (class(stocks) == "gadget_stock") {
         return(as.numeric(stocks$minage):(as.numeric(stocks$maxage)))
-    } else if (class(stocks) == "gadget.stocks") {
+    } else if (class(stocks) == "gadget_stocks") {
         return(unique(unlist(lapply(stocks, get_stock_ages))))
     } else {
-        stop("You must supply a list of class gadget.stock or gadget.stocks")
+        stop("You must supply a list of class gadget_stock or gadget_stocks")
     }
 }
 
 #' @rdname getStockInfo
 get_stock_areas <- function(stocks) {
-    if (class(stocks) == "gadget.stock") {
+    if (class(stocks) == "gadget_stock") {
         return(as.numeric(stocks$livesonareas))
-    } else if (class(stocks) == "gadget.stocks") {
+    } else if (class(stocks) == "gadget_stocks") {
         return(unique(unlist(lapply(stocks, get_stock_areas))))
     } else {
-        stop("You must supply a list of class gadget.stock or gadget.stocks")
+        stop("You must supply a list of class gadget_stock or gadget_stocks")
     }
 }
 
 #' @rdname getStockInfo
 get_stocknames <- function(stocks) {
-    if (class(stocks) == "gadget.stock") {
+    if (class(stocks) == "gadget_stock") {
         return(stocks$stockname)
-    } else if (class(stocks) == "gadget.stocks") {
+    } else if (class(stocks) == "gadget_stocks") {
         return(unique(unlist(lapply(stocks, get_stocknames))))
     } else {
-        stop("You must supply a list of class gadget.stock or gadget.stocks")
+        stop("You must supply a list of class gadget_stock or gadget_stocks")
     }
 }
 
 #' @rdname getStockInfo
 get_stock_lengths <- function(stocks) {
-    if (class(stocks) == "gadget.stock") {
+    if (class(stocks) == "gadget_stock") {
         return(seq(as.numeric(stocks$minlength),
                    as.numeric(stocks$maxlength),
                    by = as.numeric(stocks$dl)))
-    } else if (class(stocks) == "gadget.stocks") {
+    } else if (class(stocks) == "gadget_stocks") {
         minlength <-
             min(as.numeric(unique(unlist(lapply(stocks, function(x) x$minlength)))))
         maxlength <-
@@ -80,6 +80,6 @@ get_stock_lengths <- function(stocks) {
             min(as.numeric(unique(unlist(lapply(stocks, function(x) x$dl)))))
         return(seq(minlength, maxlength, by = dl))
     } else {
-        stop("You must supply a list of class gadget.stock or gadget.stocks")
+        stop("You must supply a list of class gadget_stock or gadget_stocks")
     }
 }

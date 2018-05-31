@@ -5,7 +5,7 @@
 #' @param file Character. Name of the main file to be read
 #' @inheritParams call_gadget
 #'
-#' @return List of class \code{gadget.main} with each name corresponding to a type of file
+#' @return List of class \code{gadget_main} with each name corresponding to a type of file
 #' and each object corresponding to a filename as used by Gadget
 #' @export
 #'
@@ -19,7 +19,7 @@ read_gadget_main <- function(file = "main", path = NULL) {
     }
     main <- readLines(file)
     if (length(main) == 0) {
-        stop(sprintf("Error in read.gadget.main, file %s is empty", file))
+        stop(sprintf("File %s is empty", file))
     }
     main <- strip_comments(main)
     keywords <- grep("^\\[", main)
@@ -32,7 +32,7 @@ read_gadget_main <- function(file = "main", path = NULL) {
         } else {return(x)}
     })
     main <- setNames(main, typeoffile)
-    class(main) <- c("gadget.main", class(main))
+    class(main) <- c("gadget_main", class(main))
     return(main)
 }
 
@@ -41,11 +41,11 @@ read_gadget_main <- function(file = "main", path = NULL) {
 #' Get stockfiles used in a Gadget model
 #'
 #' @param stockfiles Character vector of stocknames present in Gadget model
-#' @param main Optional. A list of class \code{gadget.main}
+#' @param main Optional. A list of class \code{gadget_main}
 #' @inheritParams read_gadget_main
 #'
-#' @return A list of class \code{gadget.stocks} consisting of \code{gadget.stock}
-#' one or more gadget.stock objects
+#' @return A list of class \code{gadget_stocks} consisting of \code{gadget_stock}
+#' one or more gadget_stock objects
 #' @export
 #'
 #' @examples
@@ -55,8 +55,8 @@ read_gadget_main <- function(file = "main", path = NULL) {
 #' head(stocks[[1]])
 read_gadget_stockfiles <- function(stockfiles, main = NULL, path = NULL) {
     if (!is.null(main)) {
-        if (!("gadget.main" %in% class(main))) {
-            stop("If main is specified you must supply a list of class gadget.main")
+        if (!("gadget_main" %in% class(main))) {
+            stop("If main is specified you must supply a list of class gadget_main")
         }
         stockfiles <- main$stockfiles
     }
@@ -68,10 +68,10 @@ read_gadget_stockfiles <- function(stockfiles, main = NULL, path = NULL) {
             tmp_names <- vapply(tmp, function(x) return(x[1]), character(1))
             tmp_cont <- lapply(tmp, function(x) return(x[-1]))
             out <- setNames(tmp_cont, tmp_names)
-            return(structure(out, class = "gadget.stock"))
+            return(structure(out, class = "gadget_stock"))
         })
     stocks <- setNames(stocks, stockfiles)
-    return(structure(stocks, class = "gadget.stocks"))
+    return(structure(stocks, class = "gadget_stocks"))
 }
 
 
@@ -90,8 +90,8 @@ read_gadget_stockfiles <- function(stockfiles, main = NULL, path = NULL) {
 #' read_gadget_fleet(main = main, path = path)
 read_gadget_fleet <- function(fleetfiles, main = NULL, path = NULL) {
     if (!is.null(main)) {
-        if (!("gadget.main" %in% class(main))) {
-            stop("If main is specified you must supply a list of class gadget.main")
+        if (!("gadget_main" %in% class(main))) {
+            stop("If main is specified you must supply a list of class gadget_main")
         }
         fleetfiles <- main$fleetfiles
     }
@@ -127,7 +127,8 @@ read_gadget_fleet <- function(fleetfiles, main = NULL, path = NULL) {
                          subset(dat, select = -func))
             return(dat)
         }, n = names(prey_ind)))
-    return(list(fleet = fleet_info, prey = suit_info))
+    return(structure(list(fleet = fleet_info, prey = suit_info),
+                     class = c("gadget_fleets", "list")))
 }
 
 
@@ -142,7 +143,7 @@ read_gadget_fleet <- function(fleetfiles, main = NULL, path = NULL) {
 #' \code{data.frame} of all the components within a respective likelihood type.
 #'
 #' @return A list of \code{data.frame}s; one for each likelihood type.
-#' The returned list also has class \code{gadget.likelihood}
+#' The returned list also has class \code{gadget_likelihood}
 #' @export
 #'
 #' @examples
@@ -154,8 +155,8 @@ read_gadget_fleet <- function(fleetfiles, main = NULL, path = NULL) {
 #' lik <- read_gadget_likelihood(main = main, path = path)
 read_gadget_likelihood <- function(likelihoodfiles, main = NULL, path = NULL) {
     if (!is.null(main)) {
-        if (!("gadget.main" %in% class(main))) {
-            stop("If main is specified you must supply a list of class gadget.main")
+        if (!("gadget_main" %in% class(main))) {
+            stop("If main is specified you must supply a list of class gadget_main")
         }
         likelihoodfiles <- main$likelihood
     }
@@ -194,7 +195,7 @@ read_gadget_likelihood <- function(likelihoodfiles, main = NULL, path = NULL) {
             }), make.row.names = FALSE))
         })
     out <- setNames(out, lik_types)
-    class(out) <- c("gadget.likelihood", class(out))
+    class(out) <- c("gadget_likelihood", class(out))
     return(out)
 }
 

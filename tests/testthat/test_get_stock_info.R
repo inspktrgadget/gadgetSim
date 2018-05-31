@@ -1,4 +1,4 @@
-context("Testing functions to get basic stock information")
+context("Testing get_stock_info functions")
 
 path <- system.file(gad_mod_dir, package = "gadgetSim")
 main <- read_gadget_main(path = path)

@@ -12,16 +12,16 @@ test_that("read_gadget_main appropriately reads Gadget mainfiles", {
             stockfiles = c("cod0", "cod"),
             fleetfiles = "Modelfiles/fleet",
             likelihoodfiles = "likelihood"
-        ), class = c("gadget.main", "list"))
+        ), class = c("gadget_main", "list"))
     expect_equal(main, expected_main)
 })
 
 test_that("read_gadget_stockfiles is of the appropriate length and class", {
     stocks <- read_gadget_stockfiles(main = main, path = path)
     expect_equal(length(stocks), 2)
-    expect_is(stocks, c("gadget.stocks", "list"))
-    expect_is(stocks[[1]], c("gadget.stock", "list"))
-    expect_is(stocks[[2]], c("gadget.stock", "list"))
+    expect_is(stocks, c("gadget_stocks", "list"))
+    expect_is(stocks[[1]], c("gadget_stock", "list"))
+    expect_is(stocks[[2]], c("gadget_stock", "list"))
 })
 
 test_that("read_gadget_fleet returns the appropriate structure", {

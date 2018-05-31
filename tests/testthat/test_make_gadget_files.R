@@ -11,7 +11,7 @@ test_that("make_gadget_mainfile produces correct output", {
             otherfoodfiles = "",
             fleetfiles = "",
             likelihoodfiles = "likelihood"
-        ), class = c("gadget.main", "list"))
+        ), class = c("gadget_main", "list"))
     expect_equal(make_gadget_mainfile(timefile = "foo", areafile = "bar",
                                       stockfiles = "baz", likelihoodfiles = "likelihood"),
                  main_test)
@@ -22,7 +22,7 @@ test_that("make_gadget_timefile produces correct output under different scenario
     quarterly_time <-
         list(firstyear = 1985, firststep = 1, lastyear = 2015, laststep = 4,
              notimesteps = c(4,3,3,3,3))
-    class(quarterly_time) <- c("gadget.time", "list")
+    class(quarterly_time) <- c("gadget_time", "list")
     biannual_time <-
         modifyList(quarterly_time,
                    list(laststep = 2, notimesteps = c(2, 6, 6)))
@@ -48,13 +48,13 @@ test_that("make_gadget_areafile returns the correct output", {
                     area = 1, mean = 3)
     area_list <-
         list(areas = 1, size = 100, temperature = temp_data)
-    class(area_list) <- c("gadget.area", "list")
+    class(area_list) <- c("gadget_area", "list")
     temp2_data <-
         expand.grid(year = 1:2, step = 1:4,
                     area = 1:2, mean = 3)
     two_areas <-
         list(areas = 1:2, size = c(100, 150), temperature = temp2_data)
-    class(two_areas) <- c("gadget.area", "list")
+    class(two_areas) <- c("gadget_area", "list")
     expect_equal(make_gadget_areafile(1, 100, temp_data), area_list)
     expect_equal(make_gadget_areafile(1:2, c(100, 150), temp2_data), two_areas)
 
@@ -135,7 +135,7 @@ test_that("make_gadget_stockfile returns the correct output", {
         initialconditions = structure(stock_initcond,
                                       filename = "Modelfiles/cod.init.normalparamfile"),
         spawning = structure(stock_spawnfile, filename = "Modelfiles/cod.spawnfile"),
-        class = c("gadget.stock", "list"))
+        class = c("gadget_stock", "list"))
     expect_equal(make_gadget_stockfile(stock = stock_info,
                                        growth = stock_growth,
                                        naturalmortality = stock_m,
@@ -159,7 +159,7 @@ test_that("make_gadget_fleet produces the correct output", {
             suitability = "cod\tfunction\tnewexponentiall50\t#cod.comm.alpha\t#cod.comm.l50",
             amount = "Data/fleet.comm.data"),
             amount = structure(base_data, filename = "Data/fleet.comm.data"),
-            class = c("gadget.fleet", "list"))
-    fleet_test <- structure(list(fleet_test), class = c("gadget.fleets", "list"))
+            class = c("gadget_fleet", "list"))
+    fleet_test <- structure(list(fleet_test), class = c("gadget_fleets", "list"))
     expect_equal(make_gadget_fleet(comm = btm_fleet), fleet_test)
 })

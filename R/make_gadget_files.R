@@ -15,8 +15,7 @@
 #' make_gadget_mainfile(main)
 make_gadget_mainfile <- function(...) {
     dots <- dots2list(...)
-    out <- structure(modifyList(gadget_main_default, dots),
-                     class = c("gadget.main", "list"))
+    out <- structure(modifyList(gadget_main_default, dots))
     if (!isTRUE(all.equal(names(out), names(gadget_main_default)))) {
         stop("You have either removed an argument from mainfile or added one not recognized")
     } else if (is.null(out$stockfiles) | out$stockfiles == "") {
@@ -191,7 +190,7 @@ make_gadget_stockfile <- function(...) {
              iseaten, predator, initialconditions, migration, maturation, movement,
              renewal, spawning, straying)
     attributes(out) <- c(names = list(stockfile_names), stock_attr)
-    class(out) <- c("gadget.stock", "list")
+    class(out) <- c("gadget_stock", "list")
     return(out)
 }
 
@@ -314,7 +313,7 @@ make_gadget_fleet <- function(...) {
             }
             return(out)
         }, nms = names(dots))
-    return(structure(fleets, class = c("gadget.fleets", "list")))
+    return(structure(fleets, class = c("gadget_fleets", "list")))
 }
 
 

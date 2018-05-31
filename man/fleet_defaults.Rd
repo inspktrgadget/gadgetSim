@@ -9,7 +9,7 @@
 \alias{effortfleet}
 \alias{quotafleet}
 \title{Fleet Defaults}
-\format{An object of class \code{gadget.fleet} (inherits from \code{list}) of length 5.}
+\format{An object of class \code{gadget_fleet} (inherits from \code{list}) of length 5.}
 \usage{
 totalfleet
 
