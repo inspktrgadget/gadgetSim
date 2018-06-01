@@ -16,7 +16,7 @@ months, or, more commonly and conventiently one of "annually", "biannually", "qu
 "monthly'}
 }
 \value{
-A list of class \code{gadget.time}
+A list of class \code{gadget_time}
 }
 \description{
 Make Gadget timefile

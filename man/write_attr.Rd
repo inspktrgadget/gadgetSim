@@ -27,8 +27,8 @@ write_gadget_attributes(gf, path = NULL, env = parent.frame())
 get_attr_filename(obj)
 }
 \arguments{
-\item{gf}{The Gadget file component to be written. Should be of class \code{gadget.fleet},
-\code{gadget.stocks}, but can alternately be a \code{data.frame}}
+\item{gf}{The Gadget file component to be written. Should be of class \code{gadget_fleet},
+\code{gadget_stocks}, but can alternately be a \code{data.frame}}
 
 \item{path}{Optional. Character of the path of the directory to look in}
 

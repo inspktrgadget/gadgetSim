@@ -90,7 +90,7 @@ get_stock_std <- function(main = "main", params_file = "params.in", path = NULL,
         got_stock_std <- FALSE
     }
     if (!got_stock_std) {
-        if (!("gadget.main" %in% class(main))) {
+        if (!("gadget_main" %in% class(main))) {
             main <- read_gadget_main(main, path = path)
         }
         if (!dir.exists(check_path(fit_dir))) {

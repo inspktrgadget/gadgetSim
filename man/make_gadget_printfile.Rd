@@ -13,11 +13,14 @@ make_gadget_printfile(..., main = "main", printfile, path = NULL,
 \code{...} must be the same name as one of the default printfile lists,
 see \code{\link{printfileDefaults}}}
 
-\item{main}{List of class \code{gadget.main} or character vector of the main printfile to be read}
+\item{main}{List of class \code{gadget_main} or character vector of the Gadget mainfile to be read}
 
 \item{printfile}{Character. A path to where the printfile will be written}
 
 \item{path}{Optional. Path to Gadget model}
+
+\item{fit_dir}{Optional. Path to sub-directory of Gadget model where optimized files are housed
+(i.e. WGTS from \code{\link[Rgadget]{Rgadget::gadget.fit}})}
 
 \item{output_dir}{Character. Path to the directory where printfiles will be written}
 
@@ -37,5 +40,6 @@ provided by \code{output_dir}
 Make Gadget printfile and write out to file
 }
 \examples{
-make_gadget_printfile(stock_std = list(stockname = "cod"), printfile = "printfile", path = gad_mod_dir)
+make_gadget_printfile(stock_std = list(stockname = "cod"),
+                      printfile = "printfile", path = gad_mod_dir)
 }

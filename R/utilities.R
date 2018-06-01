@@ -78,9 +78,12 @@ get_index <- function(x, vec) {
 
 #' Checking path and directory status
 #'
-#' These functions check for the presence of an object named \code{path}
-#' (either within a function or globally). If \code{path} exists it gets attached in front of \code{x}
-#' separated by a "/"
+#' These functions complete various tasks related to directory structure and inclusion of a
+#' path variable in many of the functions throughout the package.
+#'
+#' \code{check_path} looks for an object named \code{path} in the environment specified by
+#' \code{env} and attaches it in front of \code{x} separated by a "/". \code{check_dir_exists}
+#' checks to see if a directory exists, and, if not, makes one in the current working directory.
 #'
 #' @param x Character. Name of file
 #' @param env An environment to search for the object named \code{path}
@@ -99,7 +102,7 @@ get_index <- function(x, vec) {
 #'
 #' \dontrun{
 #' check_dir_exists("foo")
-#' check_dir_exists("bar", path = "foo",)
+#' check_dir_exists("bar")
 #' }
 check_path <- function(x, env = parent.frame()) {
     if (is.null(x)) {
@@ -119,17 +122,6 @@ check_dir_exists <- function(dir = NULL) {
         invisible()
     } else if (!dir.exists(dir)) {
         dir.create(dir)
-    }
-}
-
-#' @rdname path_dir_funs
-check_path_dir <- function(path = NULL) {
-    if (is.null(path)) {
-        invisible()
-    } else {
-        if (!dir.exists(path)) {
-            dir.create(path)
-        }
     }
 }
 

@@ -32,81 +32,6 @@ update_printfile <- function(printfile_comp, new_info) {
     return(out)
 }
 
-# you can most likely delete the following methods functions for update_printfile
-
-# update_printfile.stock_std <- function(printfile, new_info) {
-#     new_printfile <- update_printfile.default(printfile, new_info)
-#     printfile_name_check(new_printfile, stock_std_args)
-#     return(new_printfile)
-# }
-#
-# update_printfile.stock_full <- function(printfile, new_info) {
-#     new_printfile <- update_printfile.default(printfile, new_info)
-#     printfile_name_check(new_printfile, stock_full_args)
-#     return(new_printfile)
-# }
-#
-# update_printfile.stock <- function(printfile, new_info) {
-#     new_printfile <- update_printfile.default(printfile, new_info)
-#     printfile_name_check(new_printfile, stock_args)
-#     return(new_printfile)
-# }
-#
-# update_printfile.predator <- function(printfile, new_info) {
-#     new_printfile <- update_printfile.default(printfile, new_info)
-#     printfile_name_check(new_printfile, predator_args)
-#     return(new_printfile)
-# }
-#
-# update_printfile.predator_over <- function(printfile, new_info) {
-#     new_printfile <- update_printfile.default(printfile, new_info)
-#     printfile_name_check(new_printfile, predator_over_args)
-#     return(new_printfile)
-# }
-#
-# update_printfile.prey_over <- function(printfile, new_info) {
-#     new_printfile <- update_printfile.default(printfile, new_info)
-#     printfile_name_check(new_printfile, prey_over_args)
-#     return(new_printfile)
-# }
-#
-# update_printfile.stock_prey_full <- function(printfile, new_info) {
-#     new_printfile <- update_printfile.default(printfile, new_info)
-#     printfile_name_check(new_printfile, stock_prey_full_args)
-#     return(new_printfile)
-# }
-#
-# update_printfile.stock_prey <- function(printfile, new_info) {
-#     new_printfile <- update_printfile.default(printfile, new_info)
-#     printfile_name_check(new_printfile, stock_prey_args)
-#     return(new_printfile)
-# }
-#
-# update_printfile.stock_std <- function(printfile, new_info) {
-#     new_printfile <- update_printfile.default(printfile, new_info)
-#     printfile_name_check(new_printfile, stock_std_args)
-#     return(new_printfile)
-# }
-#
-# update_printfile.predator_prey <- function(printfile, new_info) {
-#     new_printfile <- update_printfile.default(printfile, new_info)
-#     printfile_name_check(new_printfile, predator_prey_args)
-#     return(new_printfile)
-# }
-#
-# update_printfile.likelihood <- function(printfile, new_info) {
-#     new_printfile <- update_printfile.default(printfile, new_info)
-#     printfile_name_check(new_printfile, likelihood_args)
-#     return(new_printfile)
-# }
-#
-# update_printfile.likelihood_summary <- function(printfile, new_info) {
-#     new_printfile <- update_printfile.default(printfile, new_info)
-#     printfile_name_check(new_printfile, likelihood_summary_args)
-#     return(new_printfile)
-# }
-
-
 #' Make aggregation files for Gadget printfile components that require them
 #'
 #' @param printfile_comp A list of class pertaining to a Gadget printfile component,
@@ -294,7 +219,7 @@ make_aggfiles.predator_prey <- function(printfile_comp, aggfile_dir, print = NUL
 #' returns the aggfile and path if not present.
 #'
 #' @inheritParams make_aggfiles
-#' @param stocks A list of class \code{gadget.stock} or \code{gadget.stocks}
+#' @param stocks A list of class \code{gadget_stock} or \code{gadget_stocks}
 #'
 #' @return \code{make_*_agg_dir} returns a character vector of a path to the
 #' printfile location. \code{make_*_aggfile} returns a character vector of the
@@ -385,7 +310,9 @@ check_agg_type <- function(printfile_comp, agg_type, stocks, aggfile_dir) {
         aggfile_name <- paste0(gsub("_", "", agg_name), "file")
         printfile_comp[[aggfile_name]] <-
             do.call(dir_call, list(stocks = stocks, aggfile_dir = aggfile_dir))
-        attr(printfile_comp, aggfile_name) <- do.call(aggfile_call, list(stocks = stocks))
+        aggfile <- do.call(aggfile_call, list(stocks = stocks))
+        attr(printfile_comp, aggfile_name) <-
+            structure(aggfile, filename = printfile_comp[[aggfile_name]])
     }
     return(printfile_comp)
 }
@@ -503,52 +430,6 @@ format_printfile <- function(printfile_comp) {
         }, nms = names(printfile_comp))
     return(paste(c(comp_lab, unlist(pf_elem)), sep = "\n", collapse = "\n"))
 }
-
-#' Write aggfiles used in a printfile_component to files in a directory
-#'
-#' This function searches for aggfiles and prints them to the appropriate directory and filename
-#'
-#' @inheritParams make_aggfiles
-#'
-#' @return NULL. Writes aggregate files to the appropriate files in \code{aggfile_dir}
-#'
-#' @examples
-#' path <- system.file(gad_mod_dir, package = "gadgetSim")
-#' cod <- list(stocknames = "cod", printfile = "printfiles")
-#' cod_stock <- update_printfile(stock, cod)
-#' cod_stock_agg <- make_aggfiles(cod_stock, "print.aggfiles", path = path)
-#' \dontrun{
-#' write_aggfiles(cod_stock_agg, "print.aggfiles", path = path)
-#' }
-write_aggfiles <- function(printfile_comp, aggfile_dir, path) {
-    if (any(isNULL_aggfiles(printfile_comp))) {
-        missing_agg <- names(printfile_comp)[isNULL_aggfiles(printfile_comp)]
-        stop(sprintf("Required argument %s is missing", missing_agg))
-    } else if (!any(grepl("aggfile", names(printfile_comp)))) {
-        return(printfile_comp)
-    } else {
-        if (!dir.exists(check_path(aggfile_dir))) {
-            dir.create(check_path(aggfile_dir))
-        }
-        agg_types <- grep("aggfile", names(printfile_comp), value = TRUE)
-        null_list <-
-            lapply(agg_types, function(x) {
-                agg_test <- strsplit(printfile_comp[[x]], split = "/")[[1]][1]
-                if (!(all.equal(agg_test, aggfile_dir))) {
-                    stop(sprintf("The supplied aggfile_dir and directory prefix for
-                                  %s are not the same"), printfile_comp[[x]])
-                }
-                if (!is.null(path)) {
-                    write(attr(printfile_comp, x),
-                          file = paste(path, printfile_comp[[x]], sep = "/"))
-                } else {
-                    write(attr(printfile_comp, x),
-                          file = printfile_comp[[x]])
-                }
-            })
-    }
-}
-
 
 pf_types <- c("stock_std", "stock_full", "stock",
               "predator", "predator_over", "prey_over",

@@ -8,9 +8,12 @@
 \alias{write_gadget_file.gadget_fleets}
 \alias{write_gadget_file.gadget_stock}
 \alias{write_gadget_file.gadget_stocks}
+\alias{write_gadget_file.gadget_params}
+\alias{write_gadget_file.gadget_printfile}
 \title{Write Gadget components to file}
 \usage{
-write_gadget_file(gf, file = NULL, path = NULL)
+write_gadget_file(gf, file = NULL, path = NULL, output_dir = NULL,
+  aggfile_dir = NULL, fit_dir = NULL)
 
 \method{write_gadget_file}{gadget_main}(gf, file = "main", path = NULL)
 
@@ -24,6 +27,13 @@ write_gadget_file(gf, file = NULL, path = NULL)
   path = NULL)
 
 \method{write_gadget_file}{gadget_stocks}(gf, path = NULL)
+
+\method{write_gadget_file}{gadget_params}(gf, file = "params.in",
+  path = NULL)
+
+\method{write_gadget_file}{gadget_printfile}(gf, file = "printfile.fit",
+  path = NULL, output_dir = "out", aggfile_dir = "print.aggfiles",
+  fit_dir = NULL)
 }
 \arguments{
 \item{gf}{A list of class \code{gadget_main}, \code{gadget_time}, \code{gadget_area},
@@ -32,6 +42,13 @@ write_gadget_file(gf, file = NULL, path = NULL)
 \item{file}{Character. The name of the file to be written}
 
 \item{path}{Optional. Character of the path of the directory to write files to}
+
+\item{output_dir}{Character. Path to the directory where printfiles will be written}
+
+\item{aggfile_dir}{Character. Path to the directory where aggfiles will be written}
+
+\item{fit_dir}{Optional. Path to sub-directory of Gadget model where optimized files are housed
+(i.e. WGTS from \code{\link[Rgadget]{Rgadget::gadget.fit}})}
 }
 \value{
 Nothing. Writes the respective Gadget filetype to a text file

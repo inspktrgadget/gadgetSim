@@ -27,7 +27,8 @@
 #' # optional use of a path
 #' write_gadget_file(main, path = "model_dir")
 #' }
-write_gadget_file <- function(gf, file = NULL, path = NULL) {
+write_gadget_file <- function(gf, file = NULL, path = NULL, output_dir = NULL,
+                              aggfile_dir = NULL, fit_dir = NULL) {
     UseMethod("write_gadget_file")
 }
 
@@ -76,7 +77,7 @@ write_gadget_file.gadget_main <- function(gf, file = "main", path = NULL) {
             }
         }, n = names(main_template))
     main <- unlist(main)
-    check_path_dir(path)
+    check_dir_exists(path)
     write(main, file = check_path(file), sep = "\n")
 }
 
@@ -85,7 +86,7 @@ write_gadget_file.gadget_time <- function(gf, file = "time", path = NULL) {
     time_args <- paste(names(gf), collapse_entries(gf), sep = "\t")
     header <- gadgetfile_header("time")
     timefile <- paste(c(header, time_args), collapse = "\n")
-    check_path_dir(path)
+    check_dir_exists(path)
     write(timefile, file = check_path(file))
 }
 
@@ -100,12 +101,13 @@ write_gadget_file.gadget_area <- function(gf, file = "area", path = NULL) {
                                 temperature), collapse = "\n")
     header <- gadgetfile_header("area")
     areafile <- paste(c(header, areasize_args, temperature_args), collapse = "\n")
-    check_path_dir(path)
+    check_dir_exists(path)
     write(areafile, file = check_path(file))
 }
 
 #' @rdname write_gadget_file
 write_gadget_file.gadget_fleets <- function(gf, file = "fleet", path = NULL) {
+    check_dir_exists(path)
     fleets <-
         lapply(gf, function(x) {
             write_gadget_attributes(x, path = path)
@@ -123,7 +125,6 @@ write_gadget_file.gadget_fleets <- function(gf, file = "fleet", path = NULL) {
     comp_comment <- paste(c(";", comp_lab, ""), collapse = "\n")
     out <- paste(paste0(comp_comment, fleets), collapse = "\n")
     write_out <- paste(c(header, out), collapse = "\n")
-    check_path_dir(path)
     check_dir_exists(check_path("Modelfiles"))
     write(write_out, check_path(sprintf("Modelfiles/%s", file)))
 }
@@ -134,7 +135,7 @@ write_gadget_file.gadget_stock <- function(gf, file = gf$stockname, path = NULL)
     stockfile <- paste(names(gf), stock_args, sep = "\t", collapse = "\n")
     header <- gadgetfile_header("stock")
     out <- paste(c(header, stockfile), collapse = "\n")
-    check_path_dir(path)
+    check_dir_exists(path)
     write_gadget_attributes(gf, path = path)
     write(out, check_path(file))
 }
@@ -146,13 +147,34 @@ write_gadget_file.gadget_stocks <- function(gf, path = NULL) {
     })
 }
 
-
+#' @rdname write_gadget_file
 write_gadget_file.gadget_params <- function(gf, file = "params.in", path = NULL) {
-
+    df <- collapse_df(gf)
+    header <- gadgetfile_header("params")
+    col_names <- paste(c("switch", "value", "lower", "upper", "optimize"), collapse = "\t")
+    out <- paste(c(header, col_names, df), collapse = "\n")
+    write(out, file = check_path(file))
 }
 
-write_gadget_file.gadget_printfile <- function(gf, file = "printfile.fit", path = NULL) {
-
+#' @rdname write_gadget_file
+#' @inheritParams make_gadget_printfile
+write_gadget_file.gadget_printfile <- function(gf, file = "printfile.fit", path = NULL,
+                                               output_dir = "out", aggfile_dir = "print.aggfiles",
+                                               fit_dir = NULL) {
+    # check directory structure of fit_dir
+    if (!is.null(fit_dir)) {
+        check_dir_exists(check_path(fit_dir))
+        printfile <- paste(c(fit_dir, file), collapse = "/")
+        output_dir <- paste(c(fit_dir, output_dir), collapse = "/")
+        aggfile_dir <- paste(c(fit_dir, aggfile_dir), collapse = "/")
+    }
+    null_list <- lapply(gf, write_aggfiles,
+                        aggfile_dir = aggfile_dir, path = path, fit_dir = fit_dir)
+    formatted_printfiles <- lapply(gf, format_printfile)
+    header <- gadgetfile_header("printfile")
+    likfile2print <- paste(c(header, formatted_printfiles), collapse = "\n;\n")
+    check_dir_exists(check_path(output_dir))
+    write(likfile2print, file = check_path(printfile))
 }
 
 #' Functions to write attributes of Gadget components to file
@@ -165,8 +187,8 @@ write_gadget_file.gadget_printfile <- function(gf, file = "printfile.fit", path 
 #' named \code{spawning}. This attribute houses the necessary spawning information and has a
 #' meta-attribute of filename that will determine where to write the file).
 #'
-#' @param gf The Gadget file component to be written. Should be of class \code{gadget.fleet},
-#' \code{gadget.stocks}, but can alternately be a \code{data.frame}
+#' @param gf The Gadget file component to be written. Should be of class \code{gadget_fleet},
+#' \code{gadget_stocks}, but can alternately be a \code{data.frame}
 #' @param env An environment to search for the object named \code{path}
 #' @param path Optional. Character of the path of the directory to look in
 #'
@@ -236,6 +258,55 @@ get_attr_filename <- function(obj) {
     return(list(filename = filename, attr_dir = attr_dir))
 }
 
+#' Write aggfiles used in a printfile_component to files in a directory
+#'
+#' This function searches for aggfiles and prints them to the appropriate directory and filename
+#'
+#' @inheritParams make_aggfiles
+#'
+#' @return NULL. Writes aggregate files to the appropriate files in \code{aggfile_dir}
+#'
+#' @examples
+#' path <- system.file(gad_mod_dir, package = "gadgetSim")
+#' cod <- list(stocknames = "cod", printfile = "printfiles")
+#' cod_stock <- update_printfile(stock, cod)
+#' cod_stock_agg <- make_aggfiles(cod_stock, "print.aggfiles", path = path)
+#' \dontrun{
+#' write_aggfiles(cod_stock_agg, "print.aggfiles", path = path)
+#' }
+write_aggfiles <- function(printfile_comp, aggfile_dir, path = NULL, fit_dir = NULL) {
+    if (any(isNULL_aggfiles(printfile_comp))) {
+        missing_agg <- names(printfile_comp)[isNULL_aggfiles(printfile_comp)]
+        stop(sprintf("Required argument %s is missing", missing_agg))
+    } else if (!any(grepl("aggfile", names(printfile_comp)))) {
+        return(printfile_comp)
+    } else {
+        check_dir_exists(check_path(aggfile_dir))
+        if (!is.null(fit_dir)) {
+            aggfile_dir_name <- split_(aggfile_dir, "/", ind = 2)
+        } else {
+            aggfile_dir_name <- aggfile_dir
+        }
+        agg_types <- grep("aggfile", names(printfile_comp), value = TRUE)
+        null_list <-
+            lapply(agg_types, function(x, path) {
+                agg_test <- strsplit(printfile_comp[[x]], split = "/")[[1]][1]
+                if (!(all.equal(agg_test, aggfile_dir_name))) {
+                    stop(sprintf("The supplied aggfile_dir and directory prefix for
+                                  %s are not the same"), printfile_comp[[x]])
+                }
+                if (!is.null(fit_dir)) {
+                    write(attr(printfile_comp, x),
+                          file = check_path(paste(fit_dir, printfile_comp[[x]], sep = "/")))
+                } else {
+                    write(attr(printfile_comp, x),
+                          file = check_path(printfile_comp[[x]]))
+                }
+            }, path = path)
+    }
+}
+
+
 #' Collapse objects and vectors so they are ready to be written to file
 #'
 #' These functions take lists, vectors or data.frames and collapse them using "\\t" or "\\n" depending
@@ -253,6 +324,9 @@ get_attr_filename <- function(obj) {
 #' time <- make_gadget_timefile(1985, 2015, "quarterly")
 #' collapse_entries(time)
 collapse_df <- function(df) {
+    if (!is.data.frame(df)) {
+        stop("This attribute must be a data.frame")
+    }
     pasted_rows <-
         apply(df, 1, function(y) {
             paste(y, collapse = "\t")
@@ -276,67 +350,3 @@ collapse_entries <- function(gf) {
         })
     return(tmp)
 }
-
-
-#' Write Gadget mainfile to a text file
-#'
-#' Writes a Gadget main file from an R list containing class gadget_main to a
-#' text file to be used by Gadget
-#'
-#' @param obj A list also containing class \code{gadget_main}
-#' @param file Name of the file to write to
-#'
-#' @return NULL
-#' @export
-#'
-#' @examples
-#' write_gadget_main(gadget_main_default)
-#' write_gadget_main()
-write_gadget_main <- function(obj = NULL, file = "main", path = NULL) {
-    if (is.null(obj)) {
-        obj <- gadget_main_default
-        warning(paste("No Gadget main file found. Writing the default to file",
-                file))
-    } else if (!("gadget_main" %in% class(obj))) {
-        stop("Class of file should contain gadget_main.")
-    }
-    if (length(obj$printfiles) == 0) {
-        obj$printfiles <- "; Required comment"
-    }
-    filenames <-
-        vapply(obj, function(x) {
-            return(paste0("\t", x, collapse = "\t"))
-        }, character(1))
-    mainfile <- paste0(names(filenames), filenames)
-    tap_names <- c("timefile", "areafile", "printfiles")
-    match_main <- match(tap_names, names(obj))
-    if (any(is.na(match_main))) {
-        stop("One of timefile, areafile, or printfiles missing.")
-    }
-    tap_files <- mainfile[match_main]
-    keywords <-
-        list(stock = "stockfiles",
-             tagging = "tagfiles",
-             otherfood = "otherfoodfiles",
-             fleet = "fleetfiles",
-             likelihood = "likelihoodfiles")
-    matchkey <- match(names(filenames), keywords, nomatch = 0)
-    keywords[matchkey] <- mainfile[4:length(mainfile)]
-    main_template <-
-        c(sprintf("; Generated by gadgetSim %s", packageVersion("gadgetSim")),
-          tap_files,
-          keywords)
-    main <-
-        lapply(seq_along(main_template), function(x, n) {
-            if (n[x] == "") {
-                return(c(main_template[[x]]))
-            } else {
-                return(c(paste0("[", n[x], "]"),
-                         main_template[[x]]))
-            }
-        }, n = names(main_template))
-    main <- unlist(main)
-    write(main, file = check_path(file), sep = "\n")
-}
-
-

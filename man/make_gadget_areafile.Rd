@@ -14,10 +14,10 @@ make_gadget_areafile(areas, size, temp_data)
 \item{temp_data}{Data.frame with 4 columns containing year, step, area, and mean temperature}
 }
 \value{
-A list of class \code{gadget.area}
+A list of class \code{gadget_area}
 }
 \description{
-Creates a list of class \code{gadget.area} that can be used to write out a Gadget areafile
+Creates a list of class \code{gadget_area} that can be used to write out a Gadget areafile
 }
 \examples{
 make_gadget_areafile(areas = 1, size = 1e6,

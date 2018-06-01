@@ -4,14 +4,11 @@
 \alias{path_dir_funs}
 \alias{check_path}
 \alias{check_dir_exists}
-\alias{check_path_dir}
 \title{Checking path and directory status}
 \usage{
 check_path(x, env = parent.frame())
 
 check_dir_exists(dir = NULL)
-
-check_path_dir(path = NULL)
 }
 \arguments{
 \item{x}{Character. Name of file}
@@ -27,9 +24,13 @@ returns nothing. It searches for the directory \code{dir} within \code{path} if 
 creates a directory named \code{dir} if it is not found
 }
 \description{
-These functions check for the presence of an object named \code{path}
-(either within a function or globally). If \code{path} exists it gets attached in front of \code{x}
-separated by a "/"
+These functions complete various tasks related to directory structure and inclusion of a
+path variable in many of the functions throughout the package.
+}
+\details{
+\code{check_path} looks for an object named \code{path} in the environment specified by
+\code{env} and attaches it in front of \code{x} separated by a "/". \code{check_dir_exists}
+checks to see if a directory exists, and, if not, makes one in the current working directory.
 }
 \examples{
 check_path("main")
@@ -38,6 +39,6 @@ check_path("main")
 
 \dontrun{
 check_dir_exists("foo")
-check_dir_exists("bar", path = "foo",)
+check_dir_exists("bar")
 }
 }

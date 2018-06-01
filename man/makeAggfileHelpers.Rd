@@ -44,7 +44,7 @@ check_agg_type(printfile_comp, agg_type, stocks, aggfile_dir)
 isNULL_aggfiles(printfile_comp)
 }
 \arguments{
-\item{stocks}{A list of class \code{gadget.stock} or \code{gadget.stocks}}
+\item{stocks}{A list of class \code{gadget_stock} or \code{gadget_stocks}}
 
 \item{aggfile_dir}{Character. Path of the directory where aggfiles will be printed}
 

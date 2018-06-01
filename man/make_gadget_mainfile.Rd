@@ -2,7 +2,7 @@
 % Please edit documentation in R/make_gadget_files.R
 \name{make_gadget_mainfile}
 \alias{make_gadget_mainfile}
-\title{Create a list of class gadget.main}
+\title{Create a list of class "gadget_main"}
 \usage{
 make_gadget_mainfile(...)
 }
@@ -11,10 +11,10 @@ make_gadget_mainfile(...)
 Gadget or any number of objects named similarly}
 }
 \value{
-A list of class \code{gadget.main}
+A list of class \code{gadget_main}
 }
 \description{
-Create a list of class gadget.main
+Create a list of class "gadget_main"
 }
 \examples{
 main <- list(timefile = "time", areafile = "area", stockfiles = "cod")
