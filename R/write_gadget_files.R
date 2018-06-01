@@ -164,7 +164,7 @@ write_gadget_file.gadget_printfile <- function(gf, file = "printfile.fit", path 
     # check directory structure of fit_dir
     if (!is.null(fit_dir)) {
         check_dir_exists(check_path(fit_dir))
-        printfile <- paste(c(fit_dir, file), collapse = "/")
+        file <- paste(c(fit_dir, file), collapse = "/")
         output_dir <- paste(c(fit_dir, output_dir), collapse = "/")
         aggfile_dir <- paste(c(fit_dir, aggfile_dir), collapse = "/")
     }
@@ -174,7 +174,7 @@ write_gadget_file.gadget_printfile <- function(gf, file = "printfile.fit", path 
     header <- gadgetfile_header("printfile")
     likfile2print <- paste(c(header, formatted_printfiles), collapse = "\n;\n")
     check_dir_exists(check_path(output_dir))
-    write(likfile2print, file = check_path(printfile))
+    write(likfile2print, file = check_path(file))
 }
 
 #' Functions to write attributes of Gadget components to file

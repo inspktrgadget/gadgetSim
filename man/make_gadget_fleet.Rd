@@ -10,7 +10,8 @@ make_gadget_fleet(...)
 \item{...}{Named objects corresponding to the appropriate arguments to various Gadget fleet types}
 }
 \value{
-A list of class \code{gadget_fleet}
+A list of class \code{gadget_fleet} (or a list of class \code{gadget_fleets} if
+composed of multiple fleets)
 }
 \description{
 This function takes named lists as arguments with elements that correspond to the different

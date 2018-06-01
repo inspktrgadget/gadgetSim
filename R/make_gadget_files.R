@@ -251,7 +251,8 @@ make_gadget_spawnfile <- function(stockname, start_year, end_year, ...) {
 #'
 #' @param ... Named objects corresponding to the appropriate arguments to various Gadget fleet types
 #'
-#' @return A list of class \code{gadget_fleet}
+#' @return A list of class \code{gadget_fleet} (or a list of class \code{gadget_fleets} if
+#' composed of multiple fleets)
 #' @export
 #'
 #' @examples
@@ -328,7 +329,6 @@ make_gadget_fleet <- function(...) {
 #' see \code{\link{printfileDefaults}}
 #'
 #' @param main List of class \code{gadget_main} or character vector of the Gadget mainfile to be read
-#' @param printfile Character. A path to where the printfile will be written
 #' @param path Optional. Path to Gadget model
 #' @param fit_dir Optional. Path to sub-directory of Gadget model where optimized files are housed
 #' (i.e. WGTS from \code{\link[Rgadget]{Rgadget::gadget.fit}})
@@ -344,9 +344,9 @@ make_gadget_fleet <- function(...) {
 #' @export
 #'
 #' @examples
-#' make_gadget_printfile(stock_std = list(stockname = "cod"),
-#'                       printfile = "printfile", path = gad_mod_dir)
-make_gadget_printfile <- function(..., main = "main", printfile, path = NULL, fit_dir = NULL,
+#' printfile <-  make_gadget_printfile(stock_std = list(stockname = "cod"),
+#'                       path = gad_mod_dir)
+make_gadget_printfile <- function(..., main = "main", path = NULL, fit_dir = NULL,
                                   output_dir = "out", aggfile_dir = "print.aggfiles",
                                   printatstart = 1, steps = "all") {
     if ("gadget_main" %in% class(main)) {

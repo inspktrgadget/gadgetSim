@@ -4,9 +4,9 @@
 \alias{make_gadget_printfile}
 \title{Make Gadget printfile and write out to file}
 \usage{
-make_gadget_printfile(..., main = "main", printfile, path = NULL,
-  fit_dir = NULL, output_dir = "out", aggfile_dir = "print.aggfiles",
-  printatstart = 1, steps = "all")
+make_gadget_printfile(..., main = "main", path = NULL, fit_dir = NULL,
+  output_dir = "out", aggfile_dir = "print.aggfiles", printatstart = 1,
+  steps = "all")
 }
 \arguments{
 \item{...}{Any number of lists containing details of Gadget printfile components. Arguments to
@@ -14,8 +14,6 @@ make_gadget_printfile(..., main = "main", printfile, path = NULL,
 see \code{\link{printfileDefaults}}}
 
 \item{main}{List of class \code{gadget_main} or character vector of the Gadget mainfile to be read}
-
-\item{printfile}{Character. A path to where the printfile will be written}
 
 \item{path}{Optional. Path to Gadget model}
 
@@ -40,6 +38,6 @@ provided by \code{output_dir}
 Make Gadget printfile and write out to file
 }
 \examples{
-make_gadget_printfile(stock_std = list(stockname = "cod"),
-                      printfile = "printfile", path = gad_mod_dir)
+printfile <-  make_gadget_printfile(stock_std = list(stockname = "cod"),
+                      path = gad_mod_dir)
 }

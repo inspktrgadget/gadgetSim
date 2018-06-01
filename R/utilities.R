@@ -125,6 +125,24 @@ check_dir_exists <- function(dir = NULL) {
     }
 }
 
+check_files_exist <- function(files, path = NULL) {
+    if (length(files) == 0) {
+        invisible()
+    } else {
+        if (!is.null(path)) {
+            files_present <- dir(path, recursive = TRUE)
+        } else {
+            files_present <- dir(recursive = TRUE)
+            path <- "working"
+        }
+        if (!all(files %in% files_present)) {
+            missing_files <- !(files %in% files_present)
+            stop(sprintf("The following files are missing from the %s directory", path), "\n",
+                 paste(paste0(" * ", files[missing_files]), collapse = "\n"))
+        }
+    }
+}
+
 
 #' Logical test to see if name(s) are in an object
 #'

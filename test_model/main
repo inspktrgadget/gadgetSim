@@ -1,0 +1,14 @@
+; Gadget main file created by gadgetSim 0.0.0.9999 on Fri Jun  1 14:26:37 2018
+timefile	time
+areafile	Modelfiles/area
+printfiles	; Required comment
+[stock]
+stockfiles	cod
+[tagging]
+tagfiles	
+[otherfood]
+otherfoodfiles	
+[fleet]
+fleetfiles	Modelfiles/fleet
+[likelihood]
+likelihoodfiles	
