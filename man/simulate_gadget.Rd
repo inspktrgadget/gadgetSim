@@ -61,9 +61,8 @@ stock_refwgt <-
 # setup growth
 stock_growth <-
     list(growthfunction = "lengthvbsimple",
-         growthparameters =
-             c(to_gadget_formula(quote(cod.linf)), to_gadget_formula(quote(cod.k)),
-               0.001, 3))
+         growthparameters = c(125, 0.15, 0.001, 3))
+
 # setup naturalmortality
 stock_m <- rep(0.2, 10)
 
@@ -71,8 +70,8 @@ stock_m <- rep(0.2, 10)
 init_data <-
     normalparamfile(age = seq(minage, maxage, 1),
                     area = 1,
-                    age.factor = "#cod.init.age",
-                    area.factor = "#cod.init.area",
+                    age.factor = 1,
+                    area.factor = 1,
                     mean = vb_formula("cod", minage:maxage),
                     sd = 1:10,
                     alpha = alpha,
@@ -85,7 +84,8 @@ stock_spawnfile <-
       stockname = "cod",
       start_year = st_year,
       end_year = end_year,
-      recruitment = ricker_formula("cod")
+      recruitment = bev_holt_formula("cod", params = c(4e08, 1.067e08)),
+      stockparameters = c(20, 2, alpha, beta)
     )
 
 # create gadget stockfile
@@ -115,4 +115,12 @@ simulate_gadget(time = time, area = area, stock = cod, fleet = lin, path = "test
 
 # must set up params first, then can run
 stock_std <- get_stock_std(path = "test_model")
+
+# see the results
+plot(number ~ year, subset(stock_std$cod, age == 2, step == 1), type = "l")
+
+# if using tidyverse
+g <-
+  ggplot(data=filter(stock_std$cod, step == 1), aes(x=year, y=number)) +
+  geom_line() + facet_wrap(~age, scales = "free_y")
 }

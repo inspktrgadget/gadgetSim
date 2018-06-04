@@ -12,5 +12,8 @@ Author: Paul Frater
 Maintainer: Paul Frater <pnfrater@gmail.com>
 Suggests: Rgadget,
     tidyverse,
-    testthat
+    testthat,
+    knitr,
+    rmarkdown
 RoxygenNote: 6.0.1
+VignetteBuilder: knitr

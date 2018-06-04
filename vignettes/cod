@@ -1,0 +1,27 @@
+; Gadget stock file created by gadgetSim 0.0.0.9999 on Mon Jun  4 11:15:07 2018
+stockname	cod
+livesonareas	1
+minage	1
+maxage	10
+minlength	1
+maxlength	150
+dl	1
+refweightfile	
+growthandeatlengths	Aggfiles/cod.stock.len.agg
+doesgrow	0
+naturalmortality	0.2	0.2	0.2	0.2	0.2	0.2	0.2	0.2	0.2	0.2
+iseaten	0
+doeseat	0
+initialconditions	
+minage	1
+maxage	10
+minlength	1
+maxlength	150
+dl	1
+normalparamfile	Modelfiles/cod.init.normalparamfile
+doesmigrate	0
+doesmature	0
+doesmove	0
+doesrenew	0
+doesspawn	0
+doesstray	0

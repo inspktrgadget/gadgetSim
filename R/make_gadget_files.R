@@ -211,6 +211,18 @@ make_gadget_stockfile <- function(...) {
 #' @examples
 #' make_gadget_spawnfile("cod", 1, 10)
 make_gadget_spawnfile <- function(stockname, start_year, end_year, ...) {
+    dots <- dots2list(...)
+    dot_args <-
+        lapply(dots, function(x) {
+            tmp <- lapply(x, function(y) {
+                if (length(y) > 1) {
+                    return(paste(y, collapse = "\t"))
+                } else {
+                    return(y)
+                }
+            })
+            tmp <- paste(tmp, collapse = "\t")
+        })
     spawn_params <- list(
         spawnsteps = 1,
         spawnareas = 1,
@@ -223,12 +235,11 @@ make_gadget_spawnfile <- function(stockname, start_year, end_year, ...) {
         recruitment = bev_holt_formula(stockname),
         stockparameters = paste(sprintf("#%s.recl", stockname),
                                 sprintf("#%s.rec.sd", stockname),
-                                paste0(c("0.0001", "3"),
-                                       collapse = "\t"),
+                                sprintf("#%s.alpha", stockname),
+                                sprintf("#%s.beta", stockname),
                                 sep = "\t")
     )
-    override_defaults <- dots2list(...)
-    spawn_params <- modifyList(spawn_params, override_defaults)
+    spawn_params <- modifyList(spawn_params, dot_args)
     class(spawn_params) <- c("gadget_spawnfile", "list")
     return(spawn_params)
 }

@@ -24,6 +24,7 @@
 call_gadget <- function(switches = list(s = TRUE, i = "params.in"), path = NULL,
                         gadget_exe = "gadget", print_out = TRUE, print_err = TRUE) {
     # check to make sure all files listed in switches are present in the Gadget model directory
+    switches <- Filter(Negate(is.null), switches)
     switch_test <- unlist(Filter(is.character, switches))
     check_files_exist(switch_test, path = path)
     switch_names <- paste0("-", names(switches))
@@ -60,7 +61,7 @@ call_gadget <- function(switches = list(s = TRUE, i = "params.in"), path = NULL,
 #' path <- system.file(gad_mod_dir, package = "gadgetSim")
 #' stocks_data <- get_stock_std(path = path)
 #' }
-get_stock_std <- function(main = "main", params_file = "params.in", path = NULL,
+get_stock_std <- function(main = "main", params_file = NULL, path = NULL,
                           fit_dir = "FIT", gadget_exe = "gadget", ...) {
     if (requireNamespace("Rgadget", quietly = TRUE)) {
         if (dir.exists(check_path(fit_dir))) {
@@ -195,9 +196,8 @@ get_stock_std <- function(main = "main", params_file = "params.in", path = NULL,
 #' # setup growth
 #' stock_growth <-
 #'     list(growthfunction = "lengthvbsimple",
-#'          growthparameters =
-#'              c(to_gadget_formula(quote(cod.linf)), to_gadget_formula(quote(cod.k)),
-#'                0.001, 3))
+#'          growthparameters = c(125, 0.15, 0.001, 3))
+#'
 #' # setup naturalmortality
 #' stock_m <- rep(0.2, 10)
 #'
@@ -205,8 +205,8 @@ get_stock_std <- function(main = "main", params_file = "params.in", path = NULL,
 #' init_data <-
 #'     normalparamfile(age = seq(minage, maxage, 1),
 #'                     area = 1,
-#'                     age.factor = "#cod.init.age",
-#'                     area.factor = "#cod.init.area",
+#'                     age.factor = 1,
+#'                     area.factor = 1,
 #'                     mean = vb_formula("cod", minage:maxage),
 #'                     sd = 1:10,
 #'                     alpha = alpha,
@@ -219,7 +219,8 @@ get_stock_std <- function(main = "main", params_file = "params.in", path = NULL,
 #'       stockname = "cod",
 #'       start_year = st_year,
 #'       end_year = end_year,
-#'       recruitment = ricker_formula("cod")
+#'       recruitment = bev_holt_formula("cod", params = c(4e08, 1.067e08)),
+#'       stockparameters = c(20, 2, alpha, beta)
 #'     )
 #'
 #' # create gadget stockfile
@@ -232,7 +233,7 @@ get_stock_std <- function(main = "main", params_file = "params.in", path = NULL,
 #'                          initialconditions = stock_initcond,
 #'                          spawning = stock_spawnfile)
 #'
-#' #-------------------------------
+#' #------------------------------
 #' # setup the fleet
 #' lin_flt_data <- expand.grid(year = st_year:end_year, steps = 1:4, area = 1, fleetname = "lin")
 #' lin_flt_data <- lin_flt_data[order(lin_flt_data$year), ]
@@ -249,6 +250,15 @@ get_stock_std <- function(main = "main", params_file = "params.in", path = NULL,
 #'
 #' # must set up params first, then can run
 #' stock_std <- get_stock_std(path = "test_model")
+#'
+#' #------------------------------
+#' # see the results
+#' plot(number ~ year, subset(stock_std$cod, age == 2, step == 1), type = "l")
+#'
+#' # if using tidyverse
+#' g <-
+#'   ggplot(data=filter(stock_std$cod, step == 1), aes(x=year, y=number)) +
+#'   geom_line() + facet_wrap(~age, scales = "free_y")
 simulate_gadget <- function(..., path = NULL) {
     check_dir_exists(path)
     dots <- dots2list(...)

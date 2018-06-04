@@ -1,0 +1,13 @@
+;  data file created by gadgetSim 0.0.0.9999 on Mon Jun  4 11:15:07 2018
+; -- Data --
+; age	area	age.factor	area.factor	mean	sd	alpha	beta
+ 1	1	1	1	(* #cod.linf (- 1 (exp (* (* (- 1) #cod.k) (- 1 #cod.t0)))))	 1	1e-04	3
+ 2	1	1	1	(* #cod.linf (- 1 (exp (* (* (- 1) #cod.k) (- 2 #cod.t0)))))	 2	1e-04	3
+ 3	1	1	1	(* #cod.linf (- 1 (exp (* (* (- 1) #cod.k) (- 3 #cod.t0)))))	 3	1e-04	3
+ 4	1	1	1	(* #cod.linf (- 1 (exp (* (* (- 1) #cod.k) (- 4 #cod.t0)))))	 4	1e-04	3
+ 5	1	1	1	(* #cod.linf (- 1 (exp (* (* (- 1) #cod.k) (- 5 #cod.t0)))))	 5	1e-04	3
+ 6	1	1	1	(* #cod.linf (- 1 (exp (* (* (- 1) #cod.k) (- 6 #cod.t0)))))	 6	1e-04	3
+ 7	1	1	1	(* #cod.linf (- 1 (exp (* (* (- 1) #cod.k) (- 7 #cod.t0)))))	 7	1e-04	3
+ 8	1	1	1	(* #cod.linf (- 1 (exp (* (* (- 1) #cod.k) (- 8 #cod.t0)))))	 8	1e-04	3
+ 9	1	1	1	(* #cod.linf (- 1 (exp (* (* (- 1) #cod.k) (- 9 #cod.t0)))))	 9	1e-04	3
+10	1	1	1	(* #cod.linf (- 1 (exp (* (* (- 1) #cod.k) (- 10 #cod.t0)))))	10	1e-04	3

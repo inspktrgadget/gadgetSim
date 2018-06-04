@@ -1,9 +1,0 @@
-; Gadget fleet file created by gadgetSim 0.0.0.9999 on Fri Jun  1 14:26:37 2018
-;
-[component]
-linearfleet	lin
-livesonareas	1
-multiplicative	1
-suitability
-cod	function	newexponentiall50	#cod.lin.alpha	#cod.lin.l50
-amount	Data/fleet.lin.data

@@ -1,4 +1,4 @@
-; Gadget main file created by gadgetSim 0.0.0.9999 on Fri Jun  1 14:26:37 2018
+; Gadget main file created by gadgetSim 0.0.0.9999 on Mon Jun  4 11:15:08 2018
 timefile	time
 areafile	Modelfiles/area
 printfiles	; Required comment
@@ -9,6 +9,6 @@ tagfiles
 [otherfood]
 otherfoodfiles	
 [fleet]
-fleetfiles	Modelfiles/fleet
+fleetfiles	
 [likelihood]
 likelihoodfiles	

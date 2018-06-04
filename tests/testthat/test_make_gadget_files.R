@@ -163,3 +163,28 @@ test_that("make_gadget_fleet produces the correct output", {
     fleet_test <- structure(list(fleet_test), class = c("gadget_fleets", "list"))
     expect_equal(make_gadget_fleet(comm = btm_fleet), fleet_test)
 })
+
+test_that("make_gadget_spawnfile returns the correct output", {
+    spawn_test <-
+        structure(list(
+            spawnsteps = 1, spawnareas = 1, firstspawnyear = 1, lastspawnyear = 10,
+            spawnstocksandratios = "cod\t1", proportionfunction = "constant\t1",
+            mortalityfunction = "constant\t0", weightlossfunction = "constant\t0",
+            recruitment = "bevertonholt\t#cod.bh.mu\t#cod.bh.lam",
+            stockparameters = "#cod.recl\t#cod.rec.sd\t#cod.alpha\t#cod.beta"),
+            class = c("gadget_spawnfile", "list"))
+    # testing the default
+    expect_equal(make_gadget_spawnfile("cod", 1, 10), spawn_test)
+    # making sure that different ... arguments work
+    stock_params <- c(20, 2, 0.0001, 3)
+    spawn_test2 <-
+        modifyList(spawn_test,
+                   list(stockparameters = paste(stock_params, collapse = "\t")))
+    expect_equal(make_gadget_spawnfile("cod", 1, 10, stockparameters = stock_params), spawn_test2)
+    spawn_test3 <-
+        modifyList(spawn_test, list(proportionfunction = "exponential\t0.25\t30"))
+    expect_equal(make_gadget_spawnfile("cod", 1, 10,
+                                       proportionfunction = c("exponential", 0.25, 30)),
+                 spawn_test3)
+
+})

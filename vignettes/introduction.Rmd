@@ -1,0 +1,111 @@
+---
+title: "Introduction"
+author: "Paul Frater"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# gadgetSim
+
+Welcome to gadgetSim, an environment for using Gadget as an operating model in simulation studies.
+gadgetSim provides all the tools you need to create a Gadget model, obtain output from the model, and then sample that output to produce pseudo-data for use in estimation models. Additionally, the 
+package could also be used to produce simple Gadget models for learning or experimentation.
+
+gadgetSim was setup to be able to produce all the necessary text files for running a basic Gadget model, but no more. Therefore, it can put together Gadget mainfiles, stockfiles, time/area files, data and aggfiles, and any files that are necessary for these (i.e. spawnfiles, recruitment files, initial condition files, etc.). However, it does not currently have functionality to create likelihood files or the components associated with likelihood files. 
+
+## Make Gadget File Functions
+
+There are a good number of functions in this package for producing Gadget files, but the package has been set up to simplify the model creation procedure as much as possible. To this end, there are a number of functions to make various Gadget components (e.g. mainfile, stockfile, areafile, etc.). Other functions that use these filetypes rely on the classes produced by these gadgetSim functions. 
+
+### Example: Make a Gadget file component
+``` {r, make_gadget_mainfile, eval = FALSE}
+main <- make_gadget_mainfile(stockfiles = "cod")
+```
+
+## Main functions to create a Gadget model
+
+gadgetSim uses the above functions to distill the creation of a Gadget model down to a single function `simulate_gadget`. This function takes named arguments corresponding to particular components of a Gadget model (i.e. time, area, stock, fleet) and writes out all the necessary Gadget files. The named arguments must be lists produced by the appropriate `make_gadget_*` functions.
+
+### Example: Simulate a Gadget model
+``` {r, simulate_gadget, eval = FALSE}
+st_year <- 1985
+end_year <- 2015
+time <- make_gadget_timefile(st_year, end_year, "quarterly")
+area <-
+  make_gadget_areafile(areas = 1, size = 1e6,
+                       temp_data = expand.grid(year = st_year:end_year, step = 1:4,
+                                               area = 1, temp = 3))
+stock_info <-
+    list(stockname = "cod",
+         livesonareas = 1, 
+         minage = 1,
+         maxage = 10,
+         minlength = 1,
+         maxlength = 150,
+         dl = 1)
+stock_initcond <- 
+    normalparamfile(
+        age = seq(1, 10, 1),
+        area = 1, 
+        age.factor = 1, 
+        area.factor = 1,
+        mean = vb_formula("cod", 1:10),
+        sd = 1:10,
+        alpha = 0.0001,
+        beta = 3
+    )
+stock <- make_gadget_stockfile(stock = stock_info, initcond = stock_initcond)
+
+# will produce Gadget files in the current working directory
+# this particular stock will crash pretty quickly as there is not spawning or recruitment
+simulate_gadget(time = time, area = area, stock = stock)
+```
+
+See `?simulate_gadget` for a full-bodied example.
+
+## Naming and Argument Structure
+
+In general, the naming of arguments and elements of the different functions matches that of Gadget. For example, a Gadget mainfile will have components timefile, areafile, stockfiles, etc., so `simulate_gadget` takes arguments of `time`, `area`, `stock` or `stocks`, etc. Similarly, a Gadget areafile has components areas, size, temperature, so `make_gadget_areafile` takes arguments `areas`, `size`, and `temp_data`. 
+
+There are some main exceptions to this rule. For example, `make_gadget_stockfile` takes arguments corresponding to the different elements of a stockfile as described in the [Gadget User Guide](http://www.hafro.is/gadget/files/userguide.pdf). The first 7 arguments to a Gadget stockfile are described in a list with named arguments `stockname`, `livesonareas`, `minage`, etc. and this list is passed to `make_gadget_stockfile` as a named argument `stock`. The rest of the stockfile components must be passed as arguments named according to the sections found in the [Gadget User Guide](http://www.hafro.is/gadget/files/userguide.pdf). For example, information for the refweightfile component must be a data.frame passed as an argument named `refweightfile`. Growth must be a list of the appropriate growth function components as an argument named `growth` (see ?make_gadget_stockfile for more information). 
+
+The other exception is with `make_gadget_timefile` which takes arguments `st_year`, `end_year` and `timesteps`, which can be passed as a custom vector of the number of timesteps followed by their grouping, or a character vector of "annually", "biannually", "quarterly", or "monthly".
+
+In general, for a Gadget component that requires a path to a file that contains information or data (i.e. the amount for fleets, the refweightfile portion of a stockfile, etc.), just pass the information or data to that argument, and gadgetSim will setup the path and write the file for you.
+For initialconditions or recruitment in stockfiles, this data must be produced by the appropriate function for the particular data distribution files (i.e. normalparamfile, normalcondfile, numberfile), which is simply a function of the same name (i.e. `init_data <- normalparamfile(<data.frame>)`). The spawning component of a stockfile also requires a list of class `gadget_spawn` as produced by `make_gadget_spawnfile`.
+
+## Sampling Gadget
+
+Once a Gadget model has been created the output can be harvested with `get_stock_std`. This function will produce a fit of a specified Gadget model and return the StockStdPrinter output for each stock as detailed in the [Gadget User Guide](http://www.hafro.is/gadget/files/userguide.pdf). From here, the output can be sampled using the functions `add_lengthgroups`, `survey_gadget`, and `strip_age_length_data`, which will add lengthgroups given the standard deviation of length groups in Gadget, survey the data, and strip out age and length data as specified to create pseudo-data for use in estimation models. The entire process can be put together and replicated `n` times using `replicate_datasets`.
+
+If using `dplyr` or `tidyverse`, the entire process can be easily strung together in a few lines of code as follows:
+
+``` {r, sampling_gadget, eval = FALSE}
+path <- system.file(gad_mod_dir, package = "gadgetSim")
+cod_std_data <- get_stock_std(path = path)
+length_groups <- seq(0.5, 150.5, by = 1)
+cod_data <- 
+    cod_std_data$cod %>%
+    add_lengthgroups(length_groups) %>%
+    survey_gadget(length_groups, 
+                  survey_suitability = logistic_selectivity(length_groups, 0.25, 40, 0.001),
+                  survey_sigma = 0.2) %>%
+    strip_age_length_data(length_prop = 0.5, age_prop = 0.2)
+```
+
+The above example will call the Gadget model specified by path (in this case it uses the default Gadget model included with the package), adds a length distribution specified by the standard deviation of each age group as specified by the StockStdPrinter, surveys the output based on a logistic selectivity curve and multiplicative error, and strips out length and age data to simulate a mock survey. The result will be a list containing 3 data.frames -- one for age data, one for length data, and one to represent survey indices.
+
+## Rgadget Compatibility
+
+Much thought and effort has been put into making this package compatible with Rgadget so that the two can be used in conjunction. However, there are some major differences most notably with the classes of objects. In general, the two packages have similar class structure except that classes in gadgetSim are denoted `gadget_*` whereas classes in Rgadget are denoted `gadget.*`. For example, `gadgetSim::read_gadget_mainfile` will produce a list of class `gadget_main` whereas `Rgadget::read.gadget.main` will produce the exact same list except that it will be of class `gadget.main`. This distinction is mostly related to the OCD of the author of gadgetSim. Functions have been written for objects to go back and forth between the two packages (see `?rg_class_compatibility`). If you experience trouble and/or need additional functionality for objects to go back and forth, please post an issue [here](https://github.com/inspktrgadget/gadgetSim/issues).
