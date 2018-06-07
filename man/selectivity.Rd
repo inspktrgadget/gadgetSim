@@ -14,18 +14,19 @@ constant_selectivity(lengths, alpha)
 
 straightline_selectivity(lengths, alpha, beta)
 
-logistic_selectivity(lengths, alpha, l50, max_prop)
+logistic_selectivity(lengths, alpha, l50, max_prop = 1)
 
-exponential_l50_selectivity(lengths, alpha, l50, max_prop)
+exponential_l50_selectivity(lengths, alpha, l50, max_prop = 1)
 
 andersen_fleet_selectivity(lengths, p0, p1, p2, p3)
 
 gamma_selectivity(lengths, alpha, beta, gamma)
 }
 \arguments{
-\item{alpha}{Numeric. Steepness parameter for \code{logistic} and \code{exponential_l50 functions},
-constant proportion for \code{constant} function and slope for \code{straightline} selectivity.
-Left to right scaling parameter for the \code{gamma} function}
+\item{alpha}{Numeric. Steepness parameter for \code{logistic} and
+\code{exponential_l50 functions}, constant proportion for \code{constant} function and
+slope for \code{straightline} selectivity. Left to right scaling parameter for the \code{gamma}
+function}
 
 \item{beta}{Numeric. Intercept for the \code{straightline} function. Controls amoung of doming
 on the \code{gamma} selectivity}

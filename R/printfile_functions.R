@@ -43,6 +43,7 @@ update_printfile <- function(printfile_comp, new_info) {
 #' appropriate aggregate files as attributes
 #'
 #' @name make_aggfiles
+#' @export
 #'
 #' @examples
 #' cod <- list(stocknames = "cod")
@@ -52,17 +53,34 @@ make_aggfiles <- function(printfile_comp, aggfile_dir, path = NULL) {
     UseMethod("make_aggfiles")
 }
 
+#' @rdname make_aggfiles
+#' @export
 make_aggfiles.default <- function(printfile_comp, aggfile_dir, path = NULL) {
     return(printfile_comp)
 }
 
-# printfile components that do not use aggregation files should just return the printfile_comp
+#' @rdname make_aggfiles
+#' @export
 make_aggfiles.stock_std <- make_aggfiles.default
+
+#' @rdname make_aggfiles
+#' @export
 make_aggfiles.stock_full <- make_aggfiles.default
+
+#' @rdname make_aggfiles
+#' @export
 make_aggfiles.stock_prey <- make_aggfiles.default
+
+#' @rdname make_aggfiles
+#' @export
 make_aggfiles.likelihood <- make_aggfiles.default
+
+#' @rdname make_aggfiles
+#' @export
 make_aggfiles.likelihood_summary <- make_aggfiles.default
 
+#' @rdname make_aggfiles
+#' @export
 make_aggfiles.stock <- function(printfile_comp, aggfile_dir, path = NULL) {
     if (!any(isNULL_aggfiles(printfile_comp))) {
         invisible()
@@ -85,6 +103,8 @@ make_aggfiles.stock <- function(printfile_comp, aggfile_dir, path = NULL) {
     return(printfile_comp)
 }
 
+#' @rdname make_aggfiles
+#' @export
 make_aggfile.predator <- function(printfile_comp, aggfile_dir, path = NULL) {
     if (!any(isNULL_aggfiles(printfile_comp))) {
         invisible()
@@ -114,6 +134,8 @@ make_aggfile.predator <- function(printfile_comp, aggfile_dir, path = NULL) {
     }
 }
 
+#' @rdname make_aggfiles
+#' @export
 make_aggfile.predator_over <- function(printfile_comp, aggfile_dir, path = NULL) {
     if (!any(isNULL_aggfiles(printfile_comp))) {
         invisible()
@@ -135,6 +157,8 @@ make_aggfile.predator_over <- function(printfile_comp, aggfile_dir, path = NULL)
     }
 }
 
+#' @rdname make_aggfiles
+#' @export
 make_aggfile.prey_over <- function(printfile_comp, aggfile_dir, print = NULL) {
     if (!any(isNULL_aggfiles(printfile_comp))) {
         invisible()
@@ -156,6 +180,8 @@ make_aggfile.prey_over <- function(printfile_comp, aggfile_dir, print = NULL) {
     }
 }
 
+#' @rdname make_aggfiles
+#' @export
 make_aggfiles.stock_prey <- function(printfile_comp, aggfile_dir, print = NULL) {
     if (!any(isNULL_aggfiles(printfile_comp))) {
         invisible()
@@ -180,6 +206,8 @@ make_aggfiles.stock_prey <- function(printfile_comp, aggfile_dir, print = NULL) 
     }
 }
 
+#' @rdname make_aggfiles
+#' @export
 make_aggfiles.predator_prey <- function(printfile_comp, aggfile_dir, print = NULL) {
     if (!any(isNULL_aggfiles(printfile_comp))) {
         invisible()

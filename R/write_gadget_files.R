@@ -33,6 +33,7 @@ write_gadget_file <- function(gf, file = NULL, path = NULL, output_dir = NULL,
 }
 
 #' @rdname write_gadget_file
+#' @export
 write_gadget_file.gadget_main <- function(gf, file = "main", path = NULL) {
     if (is.null(gf)) {
         gf <- gadget_main_default
@@ -82,6 +83,7 @@ write_gadget_file.gadget_main <- function(gf, file = "main", path = NULL) {
 }
 
 #' @rdname write_gadget_file
+#' @export
 write_gadget_file.gadget_time <- function(gf, file = "time", path = NULL) {
     time_args <- paste(names(gf), collapse_entries(gf), sep = "\t")
     header <- gadgetfile_header("time")
@@ -91,6 +93,7 @@ write_gadget_file.gadget_time <- function(gf, file = "time", path = NULL) {
 }
 
 #' @rdname write_gadget_file
+#' @export
 write_gadget_file.gadget_area <- function(gf, file = "area", path = NULL) {
     gf <- collapse_entries(gf)
     areasize <- gf[c("areas", "size")]
@@ -106,6 +109,7 @@ write_gadget_file.gadget_area <- function(gf, file = "area", path = NULL) {
 }
 
 #' @rdname write_gadget_file
+#' @export
 write_gadget_file.gadget_fleets <- function(gf, file = "fleet", path = NULL) {
     check_dir_exists(path)
     fleets <-
@@ -130,6 +134,7 @@ write_gadget_file.gadget_fleets <- function(gf, file = "fleet", path = NULL) {
 }
 
 #' @rdname write_gadget_file
+#' @export
 write_gadget_file.gadget_stock <- function(gf, file = gf$stockname, path = NULL) {
     stock_args <- collapse_entries(gf)
     stockfile <- paste(names(gf), stock_args, sep = "\t", collapse = "\n")
@@ -141,6 +146,7 @@ write_gadget_file.gadget_stock <- function(gf, file = gf$stockname, path = NULL)
 }
 
 #' @rdname write_gadget_file
+#' @export
 write_gadget_file.gadget_stocks <- function(gf, path = NULL) {
     lapply(gf, function(x) {
         write_gadget_file(x, file = check_path(x$stockname), path = path)
@@ -148,6 +154,7 @@ write_gadget_file.gadget_stocks <- function(gf, path = NULL) {
 }
 
 #' @rdname write_gadget_file
+#' @export
 write_gadget_file.gadget_params <- function(gf, file = "params.in", path = NULL) {
     df <- collapse_df(gf)
     header <- gadgetfile_header("params")
@@ -157,6 +164,7 @@ write_gadget_file.gadget_params <- function(gf, file = "params.in", path = NULL)
 }
 
 #' @rdname write_gadget_file
+#' @export
 #' @inheritParams make_gadget_printfile
 write_gadget_file.gadget_printfile <- function(gf, file = "printfile.fit", path = NULL,
                                                output_dir = "out", aggfile_dir = "print.aggfiles",
@@ -193,6 +201,7 @@ write_gadget_file.gadget_printfile <- function(gf, file = "printfile.fit", path 
 #' @param path Optional. Character of the path of the directory to look in
 #'
 #' @return Nothing. Writes the appropriate Gadget file, aggfile or data file to a text file
+#' @export
 #'
 #' @name write_attr
 write_gadget_attributes <- function(gf, path = NULL, env = parent.frame()) {
@@ -200,6 +209,7 @@ write_gadget_attributes <- function(gf, path = NULL, env = parent.frame()) {
 }
 
 #' @rdname write_attr
+#' @export
 write_gadget_attributes.gadget_fleet <- function(gf, path = NULL, env = parent.frame()) {
     amount <- attr(gf, "amount")
     file_info <- get_attr_filename(amount)
@@ -215,26 +225,29 @@ write_gadget_attributes.gadget_fleet <- function(gf, path = NULL, env = parent.f
 }
 
 #' @rdname write_attr
+#' @export
 write_gadget_attributes.gadget_stock <- function(gf, path = NULL, env = parent.frame()) {
     gf_attr <- attributes(gf)[-grep("^names|^class", names(attributes(gf)))]
     lapply(gf_attr, write_gadget_attributes, path = path, env = env)
 }
 
 #' @rdname write_attr
-write_gadget_attributes.data.frame <- function(df, path = NULL, env = parent.frame()) {
-    file_info <- get_attr_filename(df)
+#' @export
+write_gadget_attributes.data.frame <- function(gf, path = NULL, env = parent.frame()) {
+    file_info <- get_attr_filename(gf)
     filename <- file_info$filename
     check_dir_exists(check_path(file_info$attr_dir))
     header <- ifelse(grepl("Aggfiles", filename), aggfile_header(), datafile_header())
     out <- paste(c(header,
                    "; -- Data --",
-                   paste(";", paste(names(df), collapse = "\t")),
-                   collapse_df(df)),
+                   paste(";", paste(names(gf), collapse = "\t")),
+                   collapse_df(gf)),
                  collapse = "\n")
     write(out, file = check_path(filename))
 }
 
 #' @rdname write_attr
+#' @export
 write_gadget_attributes.gadget_spawnfile <- function(gf, path = NULL, env = parent.frame()) {
     file_info <- get_attr_filename(gf)
     filename <- file_info$filename

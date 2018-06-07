@@ -10,7 +10,6 @@ NULL
 gad_mod_dir <- "gadget_model"
 
 #' @rdname gadget_defaults
-#' @export
 gadget_main_default <-
     structure(
         list(timefile = "time",

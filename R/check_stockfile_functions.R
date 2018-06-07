@@ -427,6 +427,7 @@ normalcondfile <- function(...) {
 }
 
 #' @rdname stock_distribution_funs
+#' @export
 normalparamfile <- function(...) {
     df <- as.data.frame(dots2list(...))
     class(df) <- c("normalparamfile", "data.frame")
@@ -434,6 +435,7 @@ normalparamfile <- function(...) {
 }
 
 #' @rdname stock_distribution_funs
+#' @export
 numberfile <- function(...) {
     df <- as.data.frame(dots2list(...))
     class(df) <- c("numberfile", "data.frame")
@@ -494,6 +496,7 @@ migration_matrix <- function(years, steps, areas, prop) {
 }
 
 #' @rdname migration_funs
+#' @export
 migration_ratios <- function(years, steps, areas, prop) {
     mig_df <- migration_df(years, steps, areas, prop)
     class(mig_df) <- c("migration_ratios", "data.frame")
@@ -501,6 +504,7 @@ migration_ratios <- function(years, steps, areas, prop) {
 }
 
 #' @rdname migration_funs
+#' @export
 format_migration <- function(mig_matrix) {
     UseMethod("format_migration")
 }

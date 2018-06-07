@@ -185,7 +185,7 @@ get_stock_std <- function(main = "main", params_file = NULL, path = NULL,
 #' beta <- 3
 #' reflength <- seq(minlength, maxlength, dl)
 #' stock_info <-
-#'     list(stockname = "cod", livesonareas = 1, minage = 1, maxage = 10,
+#'     list(stockname = "cod", livesonareas = 1, minage = minage, maxage = maxage,
 #'          minlength = minlength, maxlength = maxlength, dl = dl)
 #'
 #' # setup refweightfile
@@ -194,9 +194,12 @@ get_stock_std <- function(main = "main", params_file = NULL, path = NULL,
 #'                weight = alpha * reflength ^ beta)
 #'
 #' # setup growth
+#' linf <- 125
+#' k <- 0.15
+#' t0 <- -0.5
 #' stock_growth <-
 #'     list(growthfunction = "lengthvbsimple",
-#'          growthparameters = c(125, 0.15, 0.001, 3))
+#'          growthparameters = c(linf, k, alpha, beta))
 #'
 #' # setup naturalmortality
 #' stock_m <- rep(0.2, 10)
@@ -205,10 +208,11 @@ get_stock_std <- function(main = "main", params_file = NULL, path = NULL,
 #' init_data <-
 #'     normalparamfile(age = seq(minage, maxage, 1),
 #'                     area = 1,
-#'                     age.factor = 1,
+#'                     age.factor = 1e6 * exp(-cumsum(rep(0.2, (maxage - minage + 1)))),
 #'                     area.factor = 1,
-#'                     mean = vb_formula("cod", minage:maxage),
-#'                     sd = 1:10,
+#'                     mean = vb_formula("cod", minage:maxage,
+#'                                       params = list(linf = linf, k = k, t0 = t0)),
+#'                     sd = c(1:10, rep(10, 10)),
 #'                     alpha = alpha,
 #'                     beta = beta)
 #' stock_initcond <- list(normalparamfile = init_data)
@@ -219,6 +223,7 @@ get_stock_std <- function(main = "main", params_file = NULL, path = NULL,
 #'       stockname = "cod",
 #'       start_year = st_year,
 #'       end_year = end_year,
+#'       proportionfunction = c("exponential", -0.25, 35),
 #'       recruitment = bev_holt_formula("cod", params = c(4e08, 1.067e08)),
 #'       stockparameters = c(20, 2, alpha, beta)
 #'     )

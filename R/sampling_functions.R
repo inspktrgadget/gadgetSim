@@ -83,6 +83,7 @@ add_lengthgroups <- function(stock_data, length_groups, keep_zero_counts = FALSE
 #' @param survey_suitability Numeric vector the same length as \code{length_groups} representing the
 #' selection probability for each length in \code{length_groups}
 #' @param survey_sigma Numeric value of multiplicative error to place on samples
+#' @export
 survey_gadget <- function(stock_data, length_groups, survey_suitability, survey_sigma) {
     lengrp_lower <- length_groups[-length(length_groups)]
     lengrp_upper <- length_groups[-1]
@@ -108,6 +109,7 @@ survey_gadget <- function(stock_data, length_groups, survey_suitability, survey_
 #' Must be between 0 and 1. Note that \code{age_prop} only corresponds to the proportion of length
 #' samples to also sample for age. Therefore the actual proportion of age samples relative to
 #' sampled numbers is \code{length_prop * age_prop}
+#' @export
 strip_age_length_data <- function(stock_data, length_prop = 1, age_prop = NULL) {
     if (length_prop > 1 | age_prop > 1) {
         stop("You cannot have a length_prop or age_prop > 1")
@@ -139,6 +141,7 @@ strip_age_length_data <- function(stock_data, length_prop = 1, age_prop = NULL) 
 
 #' @rdname sample_gadget
 #' @param n Integer. The number of times to replicate the sampling procedure
+#' @export
 replicate_datasets <- function(stock_data, length_groups, survey_suitability,
                                survey_sigma, length_prop = 1, age_prop = NULL,
                                n = 10, keep_zero_counts = FALSE) {

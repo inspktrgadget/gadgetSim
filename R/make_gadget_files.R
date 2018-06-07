@@ -103,7 +103,7 @@ make_gadget_areafile <- function(areas, size, temp_data) {
 #' beta <- 3
 #' reflength <- seq(minlength, maxlength, dl)
 #' stock_info <-
-#'     list(stockname = "cod", livesonareas = 1, minage = 1, maxage = 10,
+#'     list(stockname = "cod", livesonareas = 1, minage = minage, maxage = maxage,
 #'          minlength = minlength, maxlength = maxlength, dl = dl)
 #'
 #' # setup refweightfile
@@ -435,6 +435,7 @@ make_gadget_params <- function() {
 }
 
 #' @rdname params
+#' @export
 init_params <- function(df, switch, value, lower, upper, optimize = TRUE) {
     # check to make sure that lower < upper
     if (upper < lower) {

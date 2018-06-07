@@ -34,17 +34,17 @@ fleet_suit_formula(fleet = "comm", stock = NULL, fun = "exponentiall50",
   params = NULL, param_names = NULL)
 }
 \arguments{
-\item{fleet}{Character. The name of the fleet. Used in naming switches for suitability parameters}
+\item{fleet}{Character. The name of the fleet. Used to name switches for suitability parameters}
 
 \item{stock}{Character. The name of the stock to serve as the prey}
 
 \item{params}{Optional. List of parameter names as either character vectors or numbers. If
-character values are given, switches will be returned as function parameters. If numbers are given,
-then the respective arguments to the functions will be fixed.}
+character values are given, switches will be returned as function parameters. If numbers are
+given, then the respective arguments to the functions will be fixed.}
 }
 \value{
-A character vector of function information pasted together in a format ready for writing
-to Gadget file.
+A character vector of function information pasted together in a format ready for
+writing to Gadget file.
 }
 \description{
 To specify consumption for either prey or fleets Gadget requires suitability information to

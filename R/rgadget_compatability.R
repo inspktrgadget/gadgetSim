@@ -51,6 +51,7 @@ gs2rg_classes.gadget_likelihood <- function(gs_obj) {
 #' @rdname rg_class_compatibility
 #' @param rg_obj An object created or read by Rgadget (i.e. likely will be of class \code{gadget.*}
 #' (i.e. \code{gadget.main}, \code{gadget.printfile}, etc))
+#' @export
 rg2gs_classes <- function(rg_obj) {
     class(rg_obj) <- gsub("gadget.", "gadget_", class(rg_obj))
     return(rg_obj)

@@ -8,7 +8,7 @@
 #'
 #' @return A vector of values found in the Gadget stock file possibly coerced to numeric if appropriate
 #'
-#' @name getStockInfo
+#' @name get_stock_info
 #'
 #' @examples
 #' cod <- read_gadget_stockfiles("cod", path = gad_mod_dir)
@@ -32,7 +32,7 @@ get_stock_anything <- function(stocks, what2get) {
 	}
 }
 
-#' @rdname getStockInfo
+#' @rdname get_stock_info
 get_stock_ages <- function(stocks) {
     if (class(stocks) == "gadget_stock") {
         return(as.numeric(stocks$minage):(as.numeric(stocks$maxage)))
@@ -43,7 +43,7 @@ get_stock_ages <- function(stocks) {
     }
 }
 
-#' @rdname getStockInfo
+#' @rdname get_stock_info
 get_stock_areas <- function(stocks) {
     if (class(stocks) == "gadget_stock") {
         return(as.numeric(stocks$livesonareas))
@@ -54,7 +54,7 @@ get_stock_areas <- function(stocks) {
     }
 }
 
-#' @rdname getStockInfo
+#' @rdname get_stock_info
 get_stocknames <- function(stocks) {
     if (class(stocks) == "gadget_stock") {
         return(stocks$stockname)
@@ -65,7 +65,7 @@ get_stocknames <- function(stocks) {
     }
 }
 
-#' @rdname getStockInfo
+#' @rdname get_stock_info
 get_stock_lengths <- function(stocks) {
     if (class(stocks) == "gadget_stock") {
         return(seq(as.numeric(stocks$minlength),

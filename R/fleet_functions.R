@@ -9,9 +9,10 @@
 #' curves. Straightline is a simple line and constant is a simple line with no slope.
 #'
 #' @param length Numeric. Length to evaluate selectivity on
-#' @param alpha Numeric. Steepness parameter for \code{logistic} and \code{exponential_l50 functions},
-#' constant proportion for \code{constant} function and slope for \code{straightline} selectivity.
-#' Left to right scaling parameter for the \code{gamma} function
+#' @param alpha Numeric. Steepness parameter for \code{logistic} and
+#' \code{exponential_l50 functions}, constant proportion for \code{constant} function and
+#' slope for \code{straightline} selectivity. Left to right scaling parameter for the \code{gamma}
+#' function
 #' @param beta Numeric. Intercept for the \code{straightline} function. Controls amoung of doming
 #' on the \code{gamma} selectivity
 #' @param gamma Numeric. Controls doming along with \code{beta} in \code{gamma} selectivity
@@ -56,7 +57,7 @@ straightline_selectivity <- function(lengths, alpha, beta) {
 
 #' @rdname selectivity
 #' @export
-logistic_selectivity <- function(lengths, alpha, l50, max_prop) {
+logistic_selectivity <- function(lengths, alpha, l50, max_prop = 1) {
     if (max_prop > 1) {
         stop("If max_prop is >1 you increase the population rather than sample it")
     }
@@ -90,14 +91,14 @@ gamma_selectivity <- function(lengths, alpha, beta, gamma) {
 #' output the correct format for each respective suitability type. These functions are meant to be
 #' used in conjunction when putting together Gadget stocks or fleets.
 #'
-#' @param fleet Character. The name of the fleet. Used in naming switches for suitability parameters
+#' @param fleet Character. The name of the fleet. Used to name switches for suitability parameters
 #' @param stock Character. The name of the stock to serve as the prey
 #' @param params Optional. List of parameter names as either character vectors or numbers. If
-#' character values are given, switches will be returned as function parameters. If numbers are given,
-#' then the respective arguments to the functions will be fixed.
+#' character values are given, switches will be returned as function parameters. If numbers are
+#' given, then the respective arguments to the functions will be fixed.
 #'
-#' @return A character vector of function information pasted together in a format ready for writing
-#' to Gadget file.
+#' @return A character vector of function information pasted together in a format ready for
+#' writing to Gadget file.
 #' @export
 #'
 #' @name suit_formulas
@@ -118,41 +119,54 @@ constant_suit_formula <- function(fleet, stock, params = list("alpha")) {
 }
 
 #' @rdname suit_formulas
+#' @export
 straightline_suit_formula <- function(fleet, stock, params = list("alpha", "beta")) {
-    return(fleet_suit_formula(fleet = fleet, stock = stock, fun = "straightline", params = params))
+    return(fleet_suit_formula(fleet = fleet, stock = stock, fun = "straightline",
+                              params = params))
 }
 
 #' @rdname suit_formulas
-exponential_suit_formula <- function(fleet, stock, params = list("alpha", "beta", "gamma", "delta")) {
-    return(fleet_suit_formula(fleet = fleet, stock = stock, fun = "exponential", params = params))
-}
+#' @export
+exponential_suit_formula <-
+    function(fleet, stock, params = list("alpha", "beta", "gamma", "delta")) {
+        return(fleet_suit_formula(fleet = fleet, stock = stock, fun = "exponential",
+                                  params = params))
+    }
 
 #' @rdname suit_formulas
+#' @export
 exponentiall50_suit_formula <- function(fleet, stock, params = list("alpha", "l50")) {
-    return(fleet_suit_formula(fleet = fleet, stock = stock, fun = "newexponentiall50", params = params))
+    return(fleet_suit_formula(fleet = fleet, stock = stock, fun = "newexponentiall50",
+                              params = params))
 }
 
 #' @rdname suit_formulas
+#' @export
 richards_suit_formula <- function(fleet, stock, params = as.list(paste0("p", 0:4))) {
     return(fleet_suit_formula(fleet = fleet, stock = stock, fun = "richards", params = params))
 }
 
 #' @rdname suit_formulas
+#' @export
 andersen_suit_formula <- function(fleet, stock, params = as.list(paste0("p", 0:4))) {
     return(fleet_suit_formula(fleet = fleet, stock = stock, fun = "andersen", params = params))
 }
 
 #' @rdname suit_formulas
+#' @export
 andersenfleet_suit_formula <- function(fleet, stock, params = as.list(paste0("p", 0:5))) {
-    return(fleet_suit_formula(fleet = fleet, stock = stock, fun = "andersenfleet", params = params))
+    return(fleet_suit_formula(fleet = fleet, stock = stock, fun = "andersenfleet",
+                              params = params))
 }
 
 #' @rdname suit_formulas
+#' @export
 gamma_suit_formula <- function(fleet, stock, params = list("alpha", "beta", "gamma")) {
     return(fleet_suit_formula(fleet = fleet, stock = stock, fun = "gamma", params = params))
 }
 
 #' @rdname suit_formulas
+#' @export
 fleet_suit_formula <- function(fleet="comm", stock=NULL, fun="exponentiall50",
                                params=NULL, param_names = NULL) {
     if (is.null(param_names)) {
@@ -185,4 +199,248 @@ fleet_suit_formula <- function(fleet="comm", stock=NULL, fun="exponentiall50",
     }
     fun_call <- paste(stock, "function", fun, params2paste, sep = "\t")
     return(paste(fun_call, sep = "\n"))
+}
+
+
+
+#' Compute various per-recruit analyses
+#'
+#' These functions compute yield-per-recruit, spawning stock biomass (ssb) per recruit, and an
+#' overall yield curve given fishing mortality, natural mortality, ages, the growth function,
+#' the length-weight relationship, recruitment, selectivity, and maturity.
+#'
+#' \code{ypr_curve} produces a vector of yield-per-recruit at each value in \code{fish_mort},
+#' \code{ssb_rec_curve} returns a vector with values for spawning-stock-biomass or spawners
+#' per recruit, and \code{yield_curve} provides a vector with values for yield corresponding to
+#' each value in \code{fish_mort}
+#'
+#' @param fish_mort Numeric. A vector depicting fishing mortality
+#' @param nat_mort Numeric. A vector of either length 1 or the same length as \code{ages}
+#' @param ages Numeric vector representing ages
+#' @param growth_fun The name of the growth function to be used
+#' @param growth_params List of named elements corresponding to arguments to \code{growth_fun}
+#' @param lw_rel Function name determining the length-weight relationship
+#' @param lw_params List of named elements corresponding to arguments to \code{lw_rel}
+#' @param sel_fun Function determining the length-based selectivity of the fleet
+#' @param sel_params List of named elements corresponding to arguments to \code{sel_fun}
+#'
+#' @return A vector the same length as \code{fish_mort} which corresponds to the ypr, ssb per
+#' recruit, or overall yield at the respective value of \code{fish_mort}
+#' @name yield_curves
+#'
+#' @examples
+#' curve(ypr_curve(fish_mort = x, nat_mort = 0.2, ages = 0:20,
+#'                 growth_fun = vb, growth_params = list(linf = 125, k = 0.15, t0 = -0.5),
+#'                 lw_rel = lw, lw_params = list(alpha = 7e-06, beta = 3.1),
+#'                 sel_fun = logistic_selectivity, sel_params = list(alpha = 0.25, l50 = 40)),
+#'       from = 0, to = 2, ylab = "YPR")
+#' curve(ssb_rec_curve(fish_mort = x, nat_mort = 0.2, ages = 0:20,
+#'                     growth_fun = "vb", growth_params = list(linf = 125, k = 0.15, t0 = -0.5),
+#'                     lw_rel = "lw", lw_params = list(alpha = 7e-06, beta = 3.1),
+#'                     mat_fun = "logistic_selectivity",
+#'                     mat_params = list(alpha = 0.25, l50 = 30),
+#'                     sel_fun = "logistic_selectivity",
+#'                     sel_params = list(alpha = 0.25, l50 = 40)),
+#'       from = 0, to = 2, ylab = "SSB per recruit")
+ypr_curve <- function(fish_mort, nat_mort, ages,
+                     growth_fun = vb, growth_params = NULL,
+                     lw_rel = lw, lw_params = NULL,
+                     sel_fun = logistic_selectivity, sel_params = NULL) {
+    # check to see if nat_mort is a constant or not
+    if (length(nat_mort) != length(ages)) {
+        if (length(nat_mort) == 1) {
+            nat_mort <- rep(nat_mort, length(ages))
+        } else {
+            stop("Natural mortality must be a vector the same length as ages or a constant")
+        }
+    }
+    yr_at_f <- vapply(fish_mort, function(x) {
+        length_at_age <- do.call(growth_fun, c(growth_params, list(age = ages)))
+        weight_at_age <- do.call(lw_rel, c(lw_params, list(length = length_at_age)))
+        f_at_age <- do.call(sel_fun, c(list(lengths = length_at_age),
+                                       sel_params)) * x
+        z_at_age <- f_at_age + nat_mort
+        yield <- sum((f_at_age / z_at_age) *
+                         (1 - exp(-z_at_age)) *
+                         weight_at_age *
+                         exp(-cumsum(z_at_age)))
+        return(yield)
+    }, numeric(1))
+    return(yr_at_f)
+}
+
+#' @rdname yield_curves
+#' @export
+#' @param sel_fun Function determining maturity ogive of the stock
+#' @param sel_params List of named elements corresponding to arguments to \code{sel_fun}
+ssb_rec_curve <- function(fish_mort, nat_mort, ages,
+                          growth_fun = "vb", growth_params = NULL,
+                          lw_rel = "lw", lw_params = NULL,
+                          mat_fun = "logistic_selectivity", mat_params = NULL,
+                          sel_fun = "logistic_selectivity", sel_params = NULL) {
+    # check to see if nat_mort is a constant or not
+    if (length(nat_mort) != length(ages)) {
+        if (length(nat_mort) == 1) {
+            nat_mort <- rep(nat_mort, length(ages))
+        } else {
+            stop("Natural mortality must be a vector the same length as ages or a constant")
+        }
+    }
+    ssb_at_f <- vapply(fish_mort, function(x) {
+        length_at_age <- do.call(growth_fun, c(growth_params, list(age = ages)))
+        weight_at_age <- do.call(lw_rel, c(lw_params, list(length = length_at_age)))
+        pmat_at_age <- do.call(mat_fun, c(mat_params, list(length = length_at_age)))
+        f_at_age <- do.call(sel_fun, c(list(lengths = length_at_age),
+                                       sel_params, max_prop = 1)) * x
+        z_at_age <- f_at_age + nat_mort
+        ssb <- sum(weight_at_age * pmat_at_age * exp(-cumsum(z_at_age)))
+        return(ssb)
+    }, numeric(1))
+    return(ssb_at_f)
+}
+
+#' @rdname yield_curves
+#' @export
+yield_curve <- function(fish_mort, nat_mort, ages,
+                        growth_fun = "vb", growth_params = NULL,
+                        lw_rel = "lw", lw_params = NULL,
+                        rec_fun = "bev_holt", rec_fun_params = NULL,
+                        mat_fun = "logistic_selectivity", mat_params = NULL,
+                        sel_fun = "logistic_selectivity", sel_params = NULL, ...) {
+    # check to see if nat_mort is a constant or not
+    if (length(nat_mort) != length(ages)) {
+        if (length(nat_mort) == 1) {
+            nat_mort <- rep(nat_mort, length(ages))
+        } else {
+            stop("Natural mortality must be a vector the same length as ages or a constant")
+        }
+    }
+    f_msy_formals <- as.list(sys.call())[-1]
+    yield <-
+        vapply(fish_mort, function(x) {
+            ypr_call <- f_msy_formals[match(names(formals(ypr_curve)), names(f_msy_formals))]
+            ypr_call$fish_mort <- x
+            ypr <- do.call("ypr_curve", ypr_call)
+            sr_call <- f_msy_formals[match(names(formals(ssb_rec_curve)), names(f_msy_formals))]
+            sr_call$fish_mort <- x
+            sr <- do.call("ssb_rec_curve", sr_call)
+            if (rec_fun == "bev_holt") {
+                spawners <- (rec_fun_params$mu * sr) - rec_fun_params$lambda
+            } else if (rec_fun == "ricker") {
+                spawners <- (log(rec_fun_params$mu) * log(sr)) / rec_fun_params$lambda
+            } else {
+                if (!("spawner_sr_fun" %in% names(list(...)))) {
+                    stop("If not using Beverton-Holt or Ricker recruitment,", "\n",
+                         "then you need to specify your own function to calculate", "\n",
+                         "spawners from the spawners-per-recruit curve as", "\n",
+                         "spawner_sr_fun and spawner_sr_params")
+                } else {
+                    spawners <- do.call(spawner_sr_fun, c(sr, spawner_sr_params))
+                }
+            }
+            recruits <- do.call(rec_fun, c(spawners, rec_fun_params))
+            return(ypr * recruits)
+        }, numeric(1))
+    return(yield)
+}
+
+
+
+#' Compute various fishing mortality reference point
+#'
+#' These functions will compute a variety of reference points relating to fishing mortality.
+#' Various parameters about the stock must be entered as these use yield-per-recruit analysis
+#' to determing the reference points.
+#'
+#' \code{f_msy} will determine the fishing mortality that produces maximum sustained yield,
+#' \code{f_crash} returns the fishing mortality that will make the stock go extinct
+#' (i.e. crash the stock), \code{f_0.1} produces the fishing mortality that is roughly 1/10th of
+#' the slope at the origin of the yield-per-recruit curve. \code{f_lim} will find both of the
+#' fishing mortalities to which \eqn{F_{msy}} is scaled by \code{limit}
+#'
+#' @inheritParams yield_curves
+#' @param ...
+#'
+#' @return A numeric vector of length 1, except for \code{f_lim}, which returns 2 values
+#' @export
+#'
+#' @rdname f_values
+#'
+#' @examples
+#' f_msy(fish_mort = seq(0, 2, 0.01), nat_mort = 0.2, ages = 0:20,
+#'       growth_fun = "vb", growth_params = list(linf = 125, k = 0.15, t0 = -0.5),
+#'       lw_rel = "lw", lw_params = list(alpha = 7e-06, beta = 3.1),
+#'       rec_fun = "bev_holt", rec_fun_params = list(mu = 4e8, lambda = 1.7e08),
+#'       mat_fun = "logistic_selectivity", mat_params = list(alpha = 0.25, l50 = 30),
+#'       sel_fun = "logistic_selectivity", sel_params = list(alpha = 0.25, l50 = 40))
+f_msy <- function(fish_mort, nat_mort, ages,
+                  growth_fun = "vb", growth_params = NULL,
+                  lw_rel = "lw", lw_params = NULL,
+                  rec_fun = "bev_holt", rec_fun_params = NULL,
+                  mat_fun = "logistic_selectivity", mat_params = NULL,
+                  sel_fun = "logistic_selectivity", sel_params = NULL,
+                  ...) {
+    yield <- do.call("yield_curve", as.list(sys.call())[-1])
+    return(fish_mort[which.max(yield)])
+}
+
+#' @rdname f_values
+#' @export
+f_crash <- function(fish_mort, nat_mort, ages,
+                    growth_fun = "vb", growth_params = NULL,
+                    rec_fun = "bev_holt", rec_params = NULL,
+                    lw_rel = "lw", lw_params = NULL,
+                    mat_fun = "logistic_selectivity", mat_params = NULL,
+                    sel_fun = "logistic_selectivity", sel_params = NULL) {
+    ssb <- seq(1, 4e9, by = 1e6)
+    rec <- do.call(rec_fun, c(list(ssb = ssb), rec_params))
+    # rough estimation of derivative of the S-R curve
+    sr_derivative <- diff(rec) / diff(ssb)
+    slope_at_origin <- sr_derivative[1]
+    # match up arguments with ssb_rec_curve
+    f_crash_formals <- as.list(sys.call())[-1]
+    sr_params <- f_crash_formals[match(names(formals(ssb_rec_curve)), names(f_crash_formals))]
+    sr_curve <-
+        do.call("ssb_rec_curve", sr_params)
+    # determine f_crash
+    crash <- (1 / slope_at_origin)
+    crash_curve <- rev(sort(c(sr_curve, crash)))
+    f_crash <- fish_mort[which(crash_curve == crash) + 1]
+    return(f_crash)
+}
+
+#' @rdname f_values
+#' @export
+f_0.1 <- function(fish_mort, nat_mort, ages,
+                  growth_fun = "vb", growth_params = NULL,
+                  lw_rel = "lw", lw_params = NULL,
+                  sel_fun = "logistic_selectivity", sel_params = NULL) {
+    ypr_call <- as.list(sys.call())
+    ypr_call[[1]] <- quote(ypr_curve)
+    ypr <- eval(as.call(ypr_call))
+    dypr_df <- diff(ypr) / diff(fish_mort)
+    slope_at_origin <- dypr_df[1]
+    slope_0.1 <- max(dypr_df[dypr_df <= (slope_at_origin * 0.1)])
+    return(fish_mort[which(dypr_df == slope_0.1)])
+}
+
+
+#' @rdname f_values
+#' @export
+f_lim <- function(fish_mort, limit, nat_mort, ages,
+                  growth_fun = "vb", growth_params = NULL,
+                  lw_rel = "lw", lw_params = NULL,
+                  rec_fun = "bev_holt", rec_fun_params = NULL,
+                  mat_fun = "logistic_selectivity", mat_params = NULL,
+                  sel_fun = "logistic_selectivity", sel_params = NULL,
+                  ...) {
+    yield <- do.call("yield_curve", as.list(sys.call())[-1])
+    msy <- max(yield)
+    ref_pt <- msy * limit
+    lhs <- yield[1:which(yield == msy)]
+    rhs <- yield[which(yield == msy):length(yield)]
+    lower_pt <- which.min(abs(lhs - ref_pt))
+    upper_pt <- which.min(abs(rhs - ref_pt))
+    ref_pts <- c(lower_pt, (upper_pt + length(lhs)))
+    return(return(fish_mort[ref_pts]))
 }

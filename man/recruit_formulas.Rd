@@ -5,7 +5,7 @@
 \alias{simple_ssb_formula}
 \alias{ricker_formula}
 \alias{bev_holt_formula}
-\title{Produce recruit functions in a Gadget readable formula}
+\title{Produce recruitment functions in a Gadget readable formula}
 \usage{
 simple_ssb_formula(stockname, params = NULL)
 

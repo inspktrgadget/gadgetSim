@@ -18,7 +18,7 @@ write_gadget_attributes(gf, path = NULL, env = parent.frame())
 \method{write_gadget_attributes}{gadget_stock}(gf, path = NULL,
   env = parent.frame())
 
-\method{write_gadget_attributes}{data.frame}(df, path = NULL,
+\method{write_gadget_attributes}{data.frame}(gf, path = NULL,
   env = parent.frame())
 
 \method{write_gadget_attributes}{gadget_spawnfile}(gf, path = NULL,

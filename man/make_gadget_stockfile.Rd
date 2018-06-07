@@ -29,7 +29,7 @@ alpha <- 1e-04
 beta <- 3
 reflength <- seq(minlength, maxlength, dl)
 stock_info <-
-    list(stockname = "cod", livesonareas = 1, minage = 1, maxage = 10,
+    list(stockname = "cod", livesonareas = 1, minage = minage, maxage = maxage,
          minlength = minlength, maxlength = maxlength, dl = dl)
 
 # setup refweightfile
