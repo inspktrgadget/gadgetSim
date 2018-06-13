@@ -274,10 +274,10 @@ ypr_curve <- function(fish_mort, nat_mort, ages,
 #' @param sel_fun Function determining maturity ogive of the stock
 #' @param sel_params List of named elements corresponding to arguments to \code{sel_fun}
 ssb_rec_curve <- function(fish_mort, nat_mort, ages,
-                          growth_fun = "vb", growth_params = NULL,
-                          lw_rel = "lw", lw_params = NULL,
-                          mat_fun = "logistic_selectivity", mat_params = NULL,
-                          sel_fun = "logistic_selectivity", sel_params = NULL) {
+                          growth_fun = vb, growth_params = NULL,
+                          lw_rel = lw, lw_params = NULL,
+                          mat_fun = logistic_selectivity, mat_params = NULL,
+                          sel_fun = logistic_selectivity, sel_params = NULL) {
     # check to see if nat_mort is a constant or not
     if (length(nat_mort) != length(ages)) {
         if (length(nat_mort) == 1) {
@@ -301,12 +301,19 @@ ssb_rec_curve <- function(fish_mort, nat_mort, ages,
 
 #' @rdname yield_curves
 #' @export
+#' @examples
+#' curve(yield_curve(fish_mort = x, nat_mort = 0.2, ages = 0:20,
+#'                   growth_params = list(linf = 125, k = 0.15, t0 = -0.5),
+#'                   lw_params = list(alpha = 7e-06, beta = 3.1),
+#'                   rec_params = list(mu = 4e8, lambda = 1.067e08),
+#'                   mat_params = list(alpha = 0.25, 30),
+#'                   sel_params = list(alpha = 0.25, 40)), 0, 2, ylab = "Yield")
 yield_curve <- function(fish_mort, nat_mort, ages,
-                        growth_fun = "vb", growth_params = NULL,
-                        lw_rel = "lw", lw_params = NULL,
-                        rec_fun = "bev_holt", rec_fun_params = NULL,
-                        mat_fun = "logistic_selectivity", mat_params = NULL,
-                        sel_fun = "logistic_selectivity", sel_params = NULL, ...) {
+                        growth_fun = vb, growth_params = NULL,
+                        lw_rel = lw, lw_params = NULL,
+                        rec_fun = bev_holt, rec_params = NULL,
+                        mat_fun = logistic_selectivity, mat_params = NULL,
+                        sel_fun = logistic_selectivity, sel_params = NULL, ...) {
     # check to see if nat_mort is a constant or not
     if (length(nat_mort) != length(ages)) {
         if (length(nat_mort) == 1) {
@@ -315,19 +322,21 @@ yield_curve <- function(fish_mort, nat_mort, ages,
             stop("Natural mortality must be a vector the same length as ages or a constant")
         }
     }
-    f_msy_formals <- as.list(sys.call())[-1]
     yield <-
         vapply(fish_mort, function(x) {
-            ypr_call <- f_msy_formals[match(names(formals(ypr_curve)), names(f_msy_formals))]
-            ypr_call$fish_mort <- x
-            ypr <- do.call("ypr_curve", ypr_call)
-            sr_call <- f_msy_formals[match(names(formals(ssb_rec_curve)), names(f_msy_formals))]
-            sr_call$fish_mort <- x
-            sr <- do.call("ssb_rec_curve", sr_call)
-            if (rec_fun == "bev_holt") {
-                spawners <- (rec_fun_params$mu * sr) - rec_fun_params$lambda
-            } else if (rec_fun == "ricker") {
-                spawners <- (log(rec_fun_params$mu) * log(sr)) / rec_fun_params$lambda
+            ypr <- ypr_curve(fish_mort = x, nat_mort = nat_mort, ages = ages,
+                             growth_fun = growth_fun, growth_params = growth_params,
+                             lw_rel = lw_rel, lw_params = lw_params,
+                             sel_fun = sel_fun, sel_params = sel_params)
+            sr <- ssb_rec_curve(fish_mort = x, nat_mort = nat_mort, ages = ages,
+                                growth_fun = growth_fun, growth_params = growth_params,
+                                lw_rel = lw_rel, lw_params,
+                                mat_fun = mat_fun, mat_params = mat_params,
+                                sel_fun = sel_fun, sel_params = sel_params)
+            if (identical(match.fun(rec_fun), match.fun(bev_holt))) {
+                spawners <- (rec_params$mu * sr) - rec_params$lambda
+            } else if (identical(match.fun(rec_fun), match.fun(ricker))) {
+                spawners <- (log(rec_params$mu) * log(sr)) / rec_params$lambda
             } else {
                 if (!("spawner_sr_fun" %in% names(list(...)))) {
                     stop("If not using Beverton-Holt or Ricker recruitment,", "\n",
@@ -338,7 +347,7 @@ yield_curve <- function(fish_mort, nat_mort, ages,
                     spawners <- do.call(spawner_sr_fun, c(sr, spawner_sr_params))
                 }
             }
-            recruits <- do.call(rec_fun, c(spawners, rec_fun_params))
+            recruits <- do.call(rec_fun, c(spawners, rec_params))
             return(ypr * recruits)
         }, numeric(1))
     return(yield)
@@ -368,40 +377,46 @@ yield_curve <- function(fish_mort, nat_mort, ages,
 #'
 #' @examples
 #' f_msy(fish_mort = seq(0, 2, 0.01), nat_mort = 0.2, ages = 0:20,
-#'       growth_fun = "vb", growth_params = list(linf = 125, k = 0.15, t0 = -0.5),
-#'       lw_rel = "lw", lw_params = list(alpha = 7e-06, beta = 3.1),
-#'       rec_fun = "bev_holt", rec_fun_params = list(mu = 4e8, lambda = 1.7e08),
-#'       mat_fun = "logistic_selectivity", mat_params = list(alpha = 0.25, l50 = 30),
-#'       sel_fun = "logistic_selectivity", sel_params = list(alpha = 0.25, l50 = 40))
+#'       growth_fun = vb, growth_params = list(linf = 125, k = 0.15, t0 = -0.5),
+#'       lw_rel = lw, lw_params = list(alpha = 7e-06, beta = 3.1),
+#'       rec_fun = bev_holt, rec_params = list(mu = 4e8, lambda = 1.7e08),
+#'       mat_fun = logistic_selectivity, mat_params = list(alpha = 0.25, l50 = 30),
+#'       sel_fun = logistic_selectivity, sel_params = list(alpha = 0.25, l50 = 40))
 f_msy <- function(fish_mort, nat_mort, ages,
-                  growth_fun = "vb", growth_params = NULL,
-                  lw_rel = "lw", lw_params = NULL,
-                  rec_fun = "bev_holt", rec_fun_params = NULL,
-                  mat_fun = "logistic_selectivity", mat_params = NULL,
-                  sel_fun = "logistic_selectivity", sel_params = NULL,
+                  growth_fun = vb, growth_params = NULL,
+                  lw_rel = lw, lw_params = NULL,
+                  rec_fun = bev_holt, rec_params = NULL,
+                  mat_fun = logistic_selectivity, mat_params = NULL,
+                  sel_fun = logistic_selectivity, sel_params = NULL,
                   ...) {
-    yield <- do.call("yield_curve", as.list(sys.call())[-1])
+    yield <- yield_curve(fish_mort = fish_mort, nat_mort = nat_mort, ages = ages,
+                         growth_fun = growth_fun, growth_params = growth_params,
+                         lw_rel = lw_rel, lw_params = lw_params,
+                         rec_fun = rec_fun, rec_params,
+                         mat_fun = mat_fun, mat_params,
+                         sel_fun = sel_fun, sel_params = sel_params, ...)
     return(fish_mort[which.max(yield)])
 }
 
 #' @rdname f_values
 #' @export
 f_crash <- function(fish_mort, nat_mort, ages,
-                    growth_fun = "vb", growth_params = NULL,
-                    rec_fun = "bev_holt", rec_params = NULL,
-                    lw_rel = "lw", lw_params = NULL,
-                    mat_fun = "logistic_selectivity", mat_params = NULL,
-                    sel_fun = "logistic_selectivity", sel_params = NULL) {
+                    growth_fun = vb, growth_params = NULL,
+                    rec_fun = bev_holt, rec_params = NULL,
+                    lw_rel = lw, lw_params = NULL,
+                    mat_fun = logistic_selectivity, mat_params = NULL,
+                    sel_fun = logistic_selectivity, sel_params = NULL) {
     ssb <- seq(1, 4e9, by = 1e6)
     rec <- do.call(rec_fun, c(list(ssb = ssb), rec_params))
     # rough estimation of derivative of the S-R curve
     sr_derivative <- diff(rec) / diff(ssb)
     slope_at_origin <- sr_derivative[1]
     # match up arguments with ssb_rec_curve
-    f_crash_formals <- as.list(sys.call())[-1]
-    sr_params <- f_crash_formals[match(names(formals(ssb_rec_curve)), names(f_crash_formals))]
-    sr_curve <-
-        do.call("ssb_rec_curve", sr_params)
+    sr_curve <- ssb_rec_curve(fish_mort = fish_mort, nat_mort = nat_mort, ages = ages,
+                              growth_fun = growth_fun, growth_params = growth_params,
+                              lw_rel = lw_rel, lw_params = lw_params,
+                              mat_fun = mat_fun, mat_params = mat_params,
+                              sel_fun = sel_fun, sel_params = sel_params)
     # determine f_crash
     crash <- (1 / slope_at_origin)
     crash_curve <- rev(sort(c(sr_curve, crash)))
@@ -412,12 +427,13 @@ f_crash <- function(fish_mort, nat_mort, ages,
 #' @rdname f_values
 #' @export
 f_0.1 <- function(fish_mort, nat_mort, ages,
-                  growth_fun = "vb", growth_params = NULL,
-                  lw_rel = "lw", lw_params = NULL,
-                  sel_fun = "logistic_selectivity", sel_params = NULL) {
-    ypr_call <- as.list(sys.call())
-    ypr_call[[1]] <- quote(ypr_curve)
-    ypr <- eval(as.call(ypr_call))
+                  growth_fun = vb, growth_params = NULL,
+                  lw_rel = lw, lw_params = NULL,
+                  sel_fun = logistic_selectivity, sel_params = NULL) {
+    ypr <- ypr_curve(fish_mort = fish_mort, nat_mort = nat_mort, ages = ages,
+                     growth_fun = growth_fun, growth_params = growth_params,
+                     lw_rel = lw_rel, lw_params = lw_params,
+                     sel_fun = sel_fun, sel_params = sel_params)
     dypr_df <- diff(ypr) / diff(fish_mort)
     slope_at_origin <- dypr_df[1]
     slope_0.1 <- max(dypr_df[dypr_df <= (slope_at_origin * 0.1)])
@@ -428,11 +444,11 @@ f_0.1 <- function(fish_mort, nat_mort, ages,
 #' @rdname f_values
 #' @export
 f_lim <- function(fish_mort, limit, nat_mort, ages,
-                  growth_fun = "vb", growth_params = NULL,
-                  lw_rel = "lw", lw_params = NULL,
-                  rec_fun = "bev_holt", rec_fun_params = NULL,
-                  mat_fun = "logistic_selectivity", mat_params = NULL,
-                  sel_fun = "logistic_selectivity", sel_params = NULL,
+                  growth_fun = vb, growth_params = NULL,
+                  lw_rel = lw, lw_params = NULL,
+                  rec_fun = bev_holt, rec_params = NULL,
+                  mat_fun = logistic_selectivity, mat_params = NULL,
+                  sel_fun = logistic_selectivity, sel_params = NULL,
                   ...) {
     yield <- do.call("yield_curve", as.list(sys.call())[-1])
     msy <- max(yield)

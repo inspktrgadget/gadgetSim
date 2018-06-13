@@ -381,24 +381,6 @@ make_stock_lenaggfile <- function(dots) {
     return(lenaggfile)
 }
 
-#' Negates a logical test of the presence of a name in stockfile
-#'
-#' This function checks to see if a named element exists in a list and returns TRUE if it does not.
-#'
-#' @param name Character. The name to be checked
-#' @param sf Named object. Defaults to stockfile as this is used throughout the
-#' \code{\link{check_stockfile_funs}}
-#'
-#' @return Logical. TRUE if name is not present. FALSE if it is
-#'
-#' @examples
-#' stockfile <- list(stockname = "cod", minage = 1, maxage = 10, minlength = 1, maxlength = 100)
-#' check_sf_names("^livesonareas")
-#' check_sf_names("^stockname")
-check_sf_names <- function(name, sf = get("stockfile", env = parent.frame())) {
-    return(!any(grepl(name, names(sf))))
-}
-
 #' Functions to produce initial conditions or renewal distribution data
 #'
 #' These functions will produce a data.frame of class normalcondfile, normalparamfile, or numberfile
@@ -555,4 +537,120 @@ format_migration.migration_ratios <- function(mig_ratios) {
             })
         })
     return(mm_list)
+}
+
+#' Check and format a Gadget stockfile that is being read
+#'
+#' This function will check to see if the various components to a stockfile are present
+#' during reading and will format those components if present. If a filename is present
+#' in a various component then this function will read that filename and place the
+#' appropriate data into an attribute of the stockfile. This function is for use in
+#' \code{\link{read_gadget_stockfile}}
+#'
+#' @param stockfile The stockfile being read in by \code{\link{read_gadget_stockfile}}
+#' @inheritParams call_gadget
+#'
+#' @return A list the same as the stockfile, but with attributes added for data.
+#'
+#' @examples
+#' stockfile <- readLines("gadget_model/cod")
+#' check_stockfile(stockfile)
+check_stockfile <- function(stockfile, path = NULL) {
+    chk_cmp <- function(comp) {
+        if (stockfile[[comp]] == 1) {
+            return(TRUE)
+        } else {return(FALSE)}
+    }
+    chk_file <- function(comp) {
+        comp <- stockfile[[comp]]
+        if (is.null(comp) | length(comp) == 0 | comp == "") {
+            return(FALSE)
+        } else {
+            return(TRUE)
+        }
+    }
+    stock_info <- c("livesonareas", "minage", "maxage", "minlength", "maxlength", "dl")
+    null_list <-
+        lapply(stock_info, function(x) {
+            if (chk_comp(x)) {
+                stockfiles[[x]] <<- as.numeric(stockfiles[[x]])
+            }
+        })
+    if (chk_file("refweightfile")) {
+        filename <- stockfiles$refweightfile
+        attr(stockfile, "refweightfile") <-
+            structure(read_gadget_refweightfile(filename, path = path),
+                      filename = filename)
+    }
+    if (chk_file("growthandeatlengths")) {
+        filename <- stockfiles$growthandeatlengths
+        attr(stockfile, "growthandeatlengths") <-
+            structure(read_gadget_stock_len_aggfile(filename, path = path),
+                      filename = filename)
+    }
+    if (chk_comp("iseaten")) {
+        filename <- stockfiles$preylengths
+        attr(stockfile, "iseaten") <-
+            structure(read_gadget_preylengths(filename, path = path),
+                      filename = filename)
+    }
+    if (check_names("^initialconditions$", stockfile)) {
+        init_cond <- stockfile[get_index("^initialconditions$", names(stockfile)):
+                               (get_index("^doesmigrate$", names(stockfile)) - 1)]
+        filename <- init_cond[[length(init_cond)]]
+        data_dist_type <- names(init_cond)[length(init_cond)]
+        attr(stockfile, "initialconditions") <-
+            structure(read_gadget_init_cond(filename, data_dist_type, path = path),
+                      class = c(data_dist_type, "data.frame"),
+                      filename = filename)
+    }
+    if (chk_comp("^doesmigrate$")) {
+        migration <- stockfile[get_index("^doesmigrate$", names(stockfile)):
+                               (get_index("^doesmature$", names(stockfile)) - 1)]
+        yearstep_filename <- migration$yearstepfile
+        attr(stockfile, "migration_yearstepfile") <-
+            structure(read_gadget_yearstepfile(yearstep_filename, path = path),
+                      filename = yearstep_filename)
+        if (check_names("definematrices", migration)) {
+            mig_filename <- migration$definematrices
+            attr(stockfile, "migrationmatrices") <-
+                structure(read_gadget_migration_file(mig_filename, "matrices", path = path),
+                          filename = mig_filename)
+        } else if (check_names("defineratios", migration)) {
+            mig_filename <- migration$defineratios
+            attr(stockfile, "migrationratios") <-
+                structure(read_gadget_migration_file(mig_filename, "ratios", path = path),
+                          filename = mig_filename)
+        }
+    }
+    if (chk_comp("^doesmigrate$")) {
+        filename <- stockfile$maturityfile
+        attr(stockfile, "maturity") <-
+            structure(read_gadget_maturity_file(filename, path = path),
+                      filename = filename)
+    }
+    if (chk_comp("^doesrenew$")) {
+        renewal <- stockfile[get_index("^doesrenew$", names(stockfile)):
+                             get_index("^doesspawn$", names(stockfile))]
+        filename <- renewal[[length(renewal)]]
+        data_dist_type <- names(renewal)[length(renewal)]
+        attr(stockfile, "renewal") <-
+            structure(read_gadget_init_cond(filename, data_dist_type, path = path),
+                      class = c(data_dist_type, "list"),
+                      filename = filename)
+    }
+    if (chk_comp("^doesspawn$")) {
+        filename <- stockfile$spawnfile
+        attr(stockfile, "spawning") <-
+            structure(read_gadget_spawnfile(filename, path = path),
+                      class = c("gadget_spawnfile", "list"),
+                      filename = filename)
+    }
+    if (chk_comp("^doesstray$")) {
+        filename <- stockfile$strayfile
+        attr(stockfile, "straying") <-
+            structure(read_gadget_strayfile(filename, path = path),
+                      class = c("gadget_strayfile", "list"),
+                      filename = filename)
+    }
 }

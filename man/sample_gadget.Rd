@@ -12,10 +12,12 @@ add_lengthgroups(stock_data, length_groups, keep_zero_counts = FALSE)
 
 survey_gadget(stock_data, length_groups, survey_suitability, survey_sigma)
 
-strip_age_length_data(stock_data, length_prop = 1, age_prop = NULL)
+strip_age_length_data(stock_data, length_prop = 1, age_prop = NULL,
+  quiet = FALSE)
 
 replicate_datasets(stock_data, length_groups, survey_suitability, survey_sigma,
-  length_prop = 1, age_prop = NULL, n = 10, keep_zero_counts = FALSE)
+  length_prop = 1, age_prop = NULL, quiet = FALSE, n = 10,
+  keep_zero_counts = FALSE)
 }
 \arguments{
 \item{stock_data}{A \code{data.frame} of stock data retrieved via \code{\link{get_stock_std}}
@@ -40,6 +42,9 @@ samples to also sample for age. Therefore the actual proportion of age samples r
 sampled numbers is \code{length_prop * age_prop}}
 
 \item{n}{Integer. The number of times to replicate the sampling procedure}
+
+\item{Logical.}{Function will issue a warning if either \code{length_prop} or \code{age_prop}
+is equal to 1. \code{quiet = TRUE} will not print the warning.}
 }
 \value{
 \code{add_lengthgroup} returns a wide \code{data.frame} similar to that of

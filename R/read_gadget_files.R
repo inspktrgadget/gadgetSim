@@ -64,14 +64,17 @@ read_gadget_stockfiles <- function(stockfiles, main = NULL, path = NULL) {
     stocks <-
         lapply(stocks2get, function(x) {
             tmp <- readLines(x)
-            tmp <- strsplit(tmp[-(grep("^;", tmp))], split = "\t")
+            tmp <- strsplit(tmp[-(grep("^;", tmp))], split = "\\s+")
             tmp_names <- vapply(tmp, function(x) return(x[1]), character(1))
             tmp_cont <- lapply(tmp, function(x) return(x[-1]))
             out <- setNames(tmp_cont, tmp_names)
             return(structure(out, class = "gadget_stock"))
         })
     stocks <- setNames(stocks, stockfiles)
-    return(structure(stocks, class = "gadget_stocks"))
+    if (length(stocks) > 1) {
+        stocks <- structure(stocks, class = "gadget_stocks")
+    }
+    return(stocks)
 }
 
 
@@ -239,3 +242,5 @@ read_gadget_stock_std <- function(output_dir, files = NULL, path = NULL) {
         })
     return(setNames(stock_std, gsub(".stock.std", "", files2read)))
 }
+
+

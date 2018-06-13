@@ -366,9 +366,6 @@ make_gadget_printfile <- function(..., main = "main", path = NULL, fit_dir = NUL
         main <- read_gadget_main(file = main, path = path)
     }
     dir_name <- ifelse(is.null(path), getwd(), basename(path))
-    stockfiles <- main$stockfiles
-    fleetfiles <- main$fleetfiles
-    lik_files <- main$likelihood
     dots <- dots2list(...)
     if (!any(names(dots) %in% pf_types)) {
         stop("... must have names", "\n",

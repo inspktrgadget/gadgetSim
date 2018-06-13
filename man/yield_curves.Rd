@@ -11,16 +11,16 @@ ypr_curve(fish_mort, nat_mort, ages, growth_fun = vb, growth_params = NULL,
   lw_rel = lw, lw_params = NULL, sel_fun = logistic_selectivity,
   sel_params = NULL)
 
-ssb_rec_curve(fish_mort, nat_mort, ages, growth_fun = "vb",
-  growth_params = NULL, lw_rel = "lw", lw_params = NULL,
-  mat_fun = "logistic_selectivity", mat_params = NULL,
-  sel_fun = "logistic_selectivity", sel_params = NULL)
+ssb_rec_curve(fish_mort, nat_mort, ages, growth_fun = vb,
+  growth_params = NULL, lw_rel = lw, lw_params = NULL,
+  mat_fun = logistic_selectivity, mat_params = NULL,
+  sel_fun = logistic_selectivity, sel_params = NULL)
 
-yield_curve(fish_mort, nat_mort, ages, growth_fun = "vb",
-  growth_params = NULL, lw_rel = "lw", lw_params = NULL,
-  rec_fun = "bev_holt", rec_fun_params = NULL,
-  mat_fun = "logistic_selectivity", mat_params = NULL,
-  sel_fun = "logistic_selectivity", sel_params = NULL, ...)
+yield_curve(fish_mort, nat_mort, ages, growth_fun = vb,
+  growth_params = NULL, lw_rel = lw, lw_params = NULL,
+  rec_fun = bev_holt, rec_params = NULL, mat_fun = logistic_selectivity,
+  mat_params = NULL, sel_fun = logistic_selectivity, sel_params = NULL,
+  ...)
 }
 \arguments{
 \item{fish_mort}{Numeric. A vector depicting fishing mortality}
@@ -74,4 +74,10 @@ curve(ssb_rec_curve(fish_mort = x, nat_mort = 0.2, ages = 0:20,
                     sel_fun = "logistic_selectivity",
                     sel_params = list(alpha = 0.25, l50 = 40)),
       from = 0, to = 2, ylab = "SSB per recruit")
+curve(yield_curve(fish_mort = x, nat_mort = 0.2, ages = 0:20,
+                  growth_params = list(linf = 125, k = 0.15, t0 = -0.5),
+                  lw_params = list(alpha = 7e-06, beta = 3.1),
+                  rec_params = list(mu = 4e8, lambda = 1.067e08),
+                  mat_params = list(alpha = 0.25, 30),
+                  sel_params = list(alpha = 0.25, 40)), 0, 2, ylab = "Yield")
 }

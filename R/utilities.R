@@ -59,7 +59,6 @@ split_ws_list <- function(vec, ind = NULL) {
 #'
 #' @return
 #'
-#' @name getIndices
 #'
 #' @examples
 #' get_index(2, 2:10)
@@ -76,22 +75,68 @@ get_index <- function(x, vec) {
     return(as.vector(out))
 }
 
+
+#' Split a vector into a list based on indices
+#'
+#' This function takes a vector and indices from that vector and splits the vector into a
+#' list at the assigned indices. Values at the indices can either be kept or discarded.
+#'
+#' @param vec A vector of any length or class
+#' @param ind Numeric vector depicting the indices at which to split the list
+#' @param keep_indices Logical. Return the indices in each element of the list or not
+#'
+#' @return A list with length equal to that of the lenght of \code{vec}. Each element
+#' contains the values in between the indices including the values at the indices if
+#' \code{keep_indices = TRUE}, the default.
+#' @export
+#'
+#' @examples
+#' a <- letters
+#' ind <- grep("a|e|i|o|u", a)
+#' consonants <- make_list_at_index(a, ind, keep_indices = FALSE)
+make_list_at_index <- function(vec, ind, keep_indices = TRUE) {
+    if (keep_indices) {
+        factors <-
+            lapply(seq_along(ind), function(x) {
+                if (x == length(ind)) {
+                    rep(ind[x], (length(vec) - ind[x] + 1))
+                } else {
+                    rep(ind[x], (ind[x+1] - ind[x]))
+                }
+            })
+    } else {
+        factors <-
+            lapply(seq_along(ind), function(x) {
+                if (x == length(ind)) {
+                    rep(ind[x] + 1, (length(vec) - ind[x]))
+                } else {
+                    rep(ind[x] + 1, (ind[x+1] - ind[x] - 1))
+                }
+            })
+        vec <- vec[-ind]
+    }
+    return(unname(split(vec, unlist(factors))))
+}
+
+
 #' Checking path and directory status
 #'
 #' These functions complete various tasks related to directory structure and inclusion of a
 #' path variable in many of the functions throughout the package.
 #'
 #' \code{check_path} looks for an object named \code{path} in the environment specified by
-#' \code{env} and attaches it in front of \code{x} separated by a "/". \code{check_dir_exists}
-#' checks to see if a directory exists, and, if not, makes one in the current working directory.
+#' \code{env} and attaches it in front of \code{x} separated by a "/".
+#' \code{check_dir_exists} checks to see if a directory exists, and, if not, makes one
+#' in the current working directory.
 #'
 #' @param x Character. Name of file
 #' @param env An environment to search for the object named \code{path}
 #'
-#' @return \code{check_path} returns a character of either the file name or the \code{path} and
-#' file name pasted if \code{path} exists in the environment \code{env}. \code{check_dir_exists}
-#' returns nothing. It searches for the directory \code{dir} within \code{path} if it exists and
-#' creates a directory named \code{dir} if it is not found
+#' @return \code{check_path} returns a character of either the file name or the
+#' \code{path} and file name pasted if \code{path} exists in the environment \code{env}.
+#' \code{check_dir_exists} returns nothing. It searches for the directory \code{dir}
+#' within \code{path} if it exists and creates a directory named \code{dir} if it
+#' is not found
 #'
 #' @name path_dir_funs
 #'
@@ -137,7 +182,8 @@ check_files_exist <- function(files, path = NULL) {
         }
         if (!all(files %in% files_present)) {
             missing_files <- !(files %in% files_present)
-            stop(sprintf("The following files are missing from the %s directory", path), "\n",
+            stop(sprintf("The following files are missing from the %s directory", path),
+                 "\n",
                  paste(paste0(" * ", files[missing_files]), collapse = "\n"))
         }
     }
@@ -146,11 +192,12 @@ check_files_exist <- function(files, path = NULL) {
 
 #' Logical test to see if name(s) are in an object
 #'
-#' This function tests to see if names \code{x} are found in an object and returns TRUE if they are
+#' This function tests to see if names \code{x} are found in an object and returns
+#' TRUE if they are
 #'
 #' @param x Character. Regular expression of name
-#' @param obj Named object. Can be a vector, list, data.frame, or any other object that has a
-#' names attribute
+#' @param obj Named object. Can be a vector, list, data.frame, or any other object that
+#' has a names attribute
 #'
 #' @return Logical. TRUE if names \code{x} exist in \code{obj}
 #'
@@ -172,8 +219,8 @@ check_names <- function(x, obj) {
 #' @param x Vector of character vectors of a raw Gadget file
 #' @param split Regular expression to split by
 #' @param list_names Optional. If \code{TRUE}, \code{gf2list} will name the components of
-#' \code{x} by the first character vector in each component. Otherwise a character vector of
-#' names the length of \code{x} can be supplied
+#' \code{x} by the first character vector in each component. Otherwise a character vector
+#' of names the length of \code{x} can be supplied
 #'
 #' @return A list of components from a Gadget file
 #'
@@ -266,8 +313,8 @@ strip_comments.list <- function(x, comment = ";", keep_with = NULL) {
 #' This function is stolen from plyr::as.quoted. Converts characters to quoted variables
 #'
 #' @param x input to quote
-#' @param env environment in which unbounded symbols in expression should be evaluated. Defaults
-#' to the environment in which \code{as.quoted} was executed
+#' @param env environment in which unbounded symbols in expression should be evaluated.
+#' Defaults to the environment in which \code{as.quoted} was executed
 #'
 #' @return a list of quoted variables
 #'
@@ -320,16 +367,18 @@ get_pf_type <- function(printfile_comp) {
    paste(simpleCap(unlist(strsplit(class(printfile_comp)[1], split = "_"))), collapse = "")
 }
 
-#' Check if \code{...} is a list or a number of named objects and export to list appropriately
+#' Check if \code{...} is a list or a number of named objects and export to list
+#' appropriately
 #'
-#' @description Depending on how arguments of \code{...} are supplied to a function \code{as.list()}
-#' will fail with an error or \code{list()} will over-concatenate the argument(s). These functions
-#' check to see how \code{...} is entered and exports to the appropriate type to be used in functions
+#' @description Depending on how arguments of \code{...} are supplied to a function
+#' \code{as.list()} will fail with an error or \code{list()} will over-concatenate
+#' the argument(s). These functions check to see how \code{...} is entered and exports
+#' to the appropriate type to be used in functions
 #'
 #' @param ... Either a list or any number of named objects
 #'
-#' @details \code{is_list_dots} will return a logical value. \code{dots2list} will return a list
-#' of the values of \code{...}
+#' @details \code{is_list_dots} will return a logical value. \code{dots2list} will
+#' return a list of the values of \code{...}
 #'
 #' @name dots2list
 #'
@@ -387,9 +436,11 @@ is_list_element_null <- function(lst, keep_names = FALSE) {
 #' These are just basic default labels for some things that are used frequently
 #' throughout functions in this package.
 #'
-#' @param af_type Character. The aggfile type to be included in header label (e.g. area, age, len)
+#' @param af_type Character. The aggfile type to be included in header label
+#' (e.g. area, age, len)
 #'
-#' @return \code{aggfile_header} returns a character to be used as a header for printing text files
+#' @return \code{aggfile_header} returns a character to be used as a header for
+#' printing text files
 #'
 #'
 #' @name def_labs

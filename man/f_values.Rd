@@ -7,26 +7,25 @@
 \alias{f_lim}
 \title{Compute various fishing mortality reference point}
 \usage{
-f_msy(fish_mort, nat_mort, ages, growth_fun = "vb", growth_params = NULL,
-  lw_rel = "lw", lw_params = NULL, rec_fun = "bev_holt",
-  rec_fun_params = NULL, mat_fun = "logistic_selectivity",
-  mat_params = NULL, sel_fun = "logistic_selectivity", sel_params = NULL,
-  ...)
+f_msy(fish_mort, nat_mort, ages, growth_fun = vb, growth_params = NULL,
+  lw_rel = lw, lw_params = NULL, rec_fun = bev_holt, rec_params = NULL,
+  mat_fun = logistic_selectivity, mat_params = NULL,
+  sel_fun = logistic_selectivity, sel_params = NULL, ...)
 
-f_crash(fish_mort, nat_mort, ages, growth_fun = "vb", growth_params = NULL,
-  rec_fun = "bev_holt", rec_params = NULL, lw_rel = "lw",
-  lw_params = NULL, mat_fun = "logistic_selectivity", mat_params = NULL,
-  sel_fun = "logistic_selectivity", sel_params = NULL)
+f_crash(fish_mort, nat_mort, ages, growth_fun = vb, growth_params = NULL,
+  rec_fun = bev_holt, rec_params = NULL, lw_rel = lw, lw_params = NULL,
+  mat_fun = logistic_selectivity, mat_params = NULL,
+  sel_fun = logistic_selectivity, sel_params = NULL)
 
-f_0.1(fish_mort, nat_mort, ages, growth_fun = "vb", growth_params = NULL,
-  lw_rel = "lw", lw_params = NULL, sel_fun = "logistic_selectivity",
+f_0.1(fish_mort, nat_mort, ages, growth_fun = vb, growth_params = NULL,
+  lw_rel = lw, lw_params = NULL, sel_fun = logistic_selectivity,
   sel_params = NULL)
 
-f_lim(fish_mort, limit, nat_mort, ages, growth_fun = "vb",
-  growth_params = NULL, lw_rel = "lw", lw_params = NULL,
-  rec_fun = "bev_holt", rec_fun_params = NULL,
-  mat_fun = "logistic_selectivity", mat_params = NULL,
-  sel_fun = "logistic_selectivity", sel_params = NULL, ...)
+f_lim(fish_mort, limit, nat_mort, ages, growth_fun = vb,
+  growth_params = NULL, lw_rel = lw, lw_params = NULL,
+  rec_fun = bev_holt, rec_params = NULL, mat_fun = logistic_selectivity,
+  mat_params = NULL, sel_fun = logistic_selectivity, sel_params = NULL,
+  ...)
 }
 \arguments{
 \item{fish_mort}{Numeric. A vector depicting fishing mortality}
@@ -66,9 +65,9 @@ fishing mortalities to which \eqn{F_{msy}} is scaled by \code{limit}
 }
 \examples{
 f_msy(fish_mort = seq(0, 2, 0.01), nat_mort = 0.2, ages = 0:20,
-      growth_fun = "vb", growth_params = list(linf = 125, k = 0.15, t0 = -0.5),
-      lw_rel = "lw", lw_params = list(alpha = 7e-06, beta = 3.1),
-      rec_fun = "bev_holt", rec_fun_params = list(mu = 4e8, lambda = 1.7e08),
-      mat_fun = "logistic_selectivity", mat_params = list(alpha = 0.25, l50 = 30),
-      sel_fun = "logistic_selectivity", sel_params = list(alpha = 0.25, l50 = 40))
+      growth_fun = vb, growth_params = list(linf = 125, k = 0.15, t0 = -0.5),
+      lw_rel = lw, lw_params = list(alpha = 7e-06, beta = 3.1),
+      rec_fun = bev_holt, rec_params = list(mu = 4e8, lambda = 1.7e08),
+      mat_fun = logistic_selectivity, mat_params = list(alpha = 0.25, l50 = 30),
+      sel_fun = logistic_selectivity, sel_params = list(alpha = 0.25, l50 = 40))
 }

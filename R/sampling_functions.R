@@ -87,20 +87,30 @@ add_lengthgroups <- function(stock_data, length_groups, keep_zero_counts = FALSE
 survey_gadget <- function(stock_data, length_groups, survey_suitability, survey_sigma) {
     lengrp_lower <- length_groups[-length(length_groups)]
     lengrp_upper <- length_groups[-1]
-    base_names <- grep("^length|^weight|^number",
+    base_names <- grep("^length|^weight$|^number$",
                        names(stock_data), value = TRUE, invert = TRUE)
     base_data <- stock_data[, base_names, drop = FALSE]
-    do.call("rbind", lapply(seq_len(length(lengrp_lower)), function(i) {
-        length_col <-
-            paste("length", lengrp_lower[[i]], lengrp_upper[[i]], sep = "_")
-        out <- base_data
-        out$length <- mean(c(lengrp_upper[[i]], lengrp_lower[[i]]))
-        out$weight <- stock_data$weight
-        mult_error <- exp(rnorm(nrow(base_data), 0, survey_sigma) - survey_sigma/2)
-        out$number <- round(stock_data[, length_col] * mult_error * survey_suitability[[i]])
-        return(out)
-    }))
+    lengrp_data <-
+        lapply(seq_len(length(lengrp_lower)), function(i) {
+            length_col <-
+                paste("length", lengrp_lower[[i]], lengrp_upper[[i]], sep = "_")
+            out <- base_data
+            out$length <- mean(c(lengrp_upper[[i]], lengrp_lower[[i]]))
+            out$weight <- stock_data$weight
+            out$number <-
+                round(stock_data[, length_col] *
+                (exp(rnorm(nrow(base_data), 0, survey_sigma) - survey_sigma/2)) *
+                survey_suitability[[i]])
+            return(out)
+        })
+    if (requireNamespace("dplyr", quietly = TRUE)) {
+        out <- dplyr::bind_rows(lengrp_data)
+    } else {
+        out <- data.frame(do.call(rbind, lengrp_data))
+    }
+    return(out)
 }
+
 
 #' @rdname sample_gadget
 #' @param length_prop Numeric. The desired proportion of data to sample lengths on.
@@ -109,13 +119,17 @@ survey_gadget <- function(stock_data, length_groups, survey_suitability, survey_
 #' Must be between 0 and 1. Note that \code{age_prop} only corresponds to the proportion of length
 #' samples to also sample for age. Therefore the actual proportion of age samples relative to
 #' sampled numbers is \code{length_prop * age_prop}
+#' @param Logical. Function will issue a warning if either \code{length_prop} or \code{age_prop}
+#' is equal to 1. \code{quiet = TRUE} will not print the warning.
 #' @export
-strip_age_length_data <- function(stock_data, length_prop = 1, age_prop = NULL) {
+strip_age_length_data <- function(stock_data, length_prop = 1, age_prop = NULL, quiet = FALSE) {
     if (length_prop > 1 | age_prop > 1) {
         stop("You cannot have a length_prop or age_prop > 1")
     } else if (length_prop == 1 | age_prop == 1) {
-        warning("You left one or both of the sampling proportions at 1,
+        if (!quiet) {
+            warning("You left one or both of the sampling proportions at 1,
                  which will not actually strip any data")
+        }
     }
     length_data <- stock_data
     length_data$number <- round(length_data$number * length_prop)
@@ -143,7 +157,7 @@ strip_age_length_data <- function(stock_data, length_prop = 1, age_prop = NULL) 
 #' @param n Integer. The number of times to replicate the sampling procedure
 #' @export
 replicate_datasets <- function(stock_data, length_groups, survey_suitability,
-                               survey_sigma, length_prop = 1, age_prop = NULL,
+                               survey_sigma, length_prop = 1, age_prop = NULL, quiet = FALSE,
                                n = 10, keep_zero_counts = FALSE) {
     dat_list <-
         lapply(1:n, function(x) {
@@ -156,7 +170,8 @@ replicate_datasets <- function(stock_data, length_groups, survey_suitability,
             sample$replicate <- x
             comp_data <- strip_age_length_data(sample,
                                                length_prop = length_prop,
-                                               age_prop = age_prop)
+                                               age_prop = age_prop,
+                                               quiet = quiet)
             comp_data$length_data$replicate <- x
             comp_data$age_data$replicate <- x
             return(c(list(index = sample), comp_data))
