@@ -572,24 +572,24 @@ check_stockfile <- function(stockfile, path = NULL) {
     stock_info <- c("livesonareas", "minage", "maxage", "minlength", "maxlength", "dl")
     null_list <-
         lapply(stock_info, function(x) {
-            if (chk_comp(x)) {
-                stockfiles[[x]] <<- as.numeric(stockfiles[[x]])
+            if (chk_cmp(x)) {
+                stockfile[[x]] <<- as.numeric(stockfile[[x]])
             }
         })
     if (chk_file("refweightfile")) {
-        filename <- stockfiles$refweightfile
+        filename <- stockfile$refweightfile
         attr(stockfile, "refweightfile") <-
             structure(read_gadget_refweightfile(filename, path = path),
                       filename = filename)
     }
     if (chk_file("growthandeatlengths")) {
-        filename <- stockfiles$growthandeatlengths
+        filename <- stockfile$growthandeatlengths
         attr(stockfile, "growthandeatlengths") <-
             structure(read_gadget_stock_len_aggfile(filename, path = path),
                       filename = filename)
     }
-    if (chk_comp("iseaten")) {
-        filename <- stockfiles$preylengths
+    if (chk_cmp("iseaten")) {
+        filename <- stockfile$preylengths
         attr(stockfile, "iseaten") <-
             structure(read_gadget_preylengths(filename, path = path),
                       filename = filename)
@@ -604,7 +604,7 @@ check_stockfile <- function(stockfile, path = NULL) {
                       class = c(data_dist_type, "data.frame"),
                       filename = filename)
     }
-    if (chk_comp("^doesmigrate$")) {
+    if (chk_cmp("doesmigrate")) {
         migration <- stockfile[get_index("^doesmigrate$", names(stockfile)):
                                (get_index("^doesmature$", names(stockfile)) - 1)]
         yearstep_filename <- migration$yearstepfile
@@ -623,13 +623,13 @@ check_stockfile <- function(stockfile, path = NULL) {
                           filename = mig_filename)
         }
     }
-    if (chk_comp("^doesmigrate$")) {
+    if (chk_cmp("doesmature")) {
         filename <- stockfile$maturityfile
         attr(stockfile, "maturity") <-
             structure(read_gadget_maturity_file(filename, path = path),
                       filename = filename)
     }
-    if (chk_comp("^doesrenew$")) {
+    if (chk_cmp("doesrenew")) {
         renewal <- stockfile[get_index("^doesrenew$", names(stockfile)):
                              get_index("^doesspawn$", names(stockfile))]
         filename <- renewal[[length(renewal)]]
@@ -639,18 +639,19 @@ check_stockfile <- function(stockfile, path = NULL) {
                       class = c(data_dist_type, "list"),
                       filename = filename)
     }
-    if (chk_comp("^doesspawn$")) {
+    if (chk_cmp("doesspawn")) {
         filename <- stockfile$spawnfile
         attr(stockfile, "spawning") <-
             structure(read_gadget_spawnfile(filename, path = path),
                       class = c("gadget_spawnfile", "list"),
                       filename = filename)
     }
-    if (chk_comp("^doesstray$")) {
+    if (chk_cmp("doesstray")) {
         filename <- stockfile$strayfile
         attr(stockfile, "straying") <-
             structure(read_gadget_strayfile(filename, path = path),
                       class = c("gadget_strayfile", "list"),
                       filename = filename)
     }
+    return(stockfile)
 }

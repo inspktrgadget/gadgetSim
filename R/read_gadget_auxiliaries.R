@@ -46,7 +46,7 @@ read_gadget_init_cond <- function(file, data_dist_type, path = NULL) {
                normalparamfile = c("age", "area", "age.factor", "area.factor",
                                    "mean", "sd", "alpha", "beta"),
                numberfile = c("area", "age", "length", "number", "weight"))
-    return(format_auxiliary_file(data_file, aux_names))
+    return(format_data_dist_file(data_file, aux_names))
 }
 
 #' @rdname read_gadget_aux_files
@@ -154,14 +154,43 @@ read_gadget_strayfile <- function(file, path = NULL) {
     return(structure(strayfile, class = c("gadget_strayfile", "list")))
 }
 
+read_gadget_datafile <- function(file, colnames = NULL, path = NULL) {
+    datfile <- readLines(check_path(file))
+    datfile <- strip_comments(datfile)
+    dat_list <-
+        lapply(datfile, function(x) {
+            tmp <- split_ws(x)
+            tmp <- data.frame(matrix(tmp, nrow = 1), stringsAsFactors = FALSE)
+            if (!is.null(colnames)) {
+                names(tmp) <- colnames
+            }
+            return(tmp)
+        })
+    return(do.call("rbind", dat_list))
+}
+
 #' @rdname read_gadget_aux_files
 format_auxiliary_file <- function(aux_file, aux_names) {
     aux_file <- strip_comments(aux_file)
     gadget_auxfile <-
         lapply(aux_file, function(x) {
-            out <- data.frame(matrix(split_tab(x)), ncol = length(aux_names))
+            out <- data.frame(matrix(split_tab(x), ncol = length(aux_names)),
+                              stringsAsFactors = FALSE)
             names(out) <- aux_names
             return(out)
         })
     return(do.call("rbind", gadget_auxfile))
+}
+
+#' @rdname read_gadget_aux_files
+format_data_dist_file <- function(data_dist_file, data_names) {
+    data_file <- data_dist_file[-grep("^;", data_dist_file)]
+    gadget_data_file <-
+        lapply(data_file, function(x) {
+            out <- data.frame(matrix(split_tab(x), ncol = length(data_names)),
+                              stringsAsFactors = FALSE)
+            names(out) <- data_names
+            return(out)
+        })
+    return(do.call("rbind", gadget_data_file))
 }

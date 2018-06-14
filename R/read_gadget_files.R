@@ -64,10 +64,12 @@ read_gadget_stockfiles <- function(stockfiles, main = NULL, path = NULL) {
     stocks <-
         lapply(stocks2get, function(x) {
             tmp <- readLines(x)
-            tmp <- strsplit(tmp[-(grep("^;", tmp))], split = "\\s+")
+            tmp <- strip_comments(tmp)
+            tmp <- split_ws_list(tmp)
             tmp_names <- vapply(tmp, function(x) return(x[1]), character(1))
             tmp_cont <- lapply(tmp, function(x) return(x[-1]))
             out <- setNames(tmp_cont, tmp_names)
+            out <- check_stockfile(out, path = path)
             return(structure(out, class = "gadget_stock"))
         })
     stocks <- setNames(stocks, stockfiles)
@@ -90,8 +92,8 @@ read_gadget_stockfiles <- function(stockfiles, main = NULL, path = NULL) {
 #' @examples
 #' path <- system.file(gad_mod_dir, package = "gadgetSim")
 #' main <- read_gadget_main(path = path)
-#' read_gadget_fleet(main = main, path = path)
-read_gadget_fleet <- function(fleetfiles, main = NULL, path = NULL) {
+#' get_gadget_fleet_info(main = main, path = path)
+get_gadget_fleet_info <- function(fleetfiles, main = NULL, path = NULL) {
     if (!is.null(main)) {
         if (!("gadget_main" %in% class(main))) {
             stop("If main is specified you must supply a list of class gadget_main")
@@ -131,6 +133,50 @@ read_gadget_fleet <- function(fleetfiles, main = NULL, path = NULL) {
             return(dat)
         }, n = names(prey_ind)))
     return(structure(list(fleet = fleet_info, prey = suit_info),
+                     class = c("gadget_fleet_info", "list")))
+}
+
+
+read_gadget_fleet <- function(fleetfiles, main = NULL, path = NULL) {
+    if (!is.null(main)) {
+        if (!("gadget_main" %in% class(main))) {
+            stop("If main is specified you must supply a list of class gadget_main")
+        }
+        fleetfiles <- main$fleetfiles
+    }
+    fleets2get <- check_path(fleetfiles)
+    tmp <- readLines(fleets2get)
+    tmp <- strip_comments(tmp)
+    tmp <- split_ws(tmp)
+    comp_ind <- get_index(comp_regex, tmp)
+    comp_list <- make_list_at_index(tmp, comp_ind, keep_indices = FALSE)
+    fleet_list <-
+        lapply(comp_list, function(x) {
+            fleet_type <- x[1]
+            fleet_template <- getFromNamespace(fleet_type, ns = "gadgetSim")
+            arg_name_ind <- get_index(names(fleet_template), x)
+            arg_list <- make_list_at_index(x, arg_name_ind, keep_indices = FALSE)
+            names(arg_list) <- names(fleet_template)
+            if (length(grep("^function$", arg_list$suitability)) > 1) {
+                suit_fun_ind <- get_index("^function$", arg_list$suitability)
+                suit_list <- make_list_at_index(arg_list$suitability, suit_fun_ind - 1)
+                suit_df <- data.frame(do.call("rbind", suit_list), stringsAsFactors = FALSE)
+                names(suit_df) <- c("stock", "fun", "fun_type", paste0("param",
+                                                                       1:(ncol(suit_df) - 3)))
+                arg_list$suitability <- suit_df
+            }
+            if (!(is.null(arg_list$amount) | arg_list$amount == "")) {
+                filename <- arg_list$amount
+                variable_colname <- ifelse(fleet_type %in% c("totalfleet", "numberfleet"),
+                                           "amount", "scaling")
+                dat_names <- c("year", "step", "area", "fleet", variable_colname)
+                attr(arg_list, "amount") <-
+                    structure(read_gadget_datafile(filename, colnames = dat_names, path = path),
+                              filename = filename)
+            }
+            return(arg_list)
+        })
+    return(structure(fleet_list,
                      class = c("gadget_fleets", "list")))
 }
 

@@ -456,3 +456,193 @@ init_params <- function(df, switch, value, lower, upper, optimize = TRUE) {
     class(df) <- c("gadget_params", "data.frame")
     return(df)
 }
+
+
+#' Assemble an entire Gadget model with a single function
+#'
+#' This function is the almagamation of all the make_gadget_* functions.
+#' It allows a user to put together all aspects of a Gadget model for simulation
+#' tesing purposes. Note that this function does not write a likelihood file.
+#' If a Gadget model optimized to data is more desirable, then you should look to the
+#' Rgadget package (specifically \code{\link[Rgadget]{gadget.iterative}}).
+#'
+#' This function utilizes the framework of gadgetSim functions to easily assemble and write files
+#' for a Gadget simulation model. It does not call the model directly, rather it sets up all files
+#' desired for inclusion into the Gadget model. You will still; however, have to set up the params
+#' files separately.
+#'
+#' \code{...} should be a number of named elements corresponding to the following names: time,
+#' area, stock (or stocks), and fleet (or fleets). Each of these named elements should also
+#' correspond to their respective gadget_* classes as produced by the family of make_gadget_*
+#' functions (i.e. \code{make_gadget_model(time = make_gadget_timefile(1985, 2015, "quarterly"))},
+#' see example below).
+#'
+#' @return Nothing. A Gadget model with the basic necessary files will be written
+#' to \code{path} if specified. Otherwise the Gadget model files will be written
+#' to the current directory.
+#' @export
+#'
+#' @examples
+#' #------------------------------
+#' # setup time and area
+#' st_year <- 1985
+#' end_year <- 2015
+#' time <- make_gadget_timefile(st_year, end_year, "quarterly")
+#' area <-
+#'   make_gadget_areafile(areas = 1, size = 1e6,
+#'                        temp_data = expand.grid(year = st_year:end_year, step = 1:4,
+#'                                                area = 1, temp = 3))
+#'
+#' #------------------------------
+#' # setup the stock
+#' # setup basic stock information
+#' minage <- 1
+#' maxage <- 10
+#' minlength <- 1
+#' maxlength <- 100
+#' dl <- 1
+#' alpha <- 1e-04
+#' beta <- 3
+#' reflength <- seq(minlength, maxlength, dl)
+#' stock_info <-
+#'     list(stockname = "cod", livesonareas = 1, minage = minage, maxage = maxage,
+#'          minlength = minlength, maxlength = maxlength, dl = dl)
+#'
+#' # setup refweightfile
+#' stock_refwgt <-
+#'     data.frame(len = reflength,
+#'                weight = alpha * reflength ^ beta)
+#'
+#' # setup growth
+#' linf <- 125
+#' k <- 0.15
+#' t0 <- -0.5
+#' stock_growth <-
+#'     list(growthfunction = "lengthvbsimple",
+#'          growthparameters = c(linf, k, alpha, beta))
+#'
+#' # setup naturalmortality
+#' stock_m <- rep(0.2, 10)
+#'
+#' # setup initial conditions
+#' init_data <-
+#'     normalparamfile(age = seq(minage, maxage, 1),
+#'                     area = 1,
+#'                     age.factor = 1e6 * exp(-cumsum(rep(0.2, (maxage - minage + 1)))),
+#'                     area.factor = 1,
+#'                     mean = vb_formula("cod", minage:maxage,
+#'                                       params = list(linf = linf, k = k, t0 = t0)),
+#'                     sd = c(1:10, rep(10, 10)),
+#'                     alpha = alpha,
+#'                     beta = beta)
+#' stock_initcond <- list(normalparamfile = init_data)
+#'
+#' # setup spawning
+#' stock_spawnfile <-
+#'     make_gadget_spawnfile(
+#'       stockname = "cod",
+#'       start_year = st_year,
+#'       end_year = end_year,
+#'       proportionfunction = c("exponential", -0.25, 35),
+#'       recruitment = bev_holt_formula("cod", params = c(4e08, 1.067e08)),
+#'       stockparameters = c(20, 2, alpha, beta)
+#'     )
+#'
+#' # create gadget stockfile
+#' cod <-
+#'    make_gadget_stockfile(stock = stock_info,
+#'                          refweightfile = stock_refwgt,
+#'                          growth = stock_growth,
+#'                          naturalmortality = stock_m,
+#'                          iseaten = 1,
+#'                          initialconditions = stock_initcond,
+#'                          spawning = stock_spawnfile)
+#'
+#' #------------------------------
+#' # setup the fleet
+#' lin_flt_data <- expand.grid(year = st_year:end_year,
+#'                             steps = 1:4,
+#'                             area = 1,
+#'                             fleetname = "lin")
+#' lin_flt_data <- lin_flt_data[order(lin_flt_data$year), ]
+#' lin_flt_data$scaling <- c(seq(0.01,0.8, length.out = 62),
+#'                           seq(0.8,0.2,length.out = 62))
+#' lin_fleet <-
+#'     list(type = "linearfleet",
+#'          suitability = exponentiall50_suit_formula("lin", "cod"),
+#'          amount = lin_flt_data)
+#' lin <- make_gadget_fleet(lin = lin_fleet)
+#'
+#' #------------------------------
+#' # simulate the Gadget model
+#' make_gadget_model(time = time,
+#'                   area = area,
+#'                   stock = cod,
+#'                   fleet = lin,
+#'                   path = "test_model")
+#'
+#' # must set up params first, then can run
+#' stock_std <- get_stock_std(path = "test_model")
+#'
+#' #------------------------------
+#' # see the results
+#' plot(number ~ year, subset(stock_std$cod, age == 2, step == 1), type = "l")
+#'
+#' # if using tidyverse
+#' g <-
+#'   ggplot(data=filter(stock_std$cod, step == 1), aes(x=year, y=number)) +
+#'   geom_line() + facet_wrap(~age, scales = "free_y")
+make_gadget_model <- function(..., path = NULL) {
+    check_dir_exists(path)
+    dots <- dots2list(...)
+    # check and write time file
+    if (check_names("^time", dots)) {
+        if (!("gadget_time" %in% class(dots$time))) {
+            stop("Gadget timefile must be of class gadget_time")
+        } else {
+            write_gadget_file(dots$time, path = path)
+            timefile_name <- "time"
+        }
+    } else {timefile_name <- ""}
+    check_dir_exists(check_path("Modelfiles"))
+    # check and write areafile
+    if (check_names("^area", dots)) {
+        if (!("gadget_area" %in% class(dots$area))) {
+            stop("Gadget areafile must be of class gadget_time")
+        } else {
+            write_gadget_file(dots$area, file = "Modelfiles/area", path = path)
+            areafile_name <- "Modelfiles/area"
+        }
+    } else {areafile_name <- ""}
+    # check and write stock files
+    if (check_names("^stock|^stocks", dots)) {
+        stocks <- dots[grep("^stock|^stocks", names(dots))]
+        stockfile_names <-
+            lapply(stocks, function(x) {
+                if (!("gadget_stock" %in% class(x))) {
+                    stop("Gadget stockfile must be of class gadget_stock or gadget_stocks")
+                } else {
+                    write_gadget_file(x, path = path)
+                    return(x$stockname)
+                }
+            })
+        stockfile_names <- paste(stockfile_names, collapse = "\t")
+    } else {stockfile_names <- ""}
+    # check and write fleet files
+    if (check_names("^fleet|^fleets", dots)) {
+        fleets <- dots[[grep("^fleet|^fleets", names(dots))]]
+        if (!("gadget_fleets" %in% class(fleets))) {
+            stop("Fleets must be of class gadget_fleets")
+        } else {
+            write_gadget_file(fleets, path = path)
+            fleetfile_name <- "Modelfiles/fleet"
+        }
+    } else {fleetfile_name <- ""}
+    # write out mainfile
+    mainfile <- make_gadget_mainfile(list(timefile = timefile_name,
+                                          areafile = areafile_name,
+                                          stockfiles = stockfile_names,
+                                          fleetfiles = fleetfile_name))
+    write_gadget_file(mainfile, path = path)
+}
+
