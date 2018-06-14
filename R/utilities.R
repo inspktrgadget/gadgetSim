@@ -431,6 +431,23 @@ is_list_element_null <- function(lst, keep_names = FALSE) {
 	}
 }
 
+rm_null_elements <- function(lst, keep_attributes = TRUE) {
+    if (keep_attributes) {
+        if (!is.null(names(lst))) {
+            lst_attr <- attributes(lst)
+            lst_attr <- lst_attr[-1]
+        } else {
+            lst_attr <- NULL
+        }
+        out <- Filter(Negate(is.null), lst)
+        lst_nms <- names(out)
+        attributes(out) <- c(list(names = lst_nms), lst_attr)
+    } else {
+        out <- Filter(Negate(is.null), lst)
+    }
+    return(out)
+}
+
 #' Some default labels
 #'
 #' These are just basic default labels for some things that are used frequently

@@ -68,3 +68,8 @@ test_that("is_list_element_null returns the appropriate logical for each NULL co
     expect_equal(is_list_element_null(test_list), c(FALSE, FALSE, TRUE, TRUE))
     expect_equal(names(is_list_element_null(test_list, keep_names = TRUE)), c("a", "b", "c", "d"))
 })
+
+test_that("rm_null_elements actually removes NULL elements without anything wonky", {
+    test_list <- list(a = 1, b = 2, c = NULL, d = NULL)
+    expect_equal(rm_null_elements(test_list), list(a = 1, b = 2))
+})

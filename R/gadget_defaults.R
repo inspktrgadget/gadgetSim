@@ -137,6 +137,208 @@ fleet_types <-
     c("totalfleet", "numberfleet", "linearfleet", "effortfleet", "quotafleet")
 
 
+# defaults for likelihood components
+penalty_likelihood <-
+    structure(list(
+        name = "",
+        weight = 1,
+        type = "penalty",
+        data = c("default", 2, 1000, 1000)),
+        class = c("gadget_penalty_likelihood", "list"))
+
+understocking_likelihood <-
+    structure(list(
+        name = "",
+        weight = 1,
+        type = "understocking",
+        powercoeff = NULL
+    ), class = c("gadget_understocking_likelihood", "list"))
+
+catchdistribution_likelihood <-
+    structure(list(
+        name = "",
+        weight = 1,
+        type = "catchdistribution",
+        data = "",
+        `function` = "sumofsquares",
+        aggregationlevel = NULL,
+        overconsumption = NULL,
+        epsilon = NULL,
+        areaaggfile = "",
+        ageaggfile = "",
+        lenaggfile = "",
+        fleetnames = "",
+        stocknames = ""
+    ), class = c("gadget_catchdistribution_likelihood", "list"))
+
+catchstatistics_likelihood <-
+    structure(list(
+        name = "",
+        weight = 1,
+        type = "catchstatistics",
+        data = "",
+        `function` = "lengthcalcstddev",
+        overconsumption = 0,
+        areaaggfile = "",
+        lenaggfile = NULL,
+        ageaggfile = "",
+        fleetnames = "",
+        stocknames = ""
+    ), class = c("gadget_catchstatistics_likelihood", "list"))
+
+stockdistribution_likelihood <-
+    structure(list(
+        name = "",
+        weight = 1,
+        type = "stockdistribution",
+        data = "",
+        `function` = "sumofsquares",
+        aggregationlevel = NULL,
+        overconsumption = NULL,
+        epsilon = NULL,
+        areaaggfile = "",
+        ageaggfile = "",
+        lenaggfile = "",
+        fleetnames = "",
+        stocknames = ""
+    ), class = c("gadget_stockdistribution_likelihood", "list"))
+
+surveyindices_likelihood <-
+    structure(list(
+        name = "",
+        weight = 1,
+        type = "surveyindices",
+        data = "",
+        sitype = "",
+        biomass = NULL
+    ), class = c("gadget_surveyindices_likelihood", "list"))
+
+si_lengths <-
+    modifyList(surveyindices_likelihood,
+               list(sitype = "lengths",
+                    areaggfile = "",
+                    lenaggfile = "",
+                    stockanmes = ""))
+
+si_ages <-
+    modifyList(surveyindices_likelihood,
+               list(sitype = "ages",
+                    areaggfile = "",
+                    lenaggfile = "",
+                    stocknames = ""))
+
+si_fleets <-
+    modifyList(surveyindices_likelihood,
+               list(sitype = "fleets",
+                    areaggfile = "",
+                    lenaggfile = "",
+                    fleetnames = "",
+                    stocknames = ""))
+
+si_acoustic <-
+    modifyList(surveyindices_likelihood,
+               list(sitype = "acoustic",
+                    areaaggfile = "",
+                    surveynames = "",
+                    stocknames = ""))
+
+si_effort <-
+    modifyList(surveyindices_likelihood,
+               list(sitype = "effort",
+                    areaaggfile = "",
+                    fleetnames = "",
+                    stocknames = ""))
+
+surveydistribution_likelihood <-
+    structure(list(
+        name = "",
+        weight = 1,
+        type = "surveydistribution",
+        data = "",
+        areaaggfile = "",
+        lenaggfile = "",
+        ageaggfile = "",
+        stocknames = "",
+        fittype = "",
+        parameters = "",
+        suitability_parameters = "",
+        epsilon = 1,
+        likelihoodtype = "multinomial"
+    ), class = c("gadget_surveydistribution_likelihood", "list"))
+
+stomachcontent_likelihood <-
+    structure(list(
+        name = "",
+        weight = 1,
+        type = "stomachcontent",
+        `function` = "scsimple",
+        data = "",
+        epsilon = NULL,
+        areaaggfile = "",
+        predatornames = "",
+        predatorlengths = "",
+        lenaggfile = "",
+        preyaggfile = ""
+    ), class = c("gadget_stomachconent_likelihood", "list"))
+
+recaptures_likelihood <-
+    structure(list(
+        name = "",
+        weight = 1,
+        type = "recaptures",
+        data = "",
+        `function` = "poisson",
+        areaaggfile = "",
+        lenaggfile = "",
+        fleetnames = ""
+    ), class = c("gadget_recaptures_likelihood", "list"))
+
+recstatistics_likelihood <-
+    structure(list(
+        name = "",
+        weight = 1,
+        type = "recstatistics",
+        data = "",
+        `function` = "lengthcalcstddev",
+        areaaggfile = "",
+        fleetnames = ""
+    ), class = c("gadget_recstatistics_likelihood", "list"))
+
+migrationpenalty_likelihood <-
+    structure(list(
+        name = "",
+        weight = 1,
+        type = "migrationpenalty",
+        stockname = "",
+        powercoeffs = c(2, 1)
+    ), class = c("gadget_migrationpenalty_likelihood", "list"))
+
+migrationproportion_likelihood <-
+    structure(list(
+        name = "",
+        weight = 1,
+        type = "migrationproportion",
+        data = "",
+        `function` = "sumofsquares",
+        biomass = NULL,
+        areaaggfile = "",
+        stocknames = ""
+    ), class = c("gadget_migrationproportion_likelhood", "list"))
+
+catchinkilos_likelihood <-
+    structure(list(
+        name = "",
+        weight = 1,
+        type = "catchinkilos",
+        data = "",
+        `function` = "sumofsquares",
+        aggregationlevel = NULL,
+        epsilon = NULL,
+        areaaggfile = "",
+        fleetnames = "",
+        stocknames = ""
+    ), class = c("gadget_catchinkilos_likelihood", "list"))
+
 #' Switch defaults
 #'
 #' These are vectors of the switches that are used in when calling Gadget
