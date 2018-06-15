@@ -12,8 +12,8 @@ gf2list(x, split = "^\\\\[component\\\\]$", list_names = FALSE)
 \item{split}{Regular expression to split by}
 
 \item{list_names}{Optional. If \code{TRUE}, \code{gf2list} will name the components of
-\code{x} by the first character vector in each component. Otherwise a character vector of
-names the length of \code{x} can be supplied}
+\code{x} by the first character vector in each component. Otherwise a character vector
+of names the length of \code{x} can be supplied}
 }
 \value{
 A list of components from a Gadget file

@@ -5,6 +5,7 @@
 \alias{write_gadget_attributes}
 \alias{write_gadget_attributes.gadget_fleet}
 \alias{write_gadget_attributes.gadget_stock}
+\alias{write_gadget_attributes.gadget_likelihood}
 \alias{write_gadget_attributes.data.frame}
 \alias{write_gadget_attributes.gadget_spawnfile}
 \alias{get_attr_filename}
@@ -16,6 +17,9 @@ write_gadget_attributes(gf, path = NULL, env = parent.frame())
   env = parent.frame())
 
 \method{write_gadget_attributes}{gadget_stock}(gf, path = NULL,
+  env = parent.frame())
+
+\method{write_gadget_attributes}{gadget_likelihood}(gf, path = NULL,
   env = parent.frame())
 
 \method{write_gadget_attributes}{data.frame}(gf, path = NULL,

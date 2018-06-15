@@ -631,11 +631,11 @@ check_stockfile <- function(stockfile, path = NULL) {
     }
     if (chk_cmp("doesrenew")) {
         renewal <- stockfile[get_index("^doesrenew$", names(stockfile)):
-                             get_index("^doesspawn$", names(stockfile))]
+                             (get_index("^doesspawn$", names(stockfile)) - 1)]
         filename <- renewal[[length(renewal)]]
         data_dist_type <- names(renewal)[length(renewal)]
         attr(stockfile, "renewal") <-
-            structure(read_gadget_init_cond(filename, data_dist_type, path = path),
+            structure(read_gadget_renewal(filename, data_dist_type, path = path),
                       class = c(data_dist_type, "list"),
                       filename = filename)
     }

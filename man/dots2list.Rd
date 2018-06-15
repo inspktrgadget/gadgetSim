@@ -4,7 +4,8 @@
 \alias{dots2list}
 \alias{is_list_dots}
 \alias{dots2list}
-\title{Check if \code{...} is a list or a number of named objects and export to list appropriately}
+\title{Check if \code{...} is a list or a number of named objects and export to list
+appropriately}
 \usage{
 is_list_dots(...)
 
@@ -14,13 +15,14 @@ dots2list(...)
 \item{...}{Either a list or any number of named objects}
 }
 \description{
-Depending on how arguments of \code{...} are supplied to a function \code{as.list()}
-will fail with an error or \code{list()} will over-concatenate the argument(s). These functions
-check to see how \code{...} is entered and exports to the appropriate type to be used in functions
+Depending on how arguments of \code{...} are supplied to a function
+\code{as.list()} will fail with an error or \code{list()} will over-concatenate
+the argument(s). These functions check to see how \code{...} is entered and exports
+to the appropriate type to be used in functions
 }
 \details{
-\code{is_list_dots} will return a logical value. \code{dots2list} will return a list
-of the values of \code{...}
+\code{is_list_dots} will return a logical value. \code{dots2list} will
+return a list of the values of \code{...}
 }
 \examples{
 is_list_dots(list(a = 1, b = 2))

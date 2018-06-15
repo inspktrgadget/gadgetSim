@@ -22,14 +22,16 @@ comp_lab
 comp_regex
 }
 \arguments{
-\item{af_type}{Character. The aggfile type to be included in header label (e.g. area, age, len)}
+\item{af_type}{Character. The aggfile type to be included in header label
+(e.g. area, age, len)}
 
 \item{gf}{Character. The type of Gadget file being written}
 
 \item{df}{Character. The type of data file being written}
 }
 \value{
-\code{aggfile_header} returns a character to be used as a header for printing text files
+\code{aggfile_header} returns a character to be used as a header for
+printing text files
 }
 \description{
 These are just basic default labels for some things that are used frequently

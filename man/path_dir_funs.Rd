@@ -18,10 +18,11 @@ check_dir_exists(dir = NULL)
 \item{dir}{Character. The name of a directory to look for (and create if not found)}
 }
 \value{
-\code{check_path} returns a character of either the file name or the \code{path} and
-file name pasted if \code{path} exists in the environment \code{env}. \code{check_dir_exists}
-returns nothing. It searches for the directory \code{dir} within \code{path} if it exists and
-creates a directory named \code{dir} if it is not found
+\code{check_path} returns a character of either the file name or the
+\code{path} and file name pasted if \code{path} exists in the environment \code{env}.
+\code{check_dir_exists} returns nothing. It searches for the directory \code{dir}
+within \code{path} if it exists and creates a directory named \code{dir} if it
+is not found
 }
 \description{
 These functions complete various tasks related to directory structure and inclusion of a
@@ -29,8 +30,9 @@ path variable in many of the functions throughout the package.
 }
 \details{
 \code{check_path} looks for an object named \code{path} in the environment specified by
-\code{env} and attaches it in front of \code{x} separated by a "/". \code{check_dir_exists}
-checks to see if a directory exists, and, if not, makes one in the current working directory.
+\code{env} and attaches it in front of \code{x} separated by a "/".
+\code{check_dir_exists} checks to see if a directory exists, and, if not, makes one
+in the current working directory.
 }
 \examples{
 check_path("main")

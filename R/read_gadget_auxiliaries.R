@@ -123,6 +123,20 @@ read_gadget_maturity_file <- function(file, mat_fun_type, path = NULL) {
 }
 
 #' @rdname read_gadget_aux_files
+read_gadget_renewal <- function(file, data_dist_type, path = NULL) {
+    data_file <- readLines(check_path(file))
+    aux_names <-
+        switch(data_dist_type,
+               normalcondfile = c("year", "step", "area", "age", "number",
+                                  "mean", "sd", "relcond"),
+               normalparamfile = c("year", "step", "area", "age", "number",
+                                   "mean", "sd", "alpha", "beta"),
+               numberfile = c("year", "step", "area", "age",
+                              "length", "number", "weight"))
+    return(format_data_dist_file(data_file, aux_names))
+}
+
+#' @rdname read_gadget_aux_files
 read_gadget_spawnfile <- function(file, path = NULL) {
     spawnfile <- readLines(check_path(file))
     spawnfile <- strip_comments(spawnfile)

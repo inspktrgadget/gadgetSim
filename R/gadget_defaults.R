@@ -140,7 +140,7 @@ fleet_types <-
 # defaults for likelihood components
 penalty_likelihood <-
     structure(list(
-        name = "",
+        name = "penalty",
         weight = 1,
         type = "penalty",
         data = c("default", 2, 1000, 1000)),
@@ -148,7 +148,7 @@ penalty_likelihood <-
 
 understocking_likelihood <-
     structure(list(
-        name = "",
+        name = "understocking",
         weight = 1,
         type = "understocking",
         powercoeff = NULL

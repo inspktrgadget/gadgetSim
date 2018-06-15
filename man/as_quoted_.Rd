@@ -9,8 +9,8 @@ as_quoted_(x, env = parent.frame())
 \arguments{
 \item{x}{input to quote}
 
-\item{env}{environment in which unbounded symbols in expression should be evaluated. Defaults
-to the environment in which \code{as.quoted} was executed}
+\item{env}{environment in which unbounded symbols in expression should be evaluated.
+Defaults to the environment in which \code{as.quoted} was executed}
 }
 \value{
 a list of quoted variables

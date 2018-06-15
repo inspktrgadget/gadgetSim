@@ -180,9 +180,24 @@ write_gadget_file.gadget_printfile <- function(gf, file = "printfile.fit", path 
                         aggfile_dir = aggfile_dir, path = path, fit_dir = fit_dir)
     formatted_printfiles <- lapply(gf, format_printfile)
     header <- gadgetfile_header("printfile")
-    likfile2print <- paste(c(header, formatted_printfiles), collapse = "\n;\n")
+    printfile2print <- paste(c(header, formatted_printfiles), collapse = "\n;\n")
     check_dir_exists(check_path(output_dir))
-    write(likfile2print, file = check_path(file))
+    write(printfile2print, file = check_path(file))
+}
+
+write_gadget_file.gadget_likelihood <- function(gf, file = "likelihood", path = NULL) {
+    lik_comps <-
+        lapply(gf, function(x) {
+            tmp <- collapse_entries(x)
+            out <- paste(paste(names(tmp), tmp, sep = "\t"), collapse = "\n")
+            return(out)
+        })
+    header <- gadgetfile_header("likelihood")
+    likfile <- paste(c(header, lik_comps),
+                     collapse = paste0("\n;\n", comp_lab, "\n"))
+    check_dir_exists(path)
+    write(likfile, file = check_path(file))
+    write_gadget_attributes(gf, path = path)
 }
 
 #' Functions to write attributes of Gadget components to file
@@ -233,6 +248,13 @@ write_gadget_attributes.gadget_stock <- function(gf, path = NULL, env = parent.f
 
 #' @rdname write_attr
 #' @export
+write_gadget_attributes.gadget_likelihood <- function(gf, path = NULL, env = parent.frame()) {
+    gf_attr <- attributes(gf)[-grep("^names$|^class$", names(attributes(gf)))]
+    null_list <- lapply(gf_attr, write_gadget_attributes, path = path, env = env)
+}
+
+#' @rdname write_attr
+#' @export
 write_gadget_attributes.data.frame <- function(gf, path = NULL, env = parent.frame()) {
     file_info <- get_attr_filename(gf)
     filename <- file_info$filename
@@ -245,6 +267,18 @@ write_gadget_attributes.data.frame <- function(gf, path = NULL, env = parent.fra
                  collapse = "\n")
     write(out, file = check_path(filename))
 }
+
+write_gadget_attributes.list <- function(gf, path = NULL, env = parent.frame()) {
+    file_info <- get_attr_filename(gf)
+    filename <- file_info$filename
+    check_dir_exists(check_path(file_info$attr_dir))
+    header <- aggfile_header()
+    out <- paste(c(header, paste(c(names(gf), collapse_entries(gf)),
+                                 collapse= "\t")),
+                   collapse = "\n")
+    write(out, file = check_path(filename))
+}
+
 
 #' @rdname write_attr
 #' @export
