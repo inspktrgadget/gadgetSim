@@ -397,3 +397,33 @@ collapse_entries <- function(gf) {
         })
     return(tmp)
 }
+
+#' Write out a Gadget sub-directory and return the path to it
+#'
+#' This function will create a new directory by the name of \code{sub_dir}
+#' within the directory specified by \code{path}. The address to the new
+#' sub-directory is returned.
+#'
+#' \code{gadget_sub_dir} is essentially just an easy way to create a sub-directory
+#' of the chosen Gadget model for writing model files to. It could be used for
+#' writing replicant models files.
+#'
+#' @param sub_dir Character. Path to the sub-directory you wish to create
+#' @param path Optional. Character string of the path of the Gadget model you
+#' are working in
+#'
+#' @return A character string of the path to the sub-directory specified in
+#' \code{sub_dir}
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' path <- system.file(gad_mod_dir, package = "gadgetSim")
+#' gadget_sub_dir("test_model", path = path)
+#' }
+#' gadget_sub_dir()
+gadget_sub_dir <- function(sub_dir, path = NULL) {
+    check_dir_exists(check_path(sub_dir))
+    return(check_path(sub_dir))
+}
+

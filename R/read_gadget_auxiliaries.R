@@ -188,12 +188,11 @@ format_auxiliary_file <- function(aux_file, aux_names) {
     aux_file <- strip_comments(aux_file)
     gadget_auxfile <-
         lapply(aux_file, function(x) {
-            out <- data.frame(matrix(split_tab(x), ncol = length(aux_names)),
-                              stringsAsFactors = FALSE)
+            out <- matrix(split_tab(x), ncol = length(aux_names))
             names(out) <- aux_names
             return(out)
         })
-    return(do.call("rbind", gadget_auxfile))
+    return(data.frame(do.call("rbind", gadget_auxfile), stringsAsFactors = FALSE))
 }
 
 #' @rdname read_gadget_aux_files
@@ -201,10 +200,9 @@ format_data_dist_file <- function(data_dist_file, data_names) {
     data_file <- data_dist_file[-grep("^;", data_dist_file)]
     gadget_data_file <-
         lapply(data_file, function(x) {
-            out <- data.frame(matrix(split_tab(x), ncol = length(data_names)),
-                              stringsAsFactors = FALSE)
+            out <- matrix(split_tab(x), ncol = length(data_names))
             names(out) <- data_names
             return(out)
         })
-    return(do.call("rbind", gadget_data_file))
+    return(data.frame(do.call("rbind", gadget_data_file), stringsAsFactors = FALSE))
 }

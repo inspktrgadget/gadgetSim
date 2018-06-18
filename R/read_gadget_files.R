@@ -36,6 +36,75 @@ read_gadget_main <- function(file = "main", path = NULL) {
     return(main)
 }
 
+#' Read Gadget timefile
+#'
+#' This function reads in a Gadget timefile using either the specified timefile
+#' name or from the main file
+#'
+#' @param timefile Character. The name of the file to read in
+#' @inheritParams read_gadget_stockfile
+#'
+#' @return A list of class \code{gadget_time}
+#' @export
+#'
+#' @name read_time_area
+#'
+#' @examples
+#' path <- system.file(gad_mod_dir, package = "gadgetSim")
+#' main <- read_gadget_main(path = path)
+#' timefile <- read_gadget_timefile(main = main, path = path)
+read_gadget_timefile <- function(timefile, main = NULL, path = NULL) {
+    if (!is.null(main)) {
+        if (!("gadget_main" %in% class(main))) {
+            stop("If main is specified you must supply a list of class gadget_main")
+        } else {
+            timefile <- main$timefile
+        }
+    }
+    timefile <- readLines(check_path(timefile))
+    timefile <- strip_comments(timefile)
+    time_args <-
+        lapply(timefile, function(x) {
+            vals <- split_tab(x, ind = -1)
+            vals <- tryCatch(as.numeric(vals),
+                             warning = function(w) return(vals),
+                             error = function(e) return(vals))
+            return(vals)
+        })
+    time_names <-
+        lapply(timefile, function(x) {
+            return(split_tab(x, ind = 1))
+        })
+    time <- setNames(time_args, time_names)
+    return(structure(time, class = c("gadget_time", "list")))
+}
+
+#' @rdname read_time_area
+#' @example
+#' area <- read_gadget_areafile(main = main, path = path)
+read_gadget_areafile <- function(areafile, main = NULL, path = NULL) {
+    if (!is.null(main)) {
+        if (!("gadget_main" %in% class(main))) {
+            stop("If main is specified you must supply a list of class gadget_main")
+        } else {
+            areafile <- main$areafile
+        }
+    }
+    areafile <- readLines(check_path(areafile))
+    areafile <- strip_comments(areafile)
+    areas <- as.numeric(split_ws(areafile[1], ind = -1))
+    size <- as.numeric(split_ws(areafile[2], ind = -1))
+    temp_data <- areafile[4:length(areafile)]
+    temp_data <-
+        lapply(temp_data, function(x) {
+            return(matrix(split_ws(x), ncol = 4))
+        })
+    temp_df <- data.frame(do.call("rbind", temp_data))
+    names(temp_df) <- c("year", "step", "area", "temperature")
+    area_file <- list(areas = areas, size = size, temperature = temp_df)
+    return(structure(area_file, class = c("gadget_area", "list")))
+}
+
 #' Read Gadget stockfiles
 #'
 #' Get stockfiles used in a Gadget model
@@ -80,19 +149,7 @@ read_gadget_stockfiles <- function(stockfiles, main = NULL, path = NULL) {
 }
 
 
-#' Read Gadget fleet file
-#'
-#' @param fleetfiles Character name of fleet file in Gadget model as specified in main file
-#' @inheritParams read_gadget_stockfiles
-#'
-#' @return A list detailing the fleets included in Gadget model,
-#' stocks included, and suitability
-#' @export
-#'
-#' @examples
-#' path <- system.file(gad_mod_dir, package = "gadgetSim")
-#' main <- read_gadget_main(path = path)
-#' get_gadget_fleet_info(main = main, path = path)
+
 get_gadget_fleet_info <- function(fleetfiles, main = NULL, path = NULL) {
     if (!is.null(main)) {
         if (!("gadget_main" %in% class(main))) {
@@ -137,6 +194,19 @@ get_gadget_fleet_info <- function(fleetfiles, main = NULL, path = NULL) {
 }
 
 
+#' Read Gadget fleet file
+#'
+#' @param fleetfiles Character name of fleet file in Gadget model as specified in main file
+#' @inheritParams read_gadget_stockfiles
+#'
+#' @return A list detailing the fleets included in Gadget model,
+#' stocks included, and suitability
+#' @export
+#'
+#' @examples
+#' path <- system.file(gad_mod_dir, package = "gadgetSim")
+#' main <- read_gadget_main(path = path)
+#' get_gadget_fleet_info(main = main, path = path)
 read_gadget_fleet <- function(fleetfiles, main = NULL, path = NULL) {
     if (!is.null(main)) {
         if (!("gadget_main" %in% class(main))) {
@@ -290,3 +360,27 @@ read_gadget_stock_std <- function(output_dir, files = NULL, path = NULL) {
 }
 
 
+#' Read a Gadget model
+#'
+#' This is a wrapper function for most of the \code{\link{read_gadget_*}}
+#' functions. It reads in all of the main components for a Gadget model and
+#' wraps them in a list of class \code{\link{gadget_model}}
+#'
+#' @inheritParams read_gadget_main
+#'
+#' @return A list of class \code{gadget_model}
+#' @export
+#'
+#' @examples
+#' path <- system.file(gad_mod_dir, package = "gadgetSim")
+#' gad_mod <- read_gadget_model(path = path)
+read_gadget_model <- function(main = "main", path = NULL) {
+    main <- read_gadget_main(file = main, path = path)
+    time <- read_gadget_timefile(main = main, path = path)
+    areas <- read_gadget_areafile(main = main, path = path)
+    stocks <- read_gadget_stockfiles(main = main, path = path)
+    fleets <- read_gadget_fleet(main = main, path = path)
+    return(structure(list(main = main, time = time, areas = areas,
+                          stocks = stocks, fleets = fleets),
+                     class = c("gadget_model", "list")))
+}
