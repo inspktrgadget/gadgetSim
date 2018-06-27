@@ -2,23 +2,30 @@
 % Please edit documentation in R/write_gadget_files.R
 \name{write_aggfiles}
 \alias{write_aggfiles}
-\title{Write aggfiles used in a printfile_component to files in a directory}
+\alias{write_likelihood_aggfiles}
+\alias{write_likelihood_datafiles}
+\alias{write_printfile_aggfiles}
+\title{Write aggfiles specific to certain Gadget components}
 \usage{
-write_aggfiles(printfile_comp, aggfile_dir, path = NULL, fit_dir = NULL)
+write_likelihood_aggfiles(likelihood_file, path = NULL)
+
+write_likelihood_datafiles(likelihood_file, path = NULL)
+
+write_printfile_aggfiles(comp, path = NULL, aggfile_dir, fit_dir = NULL)
 }
 \arguments{
-\item{printfile_comp}{A list of class pertaining to a Gadget printfile component,
-see \code{\link{update_printfile}}}
+\item{path}{Character. Path of the Gadget model}
 
 \item{aggfile_dir}{Character. Path of the directory where aggfiles will be printed}
-
-\item{path}{Character. Path of the Gadget model}
 }
 \value{
-NULL. Writes aggregate files to the appropriate files in \code{aggfile_dir}
+NULL. Writes aggregate files to the appropriate files in
+\code{aggfile_dir}
 }
 \description{
-This function searches for aggfiles and prints them to the appropriate directory and filename
+These functions are specific to Gadget likelihood and printfile components as
+many of these aggfiles require particular attention to formatting. These
+functions are strictly used within \code{\link{write_gadget_file}}
 }
 \examples{
 path <- system.file(gad_mod_dir, package = "gadgetSim")

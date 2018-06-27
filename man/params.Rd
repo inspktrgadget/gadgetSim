@@ -11,12 +11,13 @@ make_gadget_params()
 init_params(df, switch, value, lower, upper, optimize = TRUE)
 }
 \value{
-A data.frame of class \code{gadget_params}. \code{make_gadget_params} returns an
-empty data.frame, and \code{init_params} updates the parameter found by \code{switch}.
+A data.frame of class \code{gadget_params}. \code{make_gadget_params}
+returns an empty data.frame, and \code{init_params} updates the parameter
+found by \code{switch}.
 }
 \description{
-These functions create and update a data.frame of class \code{gadget_params}. This is the
-parameter file for switches used in a Gadget model
+These functions create and update a data.frame of class \code{gadget_params}.
+This is the parameter file for switches used in a Gadget model
 }
 \examples{
 params <- make_gadget_params()

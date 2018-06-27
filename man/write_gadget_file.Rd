@@ -10,6 +10,7 @@
 \alias{write_gadget_file.gadget_stocks}
 \alias{write_gadget_file.gadget_params}
 \alias{write_gadget_file.gadget_printfile}
+\alias{write_gadget_file.gadget_likelihood}
 \title{Write Gadget components to file}
 \usage{
 write_gadget_file(gf, file = NULL, path = NULL, output_dir = NULL,
@@ -19,9 +20,11 @@ write_gadget_file(gf, file = NULL, path = NULL, output_dir = NULL,
 
 \method{write_gadget_file}{gadget_time}(gf, file = "time", path = NULL)
 
-\method{write_gadget_file}{gadget_area}(gf, file = "area", path = NULL)
+\method{write_gadget_file}{gadget_area}(gf, file = "Modelfiles/area",
+  path = NULL)
 
-\method{write_gadget_file}{gadget_fleets}(gf, file = "fleet", path = NULL)
+\method{write_gadget_file}{gadget_fleets}(gf, file = "Modelfiles/fleet",
+  path = NULL)
 
 \method{write_gadget_file}{gadget_stock}(gf, file = gf$stockname,
   path = NULL)
@@ -34,31 +37,41 @@ write_gadget_file(gf, file = NULL, path = NULL, output_dir = NULL,
 \method{write_gadget_file}{gadget_printfile}(gf, file = "printfile.fit",
   path = NULL, output_dir = "out", aggfile_dir = "print.aggfiles",
   fit_dir = NULL)
+
+\method{write_gadget_file}{gadget_likelihood}(gf, file = "likelihood",
+  path = NULL)
 }
 \arguments{
-\item{gf}{A list of class \code{gadget_main}, \code{gadget_time}, \code{gadget_area},
-\code{gadget_stock}, \code{gadget_fleet}, \code{gadget_printfile}, or \code{gadget_params}}
+\item{gf}{A list of class \code{gadget_main}, \code{gadget_time},
+\code{gadget_area}, \code{gadget_stock}, \code{gadget_fleet},
+\code{gadget_printfile}, or \code{gadget_params}}
 
 \item{file}{Character. The name of the file to be written}
 
-\item{path}{Optional. Character of the path of the directory to write files to}
+\item{path}{Optional. Character of the path of the directory to write
+files to}
 
-\item{output_dir}{Character. Path to the directory where printfiles will be written}
+\item{output_dir}{Character. Path to the directory where printfiles will
+be written}
 
-\item{aggfile_dir}{Character. Path to the directory where aggfiles will be written}
+\item{aggfile_dir}{Character. Path to the directory where aggfiles will
+be written}
 
-\item{fit_dir}{Optional. Path to sub-directory of Gadget model where optimized files are housed
-(i.e. WGTS from \code{\link[Rgadget]{Rgadget::gadget.fit}})}
+\item{fit_dir}{Optional. Path to sub-directory of Gadget model where
+optimized files are housed (i.e. WGTS from
+\code{\link[Rgadget]{Rgadget::gadget.fit}})}
 }
 \value{
 Nothing. Writes the respective Gadget filetype to a text file
 }
 \description{
-\code{write_gadget_file} is a generic function for the various Gadget filetypes produced by
-gadgetSim. There are a number of S3 methods corresponding to each Gadget filetype (see below).
-These functions write the various classes of Gadget filetypes into a text file that can be
-understood by Gadget. In addition, any attributes containing data will be written to the
-corresponding filename for that attribute.
+\code{write_gadget_file} is a generic function for the various Gadget
+filetypes produced by gadgetSim. There are a number of S3 methods
+corresponding to each Gadget filetype (see below). These functions write the
+various classes of Gadget filetypes into a text file that can be understood
+by Gadget. The appropriate components of each respective gadget file type
+is also written to data files if that is appropriate, and the data in the
+gadget file type is replaced by the path to that file.
 }
 \examples{
 \dontrun{

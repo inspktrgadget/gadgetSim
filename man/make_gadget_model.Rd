@@ -4,31 +4,32 @@
 \alias{make_gadget_model}
 \title{Assemble an entire Gadget model with a single function}
 \usage{
-make_gadget_model(..., path = NULL)
+make_gadget_model(...)
 }
 \value{
-Nothing. A Gadget model with the basic necessary files will be written
-to \code{path} if specified. Otherwise the Gadget model files will be written
-to the current directory.
+A list of class \code{gadget_model}. This can then be fed into
+\code{\link{write_gadget_model}}
 }
 \description{
 This function is the almagamation of all the make_gadget_* functions.
 It allows a user to put together all aspects of a Gadget model for simulation
-tesing purposes. Note that this function does not write a likelihood file.
-If a Gadget model optimized to data is more desirable, then you should look to the
-Rgadget package (specifically \code{\link[Rgadget]{gadget.iterative}}).
+tesing purposes. Note that this function does not currently implement the
+inclusion of a likelihood file. If a Gadget model optimized to data is more
+desirable, then you should look to the Rgadget package (specifically
+\code{\link[Rgadget]{gadget.iterative}}).
 }
 \details{
-This function utilizes the framework of gadgetSim functions to easily assemble and write files
-for a Gadget simulation model. It does not call the model directly, rather it sets up all files
-desired for inclusion into the Gadget model. You will still; however, have to set up the params
-files separately.
+This function utilizes the framework of gadgetSim functions to easily
+assemble the files necessary to simulate a Gadget model. It does not call the
+model directly, rather it sets up all files desired for inclusion into the
+Gadget model. You will still; however, have to set up the params files
+separately.
 
-\code{...} should be a number of named elements corresponding to the following names: time,
-area, stock (or stocks), and fleet (or fleets). Each of these named elements should also
-correspond to their respective gadget_* classes as produced by the family of make_gadget_*
-functions (i.e. \code{make_gadget_model(time = make_gadget_timefile(1985, 2015, "quarterly"))},
-see example below).
+\code{...} should be a number of named elements corresponding to the
+following names: time, area, stock (or stocks), and fleet (or fleets).
+Each of these named elements should also correspond to their respective
+gadget_* classes as produced by the family of make_gadget_* functions
+(see example below).
 }
 \examples{
 #------------------------------
@@ -38,8 +39,9 @@ end_year <- 2015
 time <- make_gadget_timefile(st_year, end_year, "quarterly")
 area <-
   make_gadget_areafile(areas = 1, size = 1e6,
-                       temp_data = expand.grid(year = st_year:end_year, step = 1:4,
-                                               area = 1, temp = 3))
+                       temp_data = expand.grid(year = st_year:end_year,
+                                               step = 1:4, area = 1,
+                                               temp = 3))
 
 #------------------------------
 # setup the stock
@@ -53,7 +55,8 @@ alpha <- 1e-04
 beta <- 3
 reflength <- seq(minlength, maxlength, dl)
 stock_info <-
-    list(stockname = "cod", livesonareas = 1, minage = minage, maxage = maxage,
+    list(stockname = "cod", livesonareas = 1,
+         minage = minage, maxage = maxage,
          minlength = minlength, maxlength = maxlength, dl = dl)
 
 # setup refweightfile
@@ -76,10 +79,14 @@ stock_m <- rep(0.2, 10)
 init_data <-
     normalparamfile(age = seq(minage, maxage, 1),
                     area = 1,
-                    age.factor = 1e6 * exp(-cumsum(rep(0.2, (maxage - minage + 1)))),
+                    age.factor = 1e6 *
+                                 exp(-cumsum(rep(0.2,
+                                                 (maxage - minage + 1)))),
                     area.factor = 1,
                     mean = vb_formula("cod", minage:maxage,
-                                      params = list(linf = linf, k = k, t0 = t0)),
+                                      params = list(linf = linf,
+                                                    k = k,
+                                                    t0 = t0)),
                     sd = c(1:10, rep(10, 10)),
                     alpha = alpha,
                     beta = beta)
@@ -117,17 +124,18 @@ lin_flt_data$scaling <- c(seq(0.01,0.8, length.out = 62),
                           seq(0.8,0.2,length.out = 62))
 lin_fleet <-
     list(type = "linearfleet",
-         suitability = exponentiall50_suit_formula("lin", "cod"),
+         suitability = make_exponentiall50_suit("lin", "cod"),
          amount = lin_flt_data)
 lin <- make_gadget_fleet(lin = lin_fleet)
 
 #------------------------------
 # simulate the Gadget model
-make_gadget_model(time = time,
-                  area = area,
-                  stock = cod,
-                  fleet = lin,
-                  path = "test_model")
+gad_mod <-
+  make_gadget_model(time = time,
+                    area = area,
+                    stock = cod,
+                    fleet = lin)
+write_gadget_model(gad_mod, path = "test_model")
 
 # must set up params first, then can run
 stock_std <- get_stock_std(path = "test_model")

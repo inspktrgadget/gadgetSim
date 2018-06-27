@@ -5,9 +5,10 @@
 \alias{write_gadget_attributes}
 \alias{write_gadget_attributes.gadget_fleet}
 \alias{write_gadget_attributes.gadget_stock}
-\alias{write_gadget_attributes.gadget_likelihood}
 \alias{write_gadget_attributes.data.frame}
+\alias{write_gadget_attributes.list}
 \alias{write_gadget_attributes.gadget_spawnfile}
+\alias{write_gadget_attributes.gadget_strayfile}
 \alias{get_attr_filename}
 \title{Functions to write attributes of Gadget components to file}
 \usage{
@@ -19,19 +20,19 @@ write_gadget_attributes(gf, path = NULL, env = parent.frame())
 \method{write_gadget_attributes}{gadget_stock}(gf, path = NULL,
   env = parent.frame())
 
-\method{write_gadget_attributes}{gadget_likelihood}(gf, path = NULL,
-  env = parent.frame())
+\method{write_gadget_attributes}{data.frame}(gf, path = NULL)
 
-\method{write_gadget_attributes}{data.frame}(gf, path = NULL,
-  env = parent.frame())
+\method{write_gadget_attributes}{list}(gf, path = NULL)
 
-\method{write_gadget_attributes}{gadget_spawnfile}(gf, path = NULL,
-  env = parent.frame())
+\method{write_gadget_attributes}{gadget_spawnfile}(gf, path = NULL)
 
-get_attr_filename(obj)
+\method{write_gadget_attributes}{gadget_strayfile}(gf, path = NULL)
+
+get_attr_filename(filename)
 }
 \arguments{
-\item{gf}{The Gadget file component to be written. Should be of class \code{gadget_fleet},
+\item{gf}{The Gadget file component to be written. Should be of class
+\code{gadget_fleet},
 \code{gadget_stocks}, but can alternately be a \code{data.frame}}
 
 \item{path}{Optional. Character of the path of the directory to look in}
@@ -41,14 +42,12 @@ get_attr_filename(obj)
 \item{obj}{The attribute to be checked for filename}
 }
 \value{
-Nothing. Writes the appropriate Gadget file, aggfile or data file to a text file
+Nothing. Writes the appropriate Gadget file, aggfile or data file to
+a text file
 }
 \description{
-In the make_gadget_* functions it is currently implemented that files written as arguments
-to various Gadget components are saved as attributes with a meta-attribute of filename
-corresponding to the appropriate path given in the argument (e.g. In stockfiles, if doesspawn = 1,
-there is a spawnfile argument that specifies the path to the spawning information.
-\code{\link{make_gadget_stockfile}} currently saves this spawning information as an attribute
-named \code{spawning}. This attribute houses the necessary spawning information and has a
-meta-attribute of filename that will determine where to write the file).
+These functions are used within the \code{\link{write_gadget_file}} methods
+to write data from the gadget file type in R to an appropriate file in the
+Gadget model. \code{write_gadget_attributes} is a generic function with
+methods specific for various different types of gadget files.
 }

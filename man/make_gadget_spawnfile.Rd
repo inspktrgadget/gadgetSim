@@ -13,15 +13,15 @@ make_gadget_spawnfile(stockname, start_year, end_year, ...)
 
 \item{end_year}{Numeric. The last year spawning will take place}
 
-\item{...}{Other vectors to be added. Should be named elements corresponding to those needed
-for a Gadget spawnfile, see Gadget User Guide.}
+\item{...}{Other vectors to be added. Should be named elements corresponding
+to those needed for a Gadget spawnfile, see Gadget User Guide.}
 }
 \value{
 A list of class "gadget_spawnfile"
 }
 \description{
-This function creates a list of class "gadget_spawnfile". This list can then be used to
-write a spawnfile for a stock to be used by Gadget
+This function creates a list of class "gadget_spawnfile". This list can then
+be used to write a spawnfile for a stock to be used by Gadget
 }
 \examples{
 make_gadget_spawnfile("cod", 1, 10)

@@ -17,8 +17,8 @@ Check to see if elements of a list are null
 }
 \details{
 \code{is.null} does not work to check individual elements of a list.
-This function does that an returns a logical vector the length of \code{lst} stating
-whether each element of \code{lst} is null (TRUE) or not (FALSE)
+This function does that an returns a logical vector the length of \code{lst}
+stating whether each element of \code{lst} is null (TRUE) or not (FALSE)
 }
 \examples{
 is_list_element_null(list(a = 1, b = 2, c = NULL, d = NULL))

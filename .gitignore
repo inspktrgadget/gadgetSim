@@ -3,6 +3,7 @@
 .RData
 gadget_model
 todo
+bugs
 inst/doc
 test_model
 example.R

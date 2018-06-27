@@ -14,7 +14,8 @@ read_gadget_stockfiles(stockfiles, main = NULL, path = NULL)
 \item{path}{Optional. Character vector of path to the directory where Gadget files are located}
 }
 \value{
-A list of class \code{gadget_stocks} consisting of \code{gadget_stock}
+A list of class \code{gadget_stocks} consisting of
+\code{gadget_stock}
 one or more gadget_stock objects
 }
 \description{

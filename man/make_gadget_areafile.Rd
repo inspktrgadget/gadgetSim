@@ -11,17 +11,21 @@ make_gadget_areafile(areas, size, temp_data)
 
 \item{size}{Size of each area}
 
-\item{temp_data}{Data.frame with 4 columns containing year, step, area, and mean temperature}
+\item{temp_data}{Data.frame with 4 columns containing year, step, area, and
+mean temperature}
 }
 \value{
 A list of class \code{gadget_area}
 }
 \description{
-Creates a list of class \code{gadget_area} that can be used to write out a Gadget areafile
+Creates a list of class \code{gadget_area} that can be used to write out a
+Gadget areafile
 }
 \examples{
 make_gadget_areafile(areas = 1, size = 1e6,
-                     temp_data = expand.grid(year = 1:5, step = 1:4, area = 1, temp = 3))
+                     temp_data = expand.grid(year = 1:5, step = 1:4,
+                                             area = 1, temp = 3))
 make_gadget_areafile(areas = 1:2, size = c(1e6, 1.5e6),
-                     temp_data = expand.grid(year = 1:2, step = 1:4, area = 1:2, temp = 3))
+                     temp_data = expand.grid(year = 1:2, step = 1:4,
+                                             area = 1:2, temp = 3))
 }

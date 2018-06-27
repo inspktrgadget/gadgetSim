@@ -32,7 +32,8 @@ Length must be the same as \eqn{years * steps * areas^2} or a factor of such (or
 \item{mig_matrix}{A \code{data.frame} of class "migration_matrix" as produced by
 \code{migration_matrix}}
 
-\item{A}{\code{data.frame} of class "migration_ratios" as produced by \code{migration_ratios}}
+\item{A}{\code{data.frame} of class "migration_ratios" as produced by
+\code{migration_ratios}}
 }
 \value{
 \code{migration_*} functions return a data.frame with class the same as the function name.
@@ -51,7 +52,9 @@ a switch in the Gadget model
 years <- 1:2
 steps <- 1:2
 areas <- 1:2
-ysa_combo <- c(paste(years, steps, sep = "."), paste(rev(years), steps, sep = "."))
+ysa_combo <- c(paste(years, steps, sep = "."),
+               paste(rev(years),
+               steps, sep = "."))
 prop <- sort(rep(paste("#cod.migration", ysa_combo, sep = "."), 4))
 migration_matrix(years, steps, areas, prop)
 }

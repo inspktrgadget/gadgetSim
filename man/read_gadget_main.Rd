@@ -12,7 +12,8 @@ read_gadget_main(file = "main", path = NULL)
 \item{path}{Optional. Character vector of path to the directory where Gadget files are located}
 }
 \value{
-List of class \code{gadget_main} with each name corresponding to a type of file
+List of class \code{gadget_main} with each name corresponding to a
+type of file
 and each object corresponding to a filename as used by Gadget
 }
 \description{

@@ -11,17 +11,18 @@ gf2list(x, split = "^\\\\[component\\\\]$", list_names = FALSE)
 
 \item{split}{Regular expression to split by}
 
-\item{list_names}{Optional. If \code{TRUE}, \code{gf2list} will name the components of
-\code{x} by the first character vector in each component. Otherwise a character vector
-of names the length of \code{x} can be supplied}
+\item{list_names}{Optional. If \code{TRUE}, \code{gf2list} will name the
+components of \code{x} by the first character vector in each component.
+Otherwise a character vector of names the length of \code{x} can be supplied}
 }
 \value{
 A list of components from a Gadget file
 }
 \description{
 Gadget files often contain information about a number of components that are
-divided by a regular expression (often \code{[component]}). \code{gf2list} converts
-the direct output from, say, a \code{readLines(x)} call into a list that can be named
+divided by a regular expression (often \code{[component]}). \code{gf2list}
+converts the direct output from, say, a \code{readLines(x)} call into a list
+that can be named
 }
 \examples{
 path <- system.file(gad_mod_dir, package = "gadgetSim")

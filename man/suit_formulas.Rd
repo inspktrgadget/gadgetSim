@@ -2,65 +2,79 @@
 % Please edit documentation in R/fleet_functions.R
 \name{suit_formulas}
 \alias{suit_formulas}
-\alias{constant_suit_formula}
-\alias{straightline_suit_formula}
-\alias{exponential_suit_formula}
-\alias{exponentiall50_suit_formula}
-\alias{richards_suit_formula}
-\alias{andersen_suit_formula}
-\alias{andersenfleet_suit_formula}
-\alias{gamma_suit_formula}
-\alias{fleet_suit_formula}
+\alias{make_constant_suit}
+\alias{make_straightline_suit}
+\alias{make_exponential_suit}
+\alias{make_exponentiall50_suit}
+\alias{make_richards_suit}
+\alias{make_andersen_suit}
+\alias{make_andersenfleet_suit}
+\alias{make_gamma_suit}
+\alias{make_fleet_suit}
 \title{Functions to assemble suitability function lines for writing to Gadget files}
 \usage{
-constant_suit_formula(fleet, stock, params = list("alpha"))
+make_constant_suit(fleet, stock, params = list("alpha"), param_names = NULL)
 
-straightline_suit_formula(fleet, stock, params = list("alpha", "beta"))
+make_straightline_suit(fleet, stock, params = list("alpha", "beta"),
+  param_names = NULL)
 
-exponential_suit_formula(fleet, stock, params = list("alpha", "beta", "gamma",
-  "delta"))
+make_exponential_suit(fleet, stock, params = list("alpha", "beta", "gamma",
+  "delta"), param_names = NULL)
 
-exponentiall50_suit_formula(fleet, stock, params = list("alpha", "l50"))
+make_exponentiall50_suit(fleet, stock, params = list("alpha", "l50"),
+  param_names = NULL)
 
-richards_suit_formula(fleet, stock, params = as.list(paste0("p", 0:4)))
+make_richards_suit(fleet, stock, params = as.list(paste0("p", 0:4)),
+  param_names = NULL)
 
-andersen_suit_formula(fleet, stock, params = as.list(paste0("p", 0:4)))
+make_andersen_suit(fleet, stock, params = as.list(paste0("p", 0:4)),
+  param_names = NULL)
 
-andersenfleet_suit_formula(fleet, stock, params = as.list(paste0("p", 0:5)))
+make_andersenfleet_suit(fleet, stock, params = as.list(paste0("p", 0:5)),
+  param_names = NULL)
 
-gamma_suit_formula(fleet, stock, params = list("alpha", "beta", "gamma"))
+make_gamma_suit(fleet, stock, params = list("alpha", "beta", "gamma"),
+  param_names = NULL)
 
-fleet_suit_formula(fleet = "comm", stock = NULL, fun = "exponentiall50",
+make_fleet_suit(fleet = "comm", stock = NULL, fun = "exponentiall50",
   params = NULL, param_names = NULL)
 }
 \arguments{
-\item{fleet}{Character. The name of the fleet. Used to name switches for suitability parameters}
+\item{fleet}{Character. The name of the fleet. Used to name switches for
+suitability parameters}
 
 \item{stock}{Character. The name of the stock to serve as the prey}
 
-\item{params}{Optional. List of parameter names as either character vectors or numbers. If
-character values are given, switches will be returned as function parameters. If numbers are
-given, then the respective arguments to the functions will be fixed.}
+\item{params}{Optional. List of parameter names as either character vectors
+or numbers. If character values are given, switches will be returned as
+function parameters. If numbers are given, then the respective arguments to
+the functions will be fixed.}
+
+\item{param_names}{Optional. Character to use to name the params. This is
+of use if there is more than one stock for the fleet, but the same
+selectivity curve is desired}
 }
 \value{
-A character vector of function information pasted together in a format ready for
-writing to Gadget file.
+A character vector of function information pasted together in a
+format ready for writing to Gadget file.
 }
 \description{
-To specify consumption for either prey or fleets Gadget requires suitability information to
-be displayed in a certain manner (see Section 4.9 in Gadget User Guide). These functions will
-output the correct format for each respective suitability type. These functions are meant to be
-used in conjunction when putting together Gadget stocks or fleets.
+To specify consumption for either prey or fleets Gadget requires suitability
+information to be displayed in a certain manner (see Section 4.9 in
+Gadget User Guide). These functions will output the correct format for each
+respective suitability type. These functions are meant to be used in
+conjunction when putting together Gadget stocks or fleets.
 }
 \examples{
-exponential_suit_formula("comm", "cod")
-gamma_suit_formula("spr", "cod")
+make_exponential_suit("comm", "cod")
+make_gamma_suit("spr", "cod")
 
 # include multiple stocks
-exponential_suit_formula("comm", stock = c("immature", "mature"))
+make_exponential_suit("comm", stock = c("immature", "mature"))
 # fix a function
-constant_suit_formula("spr", "cod", params = 1)
+make_constant_suit("spr", "cod", params = 1)
 
 # or more generally
-fleet_suit_formula("comm", "cod", fun = "exponentiall50", params = list("alpha", "l50"))
+make_fleet_suit("comm", "cod", fun = "exponentiall50",
+                params = list("alpha", "l50"))
 }

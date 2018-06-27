@@ -6,33 +6,53 @@
 \alias{check_dir_exists}
 \title{Checking path and directory status}
 \usage{
-check_path(x, env = parent.frame())
+check_path(x, env = parent.frame(), sub_dir_only = FALSE,
+  ignore_subdir = FALSE)
 
-check_dir_exists(dir = NULL)
+check_dir_exists(dir = NULL, recursive = FALSE)
 }
 \arguments{
 \item{x}{Character. Name of file}
 
 \item{env}{An environment to search for the object named \code{path}}
 
-\item{dir}{Character. The name of a directory to look for (and create if not found)}
+\item{sub_dir_only}{Logical. Only paste the sub-directory path when
+\code{path} is an object of class \code{\link{gadget_sub_dir}}}
+
+\item{ignore_subdir}{Logical. Only paste the path without the sub-directory
+when \code{path} is an object of class \code{\link{gadget_sub_dir}}}
+
+\item{dir}{Character. The name of a directory to look for (and create if
+not found)}
 }
 \value{
-\code{check_path} returns a character of either the file name or the
-\code{path} and file name pasted if \code{path} exists in the environment \code{env}.
-\code{check_dir_exists} returns nothing. It searches for the directory \code{dir}
-within \code{path} if it exists and creates a directory named \code{dir} if it
-is not found
+\code{check_path} returns a character of either the \code{x} or the
+\code{path} and \code{x} pasted if \code{path} exists in the environment
+\code{env}. If \code{path} is an object of class \code{\link{gadget_sub_dir}}
+then a character of either the path and sub-dir (default), or \code{x} pasted
+with sub-directory (\code{sub_dir_only = TRUE}), or \code{x} pasted with
+only the path and sub-directory not included (\code{ignore_subdir = TRUE}).
+These are of use when writing likelihood aggfiles and data files in sub-
+directories. \code{check_dir_exists} returns nothing. It searches for the
+directory \code{dir} within \code{path} if it exists and creates a
+directory named \code{dir} if it is not found
 }
 \description{
-These functions complete various tasks related to directory structure and inclusion of a
-path variable in many of the functions throughout the package.
+These functions complete various tasks related to directory structure and
+inclusion of a path variable in many of the functions throughout the package.
 }
 \details{
-\code{check_path} looks for an object named \code{path} in the environment specified by
-\code{env} and attaches it in front of \code{x} separated by a "/".
-\code{check_dir_exists} checks to see if a directory exists, and, if not, makes one
-in the current working directory.
+\code{check_path} looks for an object named \code{path} in the environment
+specified by \code{env} and attaches it in front of \code{x} separated by
+a "/". \code{check_dir_exists} checks to see if a directory exists, and, if
+not, makes one in directory specified by \code{path}.
+
+Both \code{check_path} and \code{check_dir_exists} will recognize either a
+character vector as path or an object of class \code{gadget_sub_dir}. If path
+is the latter, then some special characters can also be utilized. These are
+of the most use when writing likelihood and data files to sub-directories of
+a Gadget model (for instance, when running multiple replications of a
+simulation model are desired for testing purposes).
 }
 \examples{
 check_path("main")

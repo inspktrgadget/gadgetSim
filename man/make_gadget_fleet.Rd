@@ -2,45 +2,52 @@
 % Please edit documentation in R/make_gadget_files.R
 \name{make_gadget_fleet}
 \alias{make_gadget_fleet}
-\title{Create a list of class "gadget_fleet" that can be used to write out a Gadget fleet file}
+\title{Create a list of class "gadget_fleet" that can be used to write out a Gadget
+fleet file}
 \usage{
 make_gadget_fleet(...)
 }
 \arguments{
-\item{...}{Named objects corresponding to the appropriate arguments to various Gadget fleet types}
+\item{...}{Named objects corresponding to the appropriate arguments to
+various Gadget fleet types}
 }
 \value{
-A list of class \code{gadget_fleet} (or a list of class \code{gadget_fleets} if
-composed of multiple fleets)
+A list of class \code{gadget_fleet} (or a list of class
+\code{gadget_fleets} if composed of multiple fleets)
 }
 \description{
-This function takes named lists as arguments with elements that correspond to the different
-parameters of a Gadget fleet component (see Gadget User Guide). Names of objects passed to
-\code{...} will be used as the fleet names. The first element of the named list should by type,
-which specifies the type that fleet will be
-(i.e. \code{type = totalfleet, type = numberfleet}, etc.)
+This function takes named lists as arguments with elements that correspond
+to the different parameters of a Gadget fleet component
+(see Gadget User Guide). Names of objects passed to \code{...} will be used
+as the fleet names. The first element of the named list should by type,
+which specifies the type that fleet will be (i.e.
+\code{type = totalfleet, type = numberfleet}, etc.)
 }
 \details{
-WARNING: The implementation of this function for fleets of type quotafleet has not been
-adequately tested. It should be expected that this portion of the function behaves unexpectedly.
-If you encounter this and wish it to get fixed sooner rather than later,
-post an issue to \url{https://github.com/inspktrgadget/gadgetSim}
+WARNING: The implementation of this function for fleets of type quotafleet
+has not been adequately tested. It should be expected that this portion of
+the function behaves unexpectedly. If you encounter this and wish it to get
+fixed sooner rather than later, post an issue to
+\url{https://github.com/inspktrgadget/gadgetSim}
 }
 \examples{
-base_data <- expand.grid(year = 1:10, steps = 1:4, area = 1, fleetname = "btm")
+base_data <-
+  expand.grid(year = 1:10, steps = 1:4, area = 1, fleetname = "btm")
 base_data$amount <- sample(1e5:1e6, nrow(base_data), replace = TRUE)
 btm_fleet <-
   list(type = "totalfleet",
-       suitability = exponentiall50_suit_formula("btm", "cod"),
+       suitability = make_exponential_suit("btm", "cod"),
        amount = base_data)
 make_gadget_fleet(btm = btm_fleet)
 
 # different fleet type
-lin_flt_data <- expand.grid(year = 1:10, steps = 1:4, area = 1, fleetname = "lin")
-lin_flt_data$scaling <- c(seq(0.01,0.8, length.out = 20), seq(0.8,0.2,length.out = 20))
+lin_flt_data <-
+  expand.grid(year = 1:10, steps = 1:4, area = 1, fleetname = "lin")
+lin_flt_data$scaling <- c(seq(0.01,0.8, length.out = 20),
+                          seq(0.8,0.2,length.out = 20))
 lin_flt <-
   list(type = "linearfleet",
-       suitability = exponentiall50_suit_formula("lin", "cod"),
+       suitability = make_exponential_suit("lin", "cod"),
        amount = lin_flt_data)
 make_gadget_fleet(lin = lin_flt)
 

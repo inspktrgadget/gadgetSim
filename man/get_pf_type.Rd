@@ -2,19 +2,21 @@
 % Please edit documentation in R/utilities.R
 \name{get_pf_type}
 \alias{get_pf_type}
-\title{Format the class of a printfile component to look like that given in Gadget manual}
+\title{Format the class of a printfile component to look like that given in Gadget
+manual}
 \usage{
 get_pf_type(printfile_comp)
 }
 \arguments{
-\item{printfile_comp}{A list of class pertaining to a Gadget printfile component,
-see \code{\link{update_printfile}}}
+\item{printfile_comp}{A list of class pertaining to a Gadget printfile
+component, see \code{\link{update_printfile}}}
 }
 \value{
 Character vector of the class of \code{printfile_comp}
 }
 \description{
-Format the class of a printfile component to look like that given in Gadget manual
+Format the class of a printfile component to look like that given in Gadget
+manual
 }
 \examples{
 get_pf_type(stock_std)

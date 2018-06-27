@@ -20,11 +20,12 @@ of length 2 that will be used as \eqn{\mu} and \eqn{\lambda} for either the Rick
 Beverton-Holt recruitment functions to fix those parameter values}
 }
 \value{
-A character vector to be written to a Gadget file
+A data.frame describing the function and parameters
 }
 \description{
-These functions will produce recruitment curves such as Beverton-Holt or Ricker in a format that
-is readable to Gadget. These are for use in creating spawnfiles.
+These functions will produce recruitment curves such as Beverton-Holt or
+Ricker in a format that gadgetSim can use to output to files. These are for
+use in creating spawnfiles.
 }
 \examples{
 bev_holt_formula("cod")

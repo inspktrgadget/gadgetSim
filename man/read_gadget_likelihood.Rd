@@ -21,13 +21,15 @@ The returned list also has class \code{gadget_likelihood}
 Read Gadget likelihood file
 }
 \details{
-There are a number of different likelihood types in a Gadget model. This
-function will retrieve the likelihood file, sort and organize each component into its
-respective likelihood type, and return a list with each item of the list containing a
-\code{data.frame} of all the components within a respective likelihood type.
+There are a number of different likelihood types in a Gadget model.
+This function will retrieve the likelihood file, sort and organize each
+component into its respective likelihood type, and return a list with each
+item of the list containing a \code{data.frame} of all the components within
+a respective likelihood type.
 }
 \examples{
-lik <- read_gadget_likelihood(system.file("gadget_model/likelihood", package = "gadgetSim"))
+lik <- read_gadget_likelihood(system.file("gadget_model/likelihood",
+                              package = "gadgetSim"))
 
 ## Using the main and path arguments instead
 path <- system.file(gad_mod_dir, package = "gadgetSim")

@@ -11,9 +11,9 @@ make_gadget_timefile(st_year, end_year, timesteps)
 
 \item{end_year}{Integer. The final year of the Gadget model}
 
-\item{timesteps}{Either a numeric vector giving the number of timesteps and the breakdown of
-months, or, more commonly and conventiently one of "annually", "biannually", "quarterly",
-"monthly'}
+\item{timesteps}{Either a numeric vector giving the number of timesteps and
+the breakdown of months, or, more commonly and conventiently one of
+"annually", "biannually", "quarterly", "monthly'}
 }
 \value{
 A list of class \code{gadget_time}

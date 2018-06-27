@@ -15,6 +15,7 @@
 \alias{make_gadget_migrationpenalty}
 \alias{make_gadget_migrationproportion}
 \alias{make_gadget_catchinkilos}
+\alias{make_si_aggfile}
 \title{Create various Gadget likelihood components}
 \usage{
 make_gadget_penalty(...)
@@ -31,10 +32,10 @@ make_gadget_stockdistribution(..., areaagg = NULL, lenagg = NULL,
   ageaggfile = NULL)
 
 make_gadget_surveyindices(..., areaagg = NULL, lenagg = NULL,
-  ageaggfile = NULL)
+  ageagg = NULL)
 
 make_gadget_surveydistribution(..., areaagg = NULL, lenagg = NULL,
-  ageaggfile = NULL)
+  ageagg = NULL)
 
 make_gadget_stomachcontent(..., areaagg = NULL, lenagg = NULL,
   preyagg = NULL)
@@ -48,6 +49,8 @@ make_gadget_migrationpenalty(...)
 make_gadget_migrationproportion(..., areaagg = NULL)
 
 make_gadget_catchinkilos(..., areaagg = NULL)
+
+make_si_aggfile(label, min, max)
 }
 \arguments{
 \item{...}{Named elements corresponding to the arguments needed for each
@@ -65,6 +68,12 @@ values to the lengths to be included in those aggreations}
 
 \item{preyagg}{List with names corresponding the the aggregated prey names
 and values to the prey to be included in those aggregations}
+
+\item{label}{Character. The label for each length group}
+
+\item{min}{Numeric. The minimum length or age value for each label}
+
+\item{max}{Numeric. The maximum length or age value for each label}
 }
 \value{
 A list of class \code{gadget_*_likelihood}, with * corresponding to
@@ -103,7 +112,7 @@ spr_ldist_comp <-
                                 data = spr_ldist,
                                 fleetnames = "spr",
                                 stocknames = "cod",
-                                ageagg = list(all = 1))
+                                ageagg = list(all = 1:20))
 spr_aldist_comp <-
   make_gadget_catchdistribution(name = "spr.aldist",
                                 data = spr_aldist,

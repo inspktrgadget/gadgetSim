@@ -104,7 +104,7 @@ read_gadget_migration_file <- function(file, migration_type, path = NULL) {
 #' @rdname read_gadget_aux_files
 read_gadget_maturity_file <- function(file, mat_fun_type, path = NULL) {
     matfile <- readLines(check_path(file))
-    matfile <- strip_comments(matfile)
+    matfile <- trimws(strip_comments(matfile))
     matfile <- split_ws(matfile)
     base_args <- c("maturestocksandratios")
     mat_fun_args <-
@@ -139,7 +139,7 @@ read_gadget_renewal <- function(file, data_dist_type, path = NULL) {
 #' @rdname read_gadget_aux_files
 read_gadget_spawnfile <- function(file, path = NULL) {
     spawnfile <- readLines(check_path(file))
-    spawnfile <- strip_comments(spawnfile)
+    spawnfile <- trimws(strip_comments(spawnfile))
     spawnfile <- split_ws(spawnfile)
     base_args <- c("spawnsteps", "spawnareas", "firstspawnyear", "lastspawnyear")
     lenfun_args <- c("proportionfunction", "mortalityfunction", "weightlossfunction")
@@ -158,7 +158,7 @@ read_gadget_spawnfile <- function(file, path = NULL) {
 #' @rdname read_gadget_aux_files
 read_gadget_strayfile <- function(file, path = NULL) {
     strayfile <- readLines(check_path(file))
-    strayfile <- strip_comments(strayfile)
+    strayfile <- trimws(strip_comments(strayfile))
     strayfile <- split_ws(strayfile)
     arg_names <- c("straysteps", "strayareas",
                    "straystockandratios", "proportionfunction")
@@ -170,7 +170,7 @@ read_gadget_strayfile <- function(file, path = NULL) {
 
 read_gadget_datafile <- function(file, colnames = NULL, path = NULL) {
     datfile <- readLines(check_path(file))
-    datfile <- strip_comments(datfile)
+    datfile <- trimws(strip_comments(datfile))
     dat_list <-
         lapply(datfile, function(x) {
             tmp <- split_ws(x)
@@ -185,7 +185,7 @@ read_gadget_datafile <- function(file, colnames = NULL, path = NULL) {
 
 #' @rdname read_gadget_aux_files
 format_auxiliary_file <- function(aux_file, aux_names) {
-    aux_file <- strip_comments(aux_file)
+    aux_file <- trimws(strip_comments(aux_file))
     gadget_auxfile <-
         lapply(aux_file, function(x) {
             out <- matrix(split_tab(x), ncol = length(aux_names))
@@ -197,7 +197,7 @@ format_auxiliary_file <- function(aux_file, aux_names) {
 
 #' @rdname read_gadget_aux_files
 format_data_dist_file <- function(data_dist_file, data_names) {
-    data_file <- data_dist_file[-grep("^;", data_dist_file)]
+    data_file <- trimws(data_dist_file[-grep("^;", data_dist_file)])
     gadget_data_file <-
         lapply(data_file, function(x) {
             out <- matrix(split_tab(x), ncol = length(data_names))

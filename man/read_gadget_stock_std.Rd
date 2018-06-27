@@ -12,19 +12,23 @@ read_gadget_stock_std(output_dir, files = NULL, path = NULL)
 \item{path}{Optional. Character vector of path to the directory where Gadget files are located}
 }
 \value{
-\code{data.frame} of the output from a StockStdPrinter printfile component
+\code{data.frame} of the output from a StockStdPrinter printfile
+component
 }
 \description{
-This function reads specifically the output from a StockStdPrinter printfile component from Gadget
-and formats the output into a useable \code{data.frame} in R
+This function reads specifically the output from a StockStdPrinter printfile
+component from Gadget and formats the output into a useable
+\code{data.frame} in R
 }
 \examples{
 \dontrun{
 path <- system.file(gad_mod_dir, package = "gadgetSim")
-make_gadget_printfile(stock_std = list(stockname = "cod", printfile = "printfile"),
-                      main = "WGTS/main.final", file = "WGTS/printfile", path = path,
+make_gadget_printfile(stock_std = list(stockname = "cod",
+                      printfile = "printfile"), main = "WGTS/main.final",
+                      file = "WGTS/printfile", path = path,
                       aggfile_dir = "WGTS/aggfiles")
-call_gadget(switches = list(s = TRUE, i = "WGTS/params.final", main = "WGTS/main.final"),
+call_gadget(switches = list(s = TRUE, i = "WGTS/params.final",
+                            main = "WGTS/main.final"),
             path = path)
 read_gadget_stock_std("out", path = paste("WGTS", path, sep = "/"))
 }

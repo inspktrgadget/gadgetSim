@@ -185,15 +185,16 @@ vb_recl_formula <- function(stockname, age, params = NULL) {
 
 #' Produce recruitment functions in a Gadget readable formula
 #'
-#' These functions will produce recruitment curves such as Beverton-Holt or Ricker in a format that
-#' is readable to Gadget. These are for use in creating spawnfiles.
+#' These functions will produce recruitment curves such as Beverton-Holt or
+#' Ricker in a format that gadgetSim can use to output to files. These are for
+#' use in creating spawnfiles.
 #'
 #' @param stockname A character vector of a stockname that will precede the switches for \eqn{\mu} and
 #' \eqn{\lambda} arguments, or, optionally, a numberic vector of length 1 if SimpleSSB is desired or
 #' of length 2 that will be used as \eqn{\mu} and \eqn{\lambda} for either the Ricker or
 #' Beverton-Holt recruitment functions to fix those parameter values
 #'
-#' @return A character vector to be written to a Gadget file
+#' @return A data.frame describing the function and parameters
 #' @export
 #'
 #' @name recruit_formulas
@@ -207,11 +208,11 @@ simple_ssb_formula <- function(stockname, params = NULL) {
         if (length(params) != 1) {
             stop("You must enter a single parameter (mu) for SimpleSSB recruitment")
         }
-        mu <- params
+        mu <- as.vector(params)
     } else {
         mu <- c(paste0("#", stockname, "simplessb.mu"))
     }
-    paste("simplessb", mu, sep = "\t")
+    return(data.frame(fun = "simplessb", mu))
 }
 
 #' @rdname recruit_formulas
@@ -221,13 +222,13 @@ ricker_formula <- function(stockname, params = NULL) {
         if (length(params) != 2) {
             stop("You must enter mu and lambda for Ricker Recruitment")
         }
-        mu <- params[1]
-        lam <- params[2]
+        mu <- as.vector(params[1])
+        lam <- as.vector(params[2])
     } else {
         mu <- c(paste0("#", stockname, ".ricker.mu"))
         lam <- c(paste0("#", stockname, ".ricker.lam"))
     }
-    paste("ricker", mu, lam, sep = "\t")
+    return(data.frame(fun = "ricker", mu, lam))
 }
 
 #' @rdname recruit_formulas
@@ -235,13 +236,14 @@ ricker_formula <- function(stockname, params = NULL) {
 bev_holt_formula <- function(stockname, params = NULL) {
     if (!is.null(params)) {
         if (length(params) != 2) {
-            stop("You must enter mu and lambda for Beverton-Holt Recruitment")
+            stop("If any parameters are entered, the you must enter mu and ",
+                 "lambda for Beverton-Holt Recruitment")
         }
-        mu <- params[1]
-        lam <- params[2]
+        mu <- as.vector(params[1])
+        lam <- as.vector(params[2])
     } else {
         mu <- c(paste0("#", stockname, ".bh.mu"))
         lam <- c(paste0("#", stockname, ".bh.lam"))
     }
-    paste("bevertonholt", mu, lam, sep = "\t")
+    return(data.frame(fun = "bevertonholt", mu, lam))
 }

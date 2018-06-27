@@ -11,18 +11,20 @@ collapse_df(df)
 collapse_entries(gf)
 }
 \arguments{
-\item{df}{The data.frame or Gadget file to collapse attributes on for \code{collapse_df}}
+\item{df}{The data.frame or Gadget file to collapse attributes on for
+\code{collapse_df}}
 
 \item{gf}{The Gadget file to collapse entries on for \code{collapse_entries}}
 }
 \value{
-If \code{df} is a data.frame returns a character vector of the \code{df} pasted together
-by "\\t" for rows and "\\n" for columns. If a Gadget file it will return the same Gadget file
-with each element collapsed by "\\t" if the length is >1
+If \code{df} is a data.frame returns a character vector of the
+\code{df} pasted together by "\\t" for rows and "\\n" for columns. If a
+Gadget file it will return the same Gadget file with each element collapsed
+by "\\t" if the length is >1
 }
 \description{
-These functions take lists, vectors or data.frames and collapse them using "\\t" or "\\n" depending
-on if the object is a vector, list, or data.frame
+These functions take lists, vectors or data.frames and collapse them using
+"\\t" or "\\n" depending on if the object is a vector, list, or data.frame
 }
 \examples{
 time <- make_gadget_timefile(1985, 2015, "quarterly")

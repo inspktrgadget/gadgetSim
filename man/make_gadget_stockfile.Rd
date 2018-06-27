@@ -7,16 +7,19 @@
 make_gadget_stockfile(...)
 }
 \arguments{
-\item{...}{A list of named elements. The names of these elements must correspond to arguments
-found in Gadget stockfiles (i.e. for growth, use growth = list(), for spawning, use
-spawning = list(), etc), see Gadget User Guide. Chapter 4. Stock Files.}
+\item{...}{A list of named elements. The names of these elements must
+correspond to arguments found in Gadget stockfiles (i.e. for growth, use
+growth = list(), for spawning, use spawning = list(), etc), see Gadget User
+Guide. Chapter 4. Stock Files.}
 }
 \value{
-A list of class \code{gadget_stock} containing information about that stock to be used
+A list of class \code{gadget_stock} containing information about that
+stock to be used
 by Gadget
 }
 \description{
-Make a list of class \code{gadget_stock} that can be used to write out a Gadget stockfile
+Make a list of class \code{gadget_stock} that can be used to write out a
+Gadget stockfile
 }
 \examples{
 # setup basic stock information
@@ -29,7 +32,8 @@ alpha <- 1e-04
 beta <- 3
 reflength <- seq(minlength, maxlength, dl)
 stock_info <-
-    list(stockname = "cod", livesonareas = 1, minage = minage, maxage = maxage,
+    list(stockname = "cod", livesonareas = 1,
+         minage = minage, maxage = maxage,
          minlength = minlength, maxlength = maxlength, dl = dl)
 
 # setup refweightfile
@@ -41,7 +45,8 @@ stock_refwgt <-
 stock_growth <-
     list(growthfunction = "lengthvbsimple",
          growthparameters =
-             c(to_gadget_formula(quote(cod.linf)), to_gadget_formula(quote(cod.k)),
+             c(to_gadget_formula(quote(cod.linf)),
+               to_gadget_formula(quote(cod.k)),
                0.001, 3))
 # setup naturalmortality
 stock_m <- rep(0.2, 10)

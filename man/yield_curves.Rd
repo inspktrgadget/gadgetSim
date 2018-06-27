@@ -25,50 +25,62 @@ yield_curve(fish_mort, nat_mort, ages, growth_fun = vb,
 \arguments{
 \item{fish_mort}{Numeric. A vector depicting fishing mortality}
 
-\item{nat_mort}{Numeric. A vector of either length 1 or the same length as \code{ages}}
+\item{nat_mort}{Numeric. A vector of either length 1 or the same length as
+\code{ages}}
 
 \item{ages}{Numeric vector representing ages}
 
 \item{growth_fun}{The name of the growth function to be used}
 
-\item{growth_params}{List of named elements corresponding to arguments to \code{growth_fun}}
+\item{growth_params}{List of named elements corresponding to arguments to
+\code{growth_fun}}
 
 \item{lw_rel}{Function name determining the length-weight relationship}
 
-\item{lw_params}{List of named elements corresponding to arguments to \code{lw_rel}}
+\item{lw_params}{List of named elements corresponding to arguments to
+\code{lw_rel}}
 
 \item{sel_fun}{Function determining the length-based selectivity of the fleet}
 
-\item{sel_params}{List of named elements corresponding to arguments to \code{sel_fun}}
+\item{sel_params}{List of named elements corresponding to arguments to
+\code{sel_fun}}
 
 \item{sel_fun}{Function determining maturity ogive of the stock}
 
-\item{sel_params}{List of named elements corresponding to arguments to \code{sel_fun}}
+\item{sel_params}{List of named elements corresponding to arguments to
+\code{sel_fun}}
 }
 \value{
-A vector the same length as \code{fish_mort} which corresponds to the ypr, ssb per
-recruit, or overall yield at the respective value of \code{fish_mort}
+A vector the same length as \code{fish_mort} which corresponds to
+the ypr, ssb per recruit, or overall yield at the respective value of
+\code{fish_mort}
 }
 \description{
-These functions compute yield-per-recruit, spawning stock biomass (ssb) per recruit, and an
-overall yield curve given fishing mortality, natural mortality, ages, the growth function,
-the length-weight relationship, recruitment, selectivity, and maturity.
+These functions compute yield-per-recruit, spawning stock biomass (ssb) per
+recruit, and an overall yield curve given fishing mortality, natural
+mortality, ages, the growth function, the length-weight relationship,
+recruitment, selectivity, and maturity.
 }
 \details{
-\code{ypr_curve} produces a vector of yield-per-recruit at each value in \code{fish_mort},
-\code{ssb_rec_curve} returns a vector with values for spawning-stock-biomass or spawners
-per recruit, and \code{yield_curve} provides a vector with values for yield corresponding to
-each value in \code{fish_mort}
+\code{ypr_curve} produces a vector of yield-per-recruit at each value in
+\code{fish_mort}, \code{ssb_rec_curve} returns a vector with values for
+spawning-stock-biomass or spawners per recruit, and \code{yield_curve}
+provides a vector with values for yield corresponding to each value in
+\code{fish_mort}
 }
 \examples{
 curve(ypr_curve(fish_mort = x, nat_mort = 0.2, ages = 0:20,
-                growth_fun = vb, growth_params = list(linf = 125, k = 0.15, t0 = -0.5),
+                growth_fun = vb,
+                growth_params = list(linf = 125, k = 0.15, t0 = -0.5),
                 lw_rel = lw, lw_params = list(alpha = 7e-06, beta = 3.1),
-                sel_fun = logistic_selectivity, sel_params = list(alpha = 0.25, l50 = 40)),
+                sel_fun = logistic_selectivity,
+                sel_params = list(alpha = 0.25, l50 = 40)),
       from = 0, to = 2, ylab = "YPR")
 curve(ssb_rec_curve(fish_mort = x, nat_mort = 0.2, ages = 0:20,
-                    growth_fun = "vb", growth_params = list(linf = 125, k = 0.15, t0 = -0.5),
-                    lw_rel = "lw", lw_params = list(alpha = 7e-06, beta = 3.1),
+                    growth_fun = "vb",
+                    growth_params = list(linf = 125, k = 0.15, t0 = -0.5),
+                    lw_rel = "lw",
+                    lw_params = list(alpha = 7e-06, beta = 3.1),
                     mat_fun = "logistic_selectivity",
                     mat_params = list(alpha = 0.25, l50 = 30),
                     sel_fun = "logistic_selectivity",

@@ -46,34 +46,37 @@
 #'                                 data = spr_ldist,
 #'                                 fleetnames = "spr",
 #'                                 stocknames = "cod",
-#'                                 ageagg = list(all = 1))
+#'                                 ageagg = list(all = 1:20))
 #' spr_aldist_comp <-
 #'   make_gadget_catchdistribution(name = "spr.aldist",
 #'                                 data = spr_aldist,
 #'                                 fleetnames = "spr",
 #'                                 stocknames = "cod")
 make_gadget_penalty <- function(...) {
-    penalty_comp <- format_lik_comp(penalty_likelihood, ...)
-    if (!identical(names(penalty_comp),
+    comp <- format_lik_comp(penalty_likelihood, ...)
+    if (!identical(names(comp),
                    names(rm_null_elements(penalty_likelihood)))) {
         stop("Required names for penalty likelihood are not correct")
     } else {
-        return(penalty_comp)
+        check_datafile(comp)
+        return(comp)
     }
 }
 
 #' @rdname gadget_likelihood_comps
+#' @export
 make_gadget_understocking <- function(...) {
-    understocking_comp <- format_lik_comp(understocking_likelihood, ...)
-    if (!identical(names(understocking_comp),
+    comp <- format_lik_comp(understocking_likelihood, ...)
+    if (!identical(names(comp),
                    names(rm_null_elements(understocking_likelihood)))) {
         stop("Required names for understocking likelihood are not correct")
     } else {
-        return(understocking_comp)
+        return(comp)
     }
 }
 
 #' @rdname gadget_likelihood_comps
+#' @export
 #' @param areaagg List with names corresponding to the aggregation and
 #' values to the areas to be included in those aggregations
 #' @param ageagg List with names corresponding to the aggregation and
@@ -92,15 +95,15 @@ make_gadget_catchdistribution <- function(...,
                                      "age", "length", "number"),
                    lik_type)
     check_lik_names(comp, lik_type)
-    comp <- format_aggfile_attributes(comp,
-                                      areaagg = areaagg,
-                                      ageagg = ageagg,
-                                      lenagg = lenagg)
-    format_datafile_attribute()
+    comp <- check_aggfiles(comp,
+                           areaagg = areaagg,
+                           ageagg = ageagg,
+                           lenagg = lenagg)
     return(comp)
 }
 
 #' @rdname gadget_likelihood_comps
+#' @export
 make_gadget_catchstatistics <- function(...,
                                         areaagg = NULL,
                                         lenagg = NULL,
@@ -113,15 +116,15 @@ make_gadget_catchstatistics <- function(...,
                                  "age", "number", "mean"),
                    lik_type)
     check_lik_names(comp, lik_type)
-    comp <- format_aggfile_attributes(comp,
-                                      areaagg = areaagg,
-                                      ageagg = ageagg,
-                                      lenagg = lenagg)
-    format_datafile_attribute()
+    comp <- check_aggfiles(comp,
+                           areaagg = areaagg,
+                           ageagg = ageagg,
+                           lenagg = lenagg)
     return(comp)
 }
 
 #' @rdname gadget_likelihood_comps
+#' @export
 make_gadget_stockdistribution <- function(...,
                                           areaagg = NULL,
                                           lenagg = NULL,
@@ -134,22 +137,26 @@ make_gadget_stockdistribution <- function(...,
                                  "age", "length", "number"),
                    lik_type)
     check_lik_names(comp, lik_type)
-    comp <- format_aggfile_attributes(comp,
-                                      areaagg = areaagg,
-                                      ageagg = ageagg,
-                                      lenagg = lenagg)
-    format_datafile_attribute()
+    comp <- check_aggfiles(comp,
+                           areaagg = areaagg,
+                           ageagg = ageagg,
+                           lenagg = lenagg)
     return(comp)
 }
 
 #' @rdname gadget_likelihood_comps
+#' @export
 make_gadget_surveyindices <- function(...,
                                       areaagg = NULL,
                                       lenagg = NULL,
-                                      ageaggfile = NULL) {
-    si_type <- comp$sitype
+                                      ageagg = NULL) {
+    dots <- dots2list(...)
+    if (!check_names("^sitype$", dots)) {
+        stop("\n", "You must declare the sitype for this likelihood component",
+             "\n", "see Gadget User Guide - 8.6")
+    }
     lik_template <-
-        switch(si_type,
+        switch(dots$sitype,
                lengths = si_lengths,
                ages = si_ages,
                fleets = si_fleets,
@@ -164,7 +171,7 @@ make_gadget_surveyindices <- function(...,
              "You must provide a surveyindices type of one of the following",
              "\n",
              paste(paste0(" * ", si_types), collapse = "\n"))
-    } else if (comp$sitype %in% si_types) {
+    } else if (!(comp$sitype %in% si_types)) {
         stop("\n",
              "You must provide a surveyindices type of one of the following",
              "\n",
@@ -172,29 +179,28 @@ make_gadget_surveyindices <- function(...,
     }
     base_colnames <- c("year", "step", "area")
     data_cols <-
-        switch(si_type,
-               length = c(base_colnames, "length", "number"),
-               age = c(base_colnames, "age", "number"),
-               fleet = c(base_colnames, "length", "number"),
+        switch(dots$sitype,
+               lengths = c(base_colnames, "length", "number"),
+               ages = c(base_colnames, "age", "number"),
+               fleets = c(base_colnames, "length", "number"),
                acoustic = c(base_colnames, "survey", "acoustic"),
                effort = c(base_colnames, "fleet", "effort"))
     check_lik_data(comp,
                    data_cols = data_cols,
                    lik_type)
-    check_lik_names(comp, lik_type)
-    comp <- format_aggfile_attributes(comp,
-                                      areaagg = areaagg,
-                                      ageagg = ageagg,
-                                      lenagg = lenagg)
-    format_datafile_attribute()
+    comp <- check_aggfiles(comp,
+                           areaagg = areaagg,
+                           ageagg = ageagg,
+                           lenagg = lenagg)
     return(comp)
 }
 
 #' @rdname gadget_likelihood_comps
+#' @export
 make_gadget_surveydistribution <- function(...,
                                           areaagg = NULL,
                                           lenagg = NULL,
-                                          ageaggfile = NULL) {
+                                          ageagg = NULL) {
     comp <- format_lik_comp(surveydistribution_likelihood, ...)
     lik_type <- "surveydistribution"
     lik_name <- comp$name
@@ -203,16 +209,16 @@ make_gadget_surveydistribution <- function(...,
                                  "age", "length", "number"),
                    lik_type)
     check_lik_names(comp, lik_type)
-    comp <- format_aggfile_attributes(comp,
-                                      areaagg = areaagg,
-                                      ageagg = ageagg,
-                                      lenagg = lenagg)
-    format_datafile_attribute()
+    comp <- check_aggfiles(comp,
+                           areaagg = areaagg,
+                           ageagg = ageagg,
+                           lenagg = lenagg)
     return(comp)
 }
 
 
 #' @rdname gadget_likelihood_comps
+#' @export
 #' @param preyagg List with names corresponding the the aggregated prey names
 #' and values to the prey to be included in those aggregations
 make_gadget_stomachcontent <- function(...,
@@ -227,15 +233,15 @@ make_gadget_stomachcontent <- function(...,
                                  "predator", "prey", "ratio"),
                    lik_type)
     check_lik_names(comp, lik_type)
-    comp <- format_aggfile_attributes(comp,
-                                      areaagg = areaagg,
-                                      lenagg = lenagg,
-                                      preyagg = preyagg)
-    format_datafile_attribute()
+    comp <- check_aggfiles(comp,
+                           areaagg = areaagg,
+                           lenagg = lenagg,
+                           preyagg = preyagg)
     return(comp)
 }
 
 #' @rdname gadget_likelihood_comps
+#' @export
 make_gadget_recaptures <- function(...,
                                    areaagg = NULL,
                                    lenagg = NULL) {
@@ -247,14 +253,14 @@ make_gadget_recaptures <- function(...,
                                  "area", "length", "number"),
                    lik_type)
     check_lik_names(comp, lik_type)
-    comp <- format_aggfile_attributes(comp,
-                                      areaagg = areaagg,
-                                      lenagg = lenagg)
-    format_datafile_attribute()
+    comp <- check_aggfiles(comp,
+                           areaagg = areaagg,
+                           lenagg = lenagg)
     return(comp)
 }
 
 #' @rdname gadget_likelihood_comps
+#' @export
 make_gadget_recstatistics <- function(...,
                                       areaagg = NULL) {
     comp <- format_lik_comp(recstatistics_likelihood, ...)
@@ -270,15 +276,15 @@ make_gadget_recstatistics <- function(...,
                    data_cols = data_cols,
                    lik_type)
     check_lik_names(comp, lik_type)
-    comp <- format_aggfile_attributes(comp,
-                                      areaagg = areaagg,
-                                      lenagg = lenagg)
-    format_datafile_attribute()
+    comp <- check_aggfiles(comp,
+                           areaagg = areaagg,
+                           lenagg = lenagg)
     return(comp)
 }
 
 
 #' @rdname gadget_likelihood_comps
+#' @export
 make_gadget_migrationpenalty <- function(...) {
     comp <- format_lik_comp(migrationpenalty_likelihood, ...)
     lik_type <- "migrationpenalty"
@@ -288,6 +294,7 @@ make_gadget_migrationpenalty <- function(...) {
 }
 
 #' @rdname gadget_likelihood_comps
+#' @export
 make_gadget_migrationproportion <- function(...,
                                    areaagg = NULL) {
     comp <- format_lik_comp(migrationproportion_likelihood, ...)
@@ -297,14 +304,14 @@ make_gadget_migrationproportion <- function(...,
                    data_cols = c("year", "step", "area", "ratio"),
                    lik_type)
     check_lik_names(comp, lik_type)
-    comp <- format_aggfile_attributes(comp,
-                                      areaagg = areaagg,
-                                      lenagg = lenagg)
-    format_datafile_attribute()
+    comp <- check_aggfiles(comp,
+                           areaagg = areaagg,
+                           lenagg = lenagg)
     return(comp)
 }
 
 #' @rdname gadget_likelihood_comps
+#' @export
 make_gadget_catchinkilos <- function(...,
                                      areaagg = NULL) {
     comp <- format_lik_comp(catchinkilos_likelihood, ...)
@@ -319,11 +326,19 @@ make_gadget_catchinkilos <- function(...,
                    data_cols = data_cols,
                    lik_type)
     check_lik_names(comp, lik_type)
-    comp <- format_aggfile_attributes(comp,
-                                      areaagg = areaagg,
-                                      lenagg = lenagg)
-    format_datafile_attribute()
+    comp <- check_aggfiles(comp,
+                           areaagg = areaagg,
+                           lenagg = lenagg)
     return(comp)
+}
+
+#' @rdname gadget_likelihood_comps
+#' @param label Character. The label for each length group
+#' @param min Numeric. The minimum length or age value for each label
+#' @param max Numeric. The maximum length or age value for each label
+#' @export
+make_si_aggfile <- function(label, min, max) {
+    return(data.frame(label, minimum = min, maximum = max))
 }
 
 #' Gadget likelihood helper functions
@@ -332,8 +347,8 @@ make_gadget_catchinkilos <- function(...,
 #' \code{\link{gadget_likelihood_comps}} functions. They are simply for
 #' automation purposes to make things cleaner. These are Russian doll functions
 #' that have helper functions within helper functions. This might make debugging
-#' painful in the future; if this is future-you, then don't do this sort of thing
-#' again. If this is another reader...I'm sorry.
+#' painful in the future; if this is future-you, then don't do this sort of
+#' thing again. If this is another reader...I'm sorry.
 #'
 #' @param ... There are a number of different arguments used in these various
 #' functions, and each depends on the function and what it is being used for.
@@ -370,41 +385,37 @@ check_lik_names <- function(comp, lik_type) {
     lik_template <- getFromNamespace(paste(lik_type, "likelihood", sep = "_"),
                                      ns = "gadgetSim")
     if (!identical(names(comp), names(rm_null_elements(lik_template)))) {
-        stop("Required names for catchdistribution likelihood are not correct")
+        stop(sprintf("%s Required names for %s likelihood are not correct",
+                     "\n", lik_type))
     }
 }
 
 #' @rdname likelihood_helper_funs
-add_aggfile_attribute <- function(agg_type, env = parent.frame()) {
-    aggfile_name <- lik_agg_filename(env$lik_type, env$lik_name, agg_type)
-    aggfile_type <- paste0(agg_type, "aggfile")
-    aggfile <- get(paste0(agg_type, "agg"), envir = env)
-    attr(env$comp, paste(env$lik_name, aggfile_type, sep = ".")) <-
-        structure(aggfile,
-                  filename = aggfile_name)
-    env$comp[[aggfile_type]] <- aggfile_name
-}
-
-
-#' @rdname likelihood_helper_funs
-lik_agg_filename <- function(..., aggfile_dir = "Aggfiles") {
+check_aggfiles <- function(comp, ...) {
     dots <- dots2list(...)
-    return(paste(aggfile_dir, paste(c(dots, c(list("agg"))), collapse = "."), sep = "/"))
-}
-
-#' @rdname likelihood_helper_funs
-lik_data_filename <- function(..., datafile_dir = "Data") {
-    dots <- dots2list(...)
-    return(paste(datafile_dir, paste(dots, collapse = "."), sep = "/"))
-}
-
-#' @rdname likelihood_helper_funs
-format_datafile_attribute <- function(env = parent.frame()) {
-    data_filename <-
-        lik_data_filename(env$lik_type, env$lik_name, env$comp$`function`)
-    attr(env$comp, paste(env$lik_name, "datafile")) <-
-        structure(env$comp$data, filename = data_filename)
-    env$comp$data <- data_filename
+    lik_type <- comp$type
+    lik_name <- comp$name
+    agg_checker <- function(agg_type, env = parent.frame()) {
+        aggfile_type <- paste0(agg_type, "aggfile")
+        agg_arg <- paste0(agg_type, "agg")
+        if (check_names(aggfile_type, env$comp)) {
+            if (!check_names(agg_arg, env$dots)) {
+                env$comp[[aggfile_type]] <-
+                    make_default_aggfile(env$comp, agg_type)
+            } else if (is.null(env$dots[[agg_arg]])) {
+                env$comp[[aggfile_type]] <-
+                    make_default_aggfile(env$comp, agg_type)
+            } else {
+                env$comp[[aggfile_type]] <- dots[[agg_arg]]
+            }
+        }
+    }
+    agg_checker("area")
+    agg_checker("age")
+    agg_checker("len")
+    agg_checker("prey")
+    comp <- aggregate_data(comp)
+    return(comp)
 }
 
 #' @rdname likelihood_helper_funs
@@ -413,23 +424,23 @@ make_default_aggfile <- function(comp, agg_type) {
         return(list(all = 1))
     } else if (agg_type == "len") {
         lens <- unique(comp$data$length)
-        out <- data.frame(length = sprintf("len%s", lens[-length(lens)]),
-                          lower = lens[-length(lens)],
-                          upper = lens[-1],
+        out <- data.frame(label = sprintf("len%s", lens[-length(lens)]),
+                          minimum = lens[-length(lens)],
+                          maximum = lens[-1],
                           stringsAsFactors = FALSE)
         return(out)
     } else if (agg_type == "age") {
         ages <- unique(comp$data$age)
-        out <- data.frame(age = sprintf("age%s", ages[-length(ages)]),
-                          lower = ages[-length(ages)],
-                          upper = ages[-1],
+        out <- data.frame(label = sprintf("age%s", ages),
+                          ages = ages,
                           stringsAsFactors = FALSE)
         return(out)
     } else if (agg_type == "prey") {
         prey <- unique(comp$data$prey)
-        out <- data.frame(name = sprintf("prey%s", 1:length(prey)),
-                          prey = prey,
-                          stringsAsFactors = FALSE)
+        out <- list(label = "all",
+                    preynames = prey,
+                    lengths = c(min(comp$data$length), max(comp$data$length)),
+                    digestioncoefficients = c(1, 0, 0))
         return(out)
     } else {
         stop("\n\n", "I don't recognize aggfile type", agg_type)
@@ -437,54 +448,383 @@ make_default_aggfile <- function(comp, agg_type) {
 }
 
 #' @rdname likelihood_helper_funs
-format_aggfile_attributes <- function(comp, ...) {
-    dots <- dots2list(...)
-    lik_type <- comp$type
-    lik_name <- comp$name
-    if (check_names("areaaggfile", comp)) {
-        if (!check_names("areaagg", dots)) {
-            areaagg <- make_default_aggfile(comp, "area")
-        } else if (is.null(dots$areaagg)) {
-            areaagg <- make_default_aggfile(comp, "area")
-        } else {
-            areaagg <- dots$areaagg
-        }
-        add_aggfile_attribute("area")
+check_datafile <- function(comp) {
+    if (is.null(comp$data)) {
+        stop("You have not entered any data for the ", comp$type,
+             " likelihood component.")
+    } else if (identical(comp$data, "")) {
+        stop("You have not entered any data for the ", comp$type,
+             " likelihood component")
     }
-    if (check_names("ageaggfile", comp)) {
-        if (!check_names("ageagg", dots)) {
-            ageagg <- make_default_aggfile(comp, "age")
-        } else if (is.null(dots$ageagg)) {
-            ageagg <- make_default_aggfile(comp, "age")
-        } else {
-            ageagg <- dots$ageagg
-        }
-        add_aggfile_attribute("age")
-    }
-    if (check_names("lenaggfile", comp)) {
-        if (!check_names("lenagg", dots)) {
-            lenagg <- make_default_aggfile(comp, "len")
-        } else if (is.null(dots$lenagg)) {
-            lenagg <- make_default_aggfile(comp, "len")
-        } else {
-            lenagg <- dots$lenagg
-        }
-        add_aggfile_attribute("len")
-    }
-    if (check_names("preyaggfile", comp)) {
-        if (!check_names("preyagg", dots)) {
-            preyagg <- make_default_aggfile(comp, "prey")
-        } else if (is.null(dots$preyagg)) {
-            preyagg <- make_default_aggfile(comp, "prey")
-        } else {
-            preyagg <- dots$preyagg
-        }
-        add_aggfile_attribute("prey")
-    }
-    return(comp)
+}
+
+#' @rdname likelihood_helper_funs
+aggregate_data <- function(comp) {
+    UseMethod("aggregate_data", comp)
 }
 
 
+aggregate_data.gadget_catchdistribution_likelihood <- function(comp) {
+    dat <- comp$data
+    dat <- check_aggfile_names(dat)
+    if (requireNamespace("dplyr", quietly = TRUE)) {
+        `%>%` <- magrittr::`%>%`
+        dat <-
+            dat %>%
+            dplyr::group_by(year, step, area, age, length) %>%
+            dplyr::summarize(number = sum(number)) %>%
+            dplyr::arrange(year, step, area, age, length) %>%
+            as.data.frame()
+    } else {
+        dat <-
+            aggregate(number ~ year + step + area + age + length,
+                      data = dat, FUN = sum)
+        dat <- dat[order(dat$year, dat$step, dat$area,
+                         dat$age, dat$length),]
+        rownames(dat) <- 1:nrow(dat)
+    }
+    comp$data <- dat
+    return(comp)
+}
+
+aggregate_data.gadget_catchstatistics_likelihood <- function(comp) {
+    dat <- comp$data
+    dat <- check_aggfile_names(dat)
+    if (requireNamespace("dplyr", quietly = TRUE)) {
+        `%>%` <- magrittr::`%>%`
+        if (comp$`function` == "lengthcalcstddev") {
+            dat <-
+                dat %>%
+                dplyr::group_by(year, step, area, age) %>%
+                dplyr::summarize(number = sum(number),
+                                 mean = mean(length)) %>%
+                dplyr::arrange(year, step, area, age) %>%
+                as.data.frame()
+        } else if (comp$`function` == "lengthgivenstddev") {
+            dat <-
+                dat %>%
+                dplyr::group_by(year, step, area, age) %>%
+                dplyr::summarize(number = sum(number),
+                                 mean = mean(length),
+                                 sd = sd(length)) %>%
+                dplyr::arrange(year, step, area, age) %>%
+                as.data.frame()
+        } else if (comp$`function` == "weightgivenstddev") {
+            dat <-
+                dat %>%
+                dplyr::group_by(year, step, area, age) %>%
+                dplyr::summarize(number = sum(number),
+                                 mean = mean(weight),
+                                 sd = sd(weight)) %>%
+                dplyr::arrange(year, step, area, age) %>%
+                as.data.frame()
+        } else if (comp$`function` == "weightnostddev") {
+            dat <-
+                dat %>%
+                dplyr::group_by(year, step, area, age) %>%
+                dplyr::summarize(number = sum(number),
+                                 mean = mean(weight)) %>%
+                dplyr::arrange(year, step, area, age) %>%
+                as.data.frame()
+        } else if (comp$`function` == "lengthnostddev") {
+            dat <-
+                dat %>%
+                dplyr::group_by(year, step, area, age) %>%
+                dplyr::summarize(number = sum(number),
+                                 mean = mean(length)) %>%
+                dplyr::arrange(year, step, area, age) %>%
+                as.data.frame()
+        } else if (comp$`function` == "weightgivenstddevlen") {
+            warning("Sorry, it is not clear in the Gadget User Guide ",
+                    "how this function should be aggregated. Nothing is ",
+                    "aggregated here.")
+        } else if (comp$`function` == "weightnostddevlen") {
+            warning("Sorry, it is not clear in the Gadget User Guide ",
+                    "how this function should be aggregated. Nothing is ",
+                    "aggregated here.")
+        } else {
+            stop("Sorry, make_gadget_catchstatistics does not recognize ",
+                 "function", comp$`function`)
+        }
+    } else {
+        stop("make_gadget_catchstatistics can only properly aggregate data ",
+             "when the R package tidyverse is installed. Please do so ",
+             "using install.packages('tidyverse')")
+    }
+    comp$data <- dat
+    return(comp)
+}
+
+aggregate_data.gadget_stockdistribution_likelihood <- function(comp) {
+    dat <- comp$data
+    dat <- check_aggfile_names(dat)
+    if (requireNamespace("dplyr", quietly = TRUE)) {
+        `%>%` <- magrittr::`%>%`
+        dat <-
+            dat %>%
+            dplyr::group_by(year, step, area, stock, age, length) %>%
+            dplyr::summarize(number = sum(number)) %>%
+            dplyr::arrange(year, step, area, stock, age, length) %>%
+            as.data.frame()
+    } else {
+        dat <-
+            aggregate(number ~ year + step + area + stock + age + length,
+                      data = dat, FUN = sum)
+        dat <- dat[order(dat$year, dat$step, dat$area,
+                         dat$stock, dat$age, dat$length),]
+        rownames(dat) <- 1:nrow(dat)
+    }
+    comp$data <- dat
+    return(comp)
+}
+
+aggregate_data.gadget_surveyindices_likelihood <- function(comp) {
+    dat <- comp$data
+    dat <- check_aggfile_names(dat)
+    if (requireNamespace("dplyr", quietly = TRUE)) {
+        `%>%` <- magrittr::`%>%`
+        if (comp$sitype == "lengths") {
+            dat <-
+                dat %>%
+                dplyr::group_by(year, step, area, length) %>%
+                dplyr::summarize(number = sum(number)) %>%
+                dplyr::arrange(year, step, area, length) %>%
+                as.data.frame()
+        } else if (comp$sitype == "ages") {
+            dat <-
+                dat %>%
+                dplyr::group_by(year, step, area, age) %>%
+                dplyr::summarize(number = sum(number)) %>%
+                dplyr::arrange(year, step, area, age) %>%
+                as.data.frame()
+        } else if (comp$sitype == "fleets") {
+            dat <-
+                dat %>%
+                dplyr::group_by(year, step, area, length) %>%
+                dplyr::summarize(number = sum(number)) %>%
+                dplyr::arrange(year, step, area, length) %>%
+                as.data.frame()
+        } else if (comp$sitype == "acoustic") {
+            dat <-
+                dat %>%
+                dplyr::group_by(year, step, area, survey) %>%
+                dplyr::summarize(acoustic = sum(acoustic)) %>%
+                dplyr::arrange(year, step, area, survey) %>%
+                as.data.frame()
+        } else if (comp$sitype == "effort") {
+            dat <-
+                dat %>%
+                dplyr::group_by(year, step, area, fleet) %>%
+                dplyr::summarize(effort = sum(effort)) %>%
+                dplyr::arrange(year, step, area, fleet) %>%
+                as.data.frame()
+        } else {
+            stop("Sorry, make_gadget_surveyindices does not recognize ",
+                 "surveyindices type", comp$sitype)
+        }
+    } else {
+        if (comp$sitype == "lengths") {
+            dat <-
+                aggregate(number ~ year + step + area + length,
+                          data = dat, FUN = sum)
+            dat <- dat[order(dat$year, dat$step, dat$area, dat$length),]
+        } else if (comp$sitype == "ages") {
+            dat <-
+                aggregate(number ~ year + step + area + age,
+                          data = dat, FUN = sum)
+            dat <- dat[order(dat$year, dat$step, dat$area, dat$age),]
+        } else if (comp$sitype == "fleets") {
+            dat <-
+                aggregate(number ~ year + step + area + length,
+                          data = dat, FUN = sum)
+            dat <- dat[order(dat$year, dat$step, dat$area, dat$length),]
+        } else if (comp$sitype == "acoustic") {
+            dat <-
+                aggregate(acoustic ~ year + step + area + survey,
+                          data = dat, FUN = sum)
+            dat <- dat[order(dat$year, dat$step, dat$area, dat$survey),]
+        } else if (comp$sitype == "effort") {
+            dat <-
+                aggregate(effort ~ year + step + area + fleet,
+                          data = dat, FUN = sum)
+            dat <- dat[order(dat$year, dat$step, dat$area, dat$fleet),]
+
+        } else {
+            stop("Sorry, make_gadget_surveyindices does not recognize ",
+                 "surveyindices type", comp$sitype)
+        }
+        rownames(dat) <- 1:nrow(dat)
+    }
+    comp$data <- dat
+    return(comp)
+}
+
+aggregate_data.gadget_stomachcontent_likelihood <- function(comp) {
+    dat <- comp$data
+    dat <- check_aggfile_names(dat)
+    if (requireNamespace("dplyr", quietly = TRUE)) {
+        `%>%` <- magrittr::`%>%`
+        dat <-
+            dat %>%
+            dplyr::group_by(year, step, area, predator, prey) %>%
+            dplyr::summarize(ratio = sum(ratio)) %>%
+            dplyr::arrange(year, step, area, predator, prey) %>%
+            as.data.frame()
+    } else {
+        dat <-
+            aggregate(ratio ~ year + step + area + predator + prey,
+                      data = dat, FUN = sum)
+        dat <- dat[order(dat$year, dat$step, dat$area, dat$predator, dat$prey),]
+        rownames(dat) <- 1:nrow(dat)
+    }
+    comp$data <- dat
+    return(comp)
+}
+
+aggregate_data.gadget_recaptures_likelihood <- function(comp) {
+    dat <- comp$data
+    dat <- check_aggfile_names(dat)
+    if (requireNamespace("dplyr", quietly = TRUE)) {
+        `%>%` <- magrittr::`%>%`
+        dat <-
+            dat %>%
+            dplyr::group_by(tagid, year, step, area, length) %>%
+            dplyr::summarize(number = sum(number)) %>%
+            dplyr::arrange(tagid, year, step, area, length) %>%
+            as.data.frame()
+    } else {
+        dat <-
+            aggregate(number ~ tagid + year + step + area + length,
+                      data = dat, FUN = sum)
+        dat <- dat[order(dat$tagid, dat$year, dat$step, dat$area, dat$length),]
+        rownames(dat) <- 1:nrow(dat)
+    }
+    comp$data <- dat
+    return(comp)
+}
+
+aggregate_data.gadget_recstatistics_likelihood <- function(comp) {
+    dat <- comp$data
+    dat <- check_aggfile_names(dat)
+    if (requireNamespace("dplyr", quietly = TRUE)) {
+        `%>%` <- magrittr::`%>%`
+        if (comp$`function` == "lengthcalcstddev") {
+            dat <-
+                dat %>%
+                dplyr::group_by(tagid, year, step, area) %>%
+                dplyr::summarize(number = sum(number),
+                                 mean = mean(length)) %>%
+                dplyr::arrange(tagid, year, step, area) %>%
+                as.data.frame()
+
+        } else if (comp$`function` == "lengthgivenstddev") {
+            dat <-
+                dat %>%
+                dplyr::group_by(tagid, year, step, area) %>%
+                dplyr::summarize(number = sum(number),
+                                 mean = mean(length),
+                                 sd = sd(length)) %>%
+                dplyr::arrange(tagid, year, step, area) %>%
+                as.data.frame()
+        } else if (comp$`function` == "lengthnostddev") {
+            dat <-
+                dat %>%
+                dplyr::group_by(tagid, year, step, area) %>%
+                dplyr::summarize(number = sum(number),
+                                 mean = mean(length)) %>%
+                dplyr::arrange(tagid, year, step, area) %>%
+                as.data.frame()
+        } else {
+            stop("make_gadget_recstatistics does not recognize function type ",
+                 comp$`function`)
+        }
+    } else {
+        stop("make_gadget_recstatistics can only properly aggregate data ",
+             "when the R package tidyverse is installed. Please do so ",
+             "using install.packages('tidyverse')")    }
+    comp$data <- dat
+    return(comp)
+}
+
+aggregate_data.gadget_migrationproportion_likelihood <- function(comp) {
+    dat <- comp$data
+    dat <- check_aggfile_names(dat)
+    if (requireNamespace("dplyr", quietly = TRUE)) {
+        `%>%` <- magrittr::`%>%`
+        dat <-
+            dat %>%
+            dplyr::group_by(year, step, area) %>%
+            dplyr::summarize(ratio = sum(ratio)) %>%
+            dplyr::arrange(year, step, area) %>%
+            as.data.frame()
+    } else {
+        dat <-
+            aggregate(ratio ~ year + step + area,
+                      data = dat, FUN = sum)
+        dat <- dat[order(dat$year, dat$step, dat$area),]
+        rownames(dat) <- 1:nrow(dat)
+    }
+    comp$data <- dat
+    return(comp)
+}
+
+aggregate_data.gadget_catchinkilos_likelihood <- function(comp) {
+    dat <- comp$data
+    dat <- check_aggfile_names(dat)
+    if (requireNamespace("dplyr", quietly = TRUE)) {
+        `%>%` <- magrittr::`%>%`
+        dat <-
+            dat %>%
+            dplyr::group_by(year, step, area, fleet) %>%
+            dplyr::summarize(biomass = sum(biomass)) %>%
+            dplyr::arrange(year, step, area, fleet) %>%
+            as.data.frame()
+    } else {
+        dat <-
+            aggregate(biomass ~ year + step + area + fleet,
+                      data = dat, FUN = sum)
+        dat <- dat[order(dat$year, dat$step, dat$area, dat$fleet),]
+        rownames(dat) <- 1:nrow(dat)
+    }
+    comp$data <- dat
+    return(comp)
+}
+
+check_aggfile_names <- function(dat, env = parent.frame()) {
+    if (check_names("^areaaggfile$", env$comp)) {
+        dat$area <-
+            names(env$comp$areaaggfile)[match(dat$area, env$comp$areaaggfile)]
+    }
+    if (check_names("^ageaggfile$", env$comp)) {
+        if (all(dat$age == "all")) {
+            if (!check_names("all", env$comp$ageaggfile)) {
+                stop("Ages in your datafile area aggregated to all ",
+                     "but your ageaggfile does not match.", "\n",
+                     "Please supply a list with named element `all` ",
+                     "containing the ages to aggregate.")
+            }
+        } else {
+            if (is.data.frame(env$comp$ageaggfile)) {
+                dat$age <-
+                    env$comp$ageaggfile$label[
+                        findInterval(dat$age, env$comp$ageaggfile$ages)]
+            } else if (is.list(env$comp$ageaggfile)) {
+                agg_ages <- env$comp$ageaggfile
+                dat_ages <- rep(seq_along(agg_ages),
+                                vapply(agg_ages, length, numeric(1)))
+                dat$age <- dat_ages[match(dat_ages, unlist(agg_ages))]
+            }
+        }
+    }
+    if (check_names("^lenaggfile", env$comp)) {
+        dat$length <-
+            env$comp$lenaggfile$label[findInterval(dat$length,
+                            env$comp$lenaggfile$minimum)]
+    }
+    # need to add preyaggfile yet here
+
+    return(dat)
+}
 #' Create a Gadget likelihood file
 #'
 #' This function concentrates the various likelihood components created by
@@ -511,13 +851,15 @@ make_gadget_likelihood <- function(..., penalty = TRUE, understocking = TRUE) {
             any(grepl("gadget_\\w*_likelihood", class(x)))
         })
     if (!all(unlist(comp_class_check))) {
-        stop("Arguments to make_gadget_likelihood must of the following classes",
+        stop("Arguments to make_gadget_likelihood must be of the ",
+             "following classes",
              "\n",
              paste(paste0(" *  gadget_",
                           c("penalty", "understocking", "catchdistribution",
-                            "catchstatistics", "stockdistribution", "surveyindices",
-                            "surveydistribution", "stomachcontent", "recaptures",
-                            "recstatistics", "migrationpenatly", "migrationproportion",
+                            "catchstatistics", "stockdistribution",
+                            "surveyindices", "surveydistribution",
+                            "stomachcontent", "recaptures", "recstatistics",
+                            "migrationpenatly", "migrationproportion",
                             "catchinkilos"),
                           "_likelihood"), collapse = "\n"), "\n",
              "see ?gadget_likelihood_comp for more details")
@@ -527,10 +869,10 @@ make_gadget_likelihood <- function(..., penalty = TRUE, understocking = TRUE) {
             return(x$type)
         })
     if (understocking & !(any(unlist(comp_types) == "understocking"))) {
-        comps <- c(list(understocking_likelihood), comps)
+        comps <- c(list(make_gadget_understocking()), comps)
     }
     if (penalty & !(any(unlist(comp_types) == "penalty"))) {
-        comps <- c(list(penalty_likelihood), comps)
+        comps <- c(list(make_gadget_penalty()), comps)
     }
     # scrape attributes off of each component
     comp_attr <-
@@ -547,6 +889,7 @@ make_gadget_likelihood <- function(..., penalty = TRUE, understocking = TRUE) {
                                                 names(attributes(x)))]
             return(x)
         })
-    attributes(comps) <- c(attributes(comps), unlist(comp_attr, recursive = FALSE))
+    attributes(comps) <-
+        c(attributes(comps), unlist(comp_attr, recursive = FALSE))
     return(structure(comps, class = c("gadget_likelihood", "list")))
 }

@@ -143,7 +143,8 @@ penalty_likelihood <-
         name = "penalty",
         weight = 1,
         type = "penalty",
-        data = c("default", 2, 1000, 1000)),
+        data = data.frame(switch = "default", power = 2,
+                          lower = 1000, upper = 1000)),
         class = c("gadget_penalty_likelihood", "list"))
 
 understocking_likelihood <-
@@ -216,9 +217,9 @@ surveyindices_likelihood <-
 si_lengths <-
     modifyList(surveyindices_likelihood,
                list(sitype = "lengths",
-                    areaggfile = "",
+                    areaaggfile = "",
                     lenaggfile = "",
-                    stockanmes = ""))
+                    stocknames = ""))
 
 si_ages <-
     modifyList(surveyindices_likelihood,
