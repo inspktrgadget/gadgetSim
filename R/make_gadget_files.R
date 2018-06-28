@@ -367,7 +367,7 @@ add_survey_fleet <- function(model_fleet, survey_fleet) {
         stop("survey_fleet must be of type gadget_fleets")
     }
     if ("gadget_model" %in% class(model_fleet)) {
-        model_fleet$fleet <-
+        model_fleet$fleets <-
             structure(c(model_fleet$fleet, survey_fleet),
                       class = c("gadget_fleets", "list"))
         return(model_fleet)
@@ -691,9 +691,9 @@ make_gadget_model <- function(...) {
     }
     # check and write stock files
     if (check_names("^stock|^stocks", dots)) {
-        stocks <- dots[grep("^stock|^stocks", names(dots))]
+        stock_list <- dots[grep("^stock|^stocks", names(dots))]
         stocknames <-
-            lapply(stocks, function(x) {
+            lapply(stock_list, function(x) {
                 if (!("gadget_stock" %in% class(x))) {
                     stop("Gadget stockfile must be of class gadget_stock",
                          "or gadget_stocks")
@@ -701,6 +701,7 @@ make_gadget_model <- function(...) {
                     return(x$stockname)
                 }
             })
+        stocks <- dots[[grep("^stock|^stocks", names(dots))]]
     } else {
         stocks <- NULL
         stocknames <- NULL
@@ -731,3 +732,85 @@ make_gadget_model <- function(...) {
         class = c("gadget_model", "list")))
 }
 
+
+#' Update components of an object of class "gadget_model"
+#'
+#' @param mod_obj A list of class \code{gadget_model}, see
+#' \code{\link{make_gadget_model}} or \code{\link{read_gadget_model}}
+#' @param comp Character vector of the component to update (i.e. stocks, fleets,
+#' etc.)
+#' @param ... Named arguments corresponding to the appropriate name in the
+#' respective gadget model component (i.e. for "stocks" the named argument could
+#' be growthparameters = c(150, 10, 1e-06, 3))
+#'
+#' @return A list of class \code{gadget_model} the same as that of
+#' \code{mod_obj}, but updated with the arguments given in \code{...}
+#' @export
+#'
+#' @name update_model
+#'
+#' @examples
+#' path <- system.file(gad_mod_dir, package = "gadgetSim")
+#' mod <- read_gadget_model(path = path)
+#' new_mod <- update_model(mod, "stocks",
+#'                         growthparameters = c(150, 10, 1e-06, 3))
+update_model <- function(mod_obj, comp, item = NULL, ...) {
+    dots <- dots2list(...)
+    if (!is.null(item)) {
+        mod_obj[[comp]][[item]][names(dots)] <- dots
+    } else {
+        mod_obj[[comp]][names(dots)] <- dots
+    }
+    return(mod_obj)
+}
+
+#' @rdname update_model
+#' @export
+update_stock <- function(mod_obj, stockname, item = NULL, ...) {
+    dots <- dots2list(...)
+    if (!is.null(item)) {
+        mod_obj$stocks[[stockname]][[item]][names(dots)] <- dots
+    } else {
+        mod_obj$stocks[[stockname]][names(dots)] <- dots
+    }
+    return(mod_obj)
+}
+
+#' @rdname update_model
+#' @export
+update_fleet <- function(mod_obj, fleetname, ...) {
+    dots <- dots2list(...)
+    fleetnames <-
+        vapply(mod_obj$fleets, function(x) {
+            return(x[[1]])
+        }, character(1))
+    mod_obj$fleets[[grep(fleetname, fleetnames)]][names(dots)] <- dots
+    return(mod_obj)
+}
+
+
+#' Turn any character vector into a switch
+#'
+#' Character vectors are strictly returned when using
+#' \code{\link{to_gadget_formula}}. This function allows one to explicitly
+#' turn a character vector into a switch
+#'
+#' @param ... Any number of character objects
+#'
+#' @return A list with length the same number of items entered in \code{...}.
+#' All items will have a "#" placed in front of them
+#' @export
+#'
+#' @examples
+#' make_switches("linf", "k")
+#' stockname <- "cod"
+#' make_switches(paste(stockname, "linf", sep = "."),
+#'               paste(stockname, "k", sep = "."))
+make_switches <- function(...) {
+    dots <- dots2list(...)
+    out <-
+        vapply(dots, function(x) {
+            to_gadget_formula(as_quoted_(x)[[1]])
+        }, character(1))
+    return(out)
+}
