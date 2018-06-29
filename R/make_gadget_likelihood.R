@@ -423,14 +423,14 @@ make_default_aggfile <- function(comp, agg_type) {
     if (agg_type == "area") {
         return(list(all = 1))
     } else if (agg_type == "len") {
-        lens <- unique(comp$data$length)
+        lens <- sort(unique(comp$data$length))
         out <- data.frame(label = sprintf("len%s", lens[-length(lens)]),
                           minimum = lens[-length(lens)],
                           maximum = lens[-1],
                           stringsAsFactors = FALSE)
         return(out)
     } else if (agg_type == "age") {
-        ages <- unique(comp$data$age)
+        ages <- sort(unique(comp$data$age))
         out <- data.frame(label = sprintf("age%s", ages),
                           ages = ages,
                           stringsAsFactors = FALSE)
