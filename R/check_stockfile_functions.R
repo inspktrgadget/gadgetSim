@@ -308,7 +308,7 @@ check_stock_renewal <- function(dots) {
                      minlength = dots$stock$minlength,
                      maxlength = dots$stock$maxlength,
                      dl = dots$stock$dl)
-            renewal[rec_class] <- rec_info[[1]]
+            renewal[[rec_class]] <- rec_info[[1]]
         } else {
             rec_data <-
                 rec_info[grep("^normalparamfile|^normalcondfile|^numberfile",
@@ -319,7 +319,7 @@ check_stock_renewal <- function(dots) {
                      minlength = rec_info$minlength,
                      maxlength = rec_info$maxlength,
                      dl = rec_info$dl)
-            renewal[rec_class] <- rec_data[[1]]
+            renewal[[rec_class]] <- rec_data[[1]]
         }
     } else {
         renewal <- list(doesrenew = 0)

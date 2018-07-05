@@ -309,6 +309,8 @@ make_fleet_suit <- function(fleet="comm", stock=NULL, fun="exponentiall50",
 #' \code{fish_mort}
 #' @name yield_curves
 #'
+#' @export
+#'
 #' @examples
 #' curve(ypr_curve(fish_mort = x, nat_mort = 0.2, ages = 0:20,
 #'                 growth_fun = vb,
@@ -348,10 +350,11 @@ ypr_curve <- function(fish_mort, nat_mort, ages,
         f_at_age <- do.call(sel_fun, c(list(lengths = length_at_age),
                                        sel_params)) * x
         z_at_age <- f_at_age + nat_mort
+        z_temp <- c(0, z_at_age[1:(length(z_at_age) - 1)])
         yield <- sum((f_at_age / z_at_age) *
                          (1 - exp(-z_at_age)) *
                          weight_at_age *
-                         exp(-cumsum(z_at_age)))
+                         exp(-cumsum(z_temp)))
         return(yield)
     }, numeric(1))
     return(yr_at_f)
@@ -386,7 +389,8 @@ ssb_rec_curve <- function(fish_mort, nat_mort, ages,
         f_at_age <- do.call(sel_fun, c(list(lengths = length_at_age),
                                        sel_params, max_prop = 1)) * x
         z_at_age <- f_at_age + nat_mort
-        ssb <- sum(weight_at_age * pmat_at_age * exp(-cumsum(z_at_age)))
+        z_temp <- c(0, z_at_age[1:(length(z_at_age) - 1)])
+        ssb <- sum(weight_at_age * pmat_at_age * exp(-cumsum(z_temp)))
         return(ssb)
     }, numeric(1))
     return(ssb_at_f)
