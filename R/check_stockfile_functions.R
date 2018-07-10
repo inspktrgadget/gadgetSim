@@ -1,18 +1,21 @@
-# functions to check different parts of gadget stockfile and plug in appropriate values
-# these functions are solely meant for use within make_gadget_stockfile
+# functions to check different parts of gadget stockfile and plug in appropriate
+# values these functions are solely meant for use within make_gadget_stockfile
 
 #' Check various entries when making a stockfile using make_gadget_stockfile()
 #'
-#' These are non-exported functions that are only used within \code{\link{make_gadget_stockfile}}.
-#' Each checks a different aspect of the required arguments to a Gadget stockfile and either
-#' returns a default value if appropriate or stops function execution if a necessary piece is
-#' missing and a straightforward default does not exists
+#' These are non-exported functions that are only used within
+#' \code{\link{make_gadget_stockfile}}.
+#' Each checks a different aspect of the required arguments to a Gadget
+#' stockfile and either returns a default value if appropriate or stops
+#' function execution if a necessary piece is missing and a straightforward
+#' default does not exists
 #'
 #' @param stockfile A list that contains stockfile information such as
-#' \code{gadget_stockfile_default}, see source code for \code{\link{make_gadget_stockfile}}
+#' \code{gadget_stockfile_default}, see source code for
+#' \code{\link{make_gadget_stockfile}}
 #'
-#' @return A list that is a subset of \code{stockfile} containing the appropriate names for each
-#' category being checked
+#' @return A list that is a subset of \code{stockfile} containing the
+#' appropriate names for each category being checked
 #'
 #' @name check_stockfile_funs
 #'
@@ -54,10 +57,10 @@ check_stock_refweightfile <- function(dots) {
                     list(data.frame(length = reflength, weight = ref_wts))
             } else {
                 refwgt <- list(refweightfile = "")
-                warning("Sorry, gadgetSim is not smart enough to creat a
-                         refweightfile for growth functions other than
-                         lenghtvbsimple yet. You'll have to specify it
-                         manually")
+                warning("Sorry, gadgetSim is not smart enough to create a ",
+                         "refweightfile for growth functions other than ",
+                         "lenghtvbsimple yet. You'll have to specify it ",
+                         "manually")
             }
         } else {
             refwgt <- list(refweightfile = "")
@@ -86,10 +89,9 @@ check_stock_grw_eat_len <- function(dots,
 #' @rdname check_stockfile_funs
 check_stock_growth <- function(dots) {
     if (!check_names("^growth", dots)) {
-        growth <- list(doesgrow = 0)
+        growth <- NULL
     } else {
-        growth <-
-            c(list(doesgrow = 1), dots$growth)
+        growth <- dots$growth
         if (!check_names("^beta", dots$growth)) {
             growth$beta <-
                 sprintf("(* #%1$s.bbin.mult #%1$s.bbin)", dots$stock$stockname)
@@ -97,6 +99,7 @@ check_stock_growth <- function(dots) {
         if (!check_names("^maxlengthgroupgrowth", dots$growth)) {
             growth$maxlengthgroupgrowth <- 15
         }
+        growth <- list(growth = growth)
     }
     return(growth)
 }
@@ -117,37 +120,34 @@ check_stock_m <- function(dots) {
 
 
 #' @rdname check_stockfile_funs
-check_stock_iseaten <- function(dots,
-                                lenaggfile = get("lenaggfile", env = parent.frame())) {
-    if (check_names("^iseaten", dots)) {
-        if (all(c("preylengths", "energycontent") %in% names(dots$iseaten))) {
+check_stock_prey <-
+    function(dots, lenaggfile = get("lenaggfile", env = parent.frame())) {
+    if (check_names("^prey", dots)) {
+        if (all(c("preylengths", "energycontent") %in% names(dots$prey))) {
             filename <- sprintf("Aggfiles/%s.preylengths", dots$stock$stockname)
-            iseaten <-
-                list(iseaten = 1,
-                     preylengths = dots$iseaten$preylengths,
-                     energycontent = dots$iseaten$energycontent)
-        } else if (check_names("^energycontent", dots$iseaten) &
-                   !check_names("^preylengths", dots$iseaten)) {
-            iseaten <-
-                list(iseaten = 1,
-                     preylengths = lenaggfile,
-                     energycontent = dots$iseaten$energycontent)
-        } else if (check_names("^preylengths", dots$iseaten) &
-                   !check_names("^energycontent", dots$iseaten)) {
-            iseaten <-
-                list(iseaten = 1,
-                     preylengths = dots$iseaten$preylengths,
+            prey <-
+                list(preylengths = dots$prey$preylengths,
+                     energycontent = dots$prey$energycontent)
+        } else if (check_names("^energycontent", dots$prey) &
+                   !check_names("^preylengths", dots$prey)) {
+            prey <-
+                list(preylengths = lenaggfile,
+                     energycontent = dots$prey$energycontent)
+        } else if (check_names("^preylengths", dots$prey) &
+                   !check_names("^energycontent", dots$prey)) {
+            prey <-
+                list(preylengths = dots$prey$preylengths,
                      energycontent = 1)
         } else {
-            iseaten <-
-                list(iseaten = 1,
-                     preylengths = lenaggfile,
+            prey <-
+                list(preylengths = lenaggfile,
                      energycontent = 1)
         }
+        prey <- list(prey = prey)
     } else {
-        iseaten <- list(iseaten = 0)
+        prey <- NULL
     }
-    return(iseaten)
+    return(prey)
 }
 
 #' @rdname check_stockfile_funs
@@ -163,10 +163,9 @@ check_stock_predator <- function(dots) {
                               req_names[!(req_names %in% names(dots$doeseat))]),
                         collapse = "\n"))
         }
-        predator <-
-            c(list(doeseat = 1), dots$doeseat)
+        predator <- dots$doeseat
     } else {
-        predator <- list(doeseat = 0)
+        predator <- NULL
     }
     return(predator)
 }
@@ -192,8 +191,7 @@ check_stock_initcond <- function(dots) {
                      "see ?stock_distribution_funs")
             }
             initcond <-
-                list(initialconditions = "",
-                     minage = dots$stock$minage,
+                list(minage = dots$stock$minage,
                      maxage = dots$stock$maxage,
                      minlength = dots$stock$minlength,
                      maxlength = dots$stock$maxlength,
@@ -222,7 +220,7 @@ check_stock_initcond <- function(dots) {
                 initcond[[ic_file_type]] <- dat
             }
         }
-        return(initcond)
+        return(list(initialconditions = initcond))
     } else {
         stop("You have not specified initial conditions for the stock")
     }
@@ -239,8 +237,7 @@ check_stock_migration <- function(dots) {
                     return(x$yearstepfile)
                 }))
             migration <-
-                list(doesmigrate = 1,
-                     yearstepfile = yearstepfile,
+                list(yearstepfile = yearstepfile,
                      definematrices = mig_matrices)
         } else if ("migration_ratios" %in% class(dots$migration)) {
             mig_matrices <- format_migration(dots$migration)
@@ -250,8 +247,7 @@ check_stock_migration <- function(dots) {
                     return(x$yearstepfile)
                 }))
             migration <-
-                list(doesmigrate = 1,
-                     yearstepfile = yearstepfile,
+                list(yearstepfile = yearstepfile,
                      defineratios = mig_matrices)
         } else {
             stop("Migration information must be a data.frame of one of the ",
@@ -261,7 +257,7 @@ check_stock_migration <- function(dots) {
                  "\n", "see ?migration_funs")
         }
     } else {
-        migration <- list(doesmigrate = 0)
+        migration <- NULL
     }
     return(migration)
 }
@@ -274,13 +270,12 @@ check_stock_maturity <- function(dots) {
                  "parameters for the stock")
         }
         maturity <-
-            list(doesmature = 1,
-                 maturityfunction = dots$maturity$maturityfunction,
+            list(maturityfunction = dots$maturity$maturityfunction,
                  maturityfile = dots$maturity[grep("^maturityfunction",
                                                    names(dots$maturity),
                                                    invert = TRUE)])
     } else {
-        maturity <- list(doesmature = 0)
+        maturity <- NULL
     }
     return(maturity)
 }
@@ -288,11 +283,9 @@ check_stock_maturity <- function(dots) {
 #' @rdname check_stockfile_funs
 check_stock_movement <- function(dots) {
     if (check_names("^movement|^transition", dots)) {
-        movement <-
-            c(list(doesmove = 1),
-                   dots[grep("^movement|^transition", names(dots))])
+        movement <-dots[grep("^movement|^transition", names(dots))]
     } else {
-        movement <- list(doesmove = 0)
+        movement <- NULL
     }
     return(movement)
 }
@@ -304,8 +297,7 @@ check_stock_renewal <- function(dots) {
         if (length(rec_info) == 1) {
             rec_class <- class(rec_info[[1]])[1]
             renewal <-
-                list(doesrenew = 1,
-                     minlength = dots$stock$minlength,
+                list(minlength = dots$stock$minlength,
                      maxlength = dots$stock$maxlength,
                      dl = dots$stock$dl)
             renewal[[rec_class]] <- rec_info[[1]]
@@ -315,14 +307,14 @@ check_stock_renewal <- function(dots) {
                               names(rec_info))]
             rec_class <- class(rec_data[[1]])[1]
             renewal <-
-                list(doesrenew = 1,
-                     minlength = rec_info$minlength,
+                list(minlength = rec_info$minlength,
                      maxlength = rec_info$maxlength,
                      dl = rec_info$dl)
             renewal[[rec_class]] <- rec_data[[1]]
         }
+        renewal <- list(renewal = renewal)
     } else {
-        renewal <- list(doesrenew = 0)
+        renewal <- NULL
     }
     return(renewal)
 }
@@ -334,10 +326,10 @@ check_stock_spawning <- function(dots) {
             stop("You must enter a spawnfile of class gadget_spawnfile", "\n",
                  "see ?make_gadget_spawnfile")
         } else {
-            spawning <- list(doesspawn = 1, spawnfile = dots$spawning)
+            spawning <- list(spawning = dots$spawning)
         }
     } else {
-        spawning <- list(doesspawn = 0)
+        spawning <- NULL
     }
     return(spawning)
 }
@@ -345,9 +337,9 @@ check_stock_spawning <- function(dots) {
 #' @rdname check_stockfile_funs
 check_stock_straying <- function(dots) {
     if (check_names("^straying", dots)) {
-        straying <- list(doesstray = 1, strayfile = dots$straying)
+        straying <- list(straying = dots$straying)
     } else {
-        straying <- list(doesstray = 0)
+        straying <- NULL
     }
     return(straying)
 }
@@ -367,10 +359,11 @@ make_stock_lenaggfile <- function(dots) {
 
 #' Functions to produce initial conditions or renewal distribution data
 #'
-#' These functions will produce a data.frame of class normalcondfile, normalparamfile, or numberfile
+#' These functions will produce a data.frame of class normalcondfile,
+#' normalparamfile, or numberfile
 #'
-#' @param ... Arguments necessary for a normalcondfile, a normalparamfile, or a numberfile. See
-#' initial conditions and renewal in the Gadget User Guide
+#' @param ... Arguments necessary for a normalcondfile, a normalparamfile, or a
+#' numberfile. See initial conditions and renewal in the Gadget User Guide
 #'
 #' @return A data.frame of class normalcondfile, normalparamfile, or numberfile
 #' @export
@@ -411,22 +404,25 @@ numberfile <- function(...) {
 
 #' Helper functions to create and format migration matrices
 #'
-#' These functions create and format migration information for a Gadget stockfile. The
-#' \code{migration_*} functions create a data.frame with class of the same name as the function
-#' for use in \code{\link{check_stockfile_migration}}. The returned data.frame can then be read into
-#' \code{format_migration} which will return a list of the correct structure to be written to file.
-#' These functions will be most useful when migration proportions are not known and are specified as
-#' a switch in the Gadget model
+#' These functions create and format migration information for a Gadget
+#' stockfile. The \code{migration_*} functions create a data.frame with class of
+#' the same name as the function for use in
+#' \code{\link{check_stockfile_migration}}. The returned data.frame can then be
+#' read into \code{format_migration} which will return a list of the correct
+#' structure to be written to file. These functions will be most useful when
+#' migration proportions are not known and are specified as a switch in the
+#' Gadget model
 #'
 #' @param years Numeric vector of years to specify migration proportions for
 #' @param steps Numeric vector of steps to specify migration proportions for
 #' @param areas Numeric vector of areas in the Gadget model
 #' @param prop Vector of proportions to use. Can be numeric or character.
-#' Length must be the same as \eqn{years * steps * areas^2} or a factor of such (or 1)
+#' Length must be the same as \eqn{years * steps * areas^2} or a factor of such
+#' (or 1)
 #'
-#' @return \code{migration_*} functions return a data.frame with class the same as the function name.
-#' \code{format_migration_matrix} returns a list with each element a matrix or data.frame of the
-#' migration ratios to be used
+#' @return \code{migration_*} functions return a data.frame with class the same
+#' as the function name. \code{format_migration_matrix} returns a list with each
+#' element a matrix or data.frame of the migration ratios to be used
 #'
 #' @export
 #'
@@ -478,11 +474,12 @@ format_migration <- function(mig_matrix) {
 }
 
 #' @rdname migration_funs
-#' @param mig_matrix A \code{data.frame} of class "migration_matrix" as produced by
-#' \code{migration_matrix}
+#' @param mig_matrix A \code{data.frame} of class "migration_matrix" as produced
+#' by \code{migration_matrix}
 format_migration.migration_matrix <- function(mig_matrix) {
     if (!("migration_matrix" %in% class(mig_matrix))) {
-        stop("You must use a data.frame of class migration_matrix, see ?migration_matrix")
+        stop("You must use a data.frame of class migration_matrix", "\n",
+             "see ?migration_matrix")
     }
     years <- unique(mig_matrix$year)
     steps <- unique(mig_matrix$step)
@@ -539,15 +536,16 @@ format_migration.migration_ratios <- function(mig_ratios) {
     return(unlist(mm_list, recursive = FALSE))
 }
 
-#' Check and format a Gadget stockfile that is being read
+#' Check components of a  Gadget stockfile that is being read
 #'
-#' This function will check to see if the various components to a stockfile are present
-#' during reading and will format those components if present. If a filename is present
-#' in a various component then this function will read that filename and place the
-#' appropriate data into an attribute of the stockfile. This function is for use in
+#' This function will check to see if the various components to a stockfile are
+#' present during reading and will format those components if present. If a
+#' filename is present in a various component then this function will read that
+#' filename and place the appropriate data into an attribute of the stockfile.
+#' This function is for use in \code{\link{read_gadget_stockfile}}
+#'
+#' @param stockfile The stockfile being read in by
 #' \code{\link{read_gadget_stockfile}}
-#'
-#' @param stockfile The stockfile being read in by \code{\link{read_gadget_stockfile}}
 #' @inheritParams call_gadget
 #'
 #' @return A list the same as the stockfile, but with attributes added for data.
@@ -563,88 +561,218 @@ check_stockfile <- function(stockfile, path = NULL) {
     }
     chk_file <- function(comp) {
         comp <- stockfile[[comp]]
-        if (is.null(comp) | length(comp) == 0 | comp == "") {
+        if (all(is.null(comp) | length(comp) == 0 | comp == "")) {
             return(FALSE)
         } else {
             return(TRUE)
         }
     }
-    stock_info <- c("livesonareas", "minage", "maxage", "minlength", "maxlength", "dl")
-    null_list <-
-        lapply(stock_info, function(x) {
-            if (chk_cmp(x)) {
-                stockfile[[x]] <<- as.numeric(stockfile[[x]])
-            }
-        })
+    stockname <- stockfile["stockname"]
+    stock_info <- c("livesonareas", "minage", "maxage",
+                    "minlength", "maxlength", "dl")
+    stock_info <- stockfile[stock_info]
+    stock_info <- lapply(stock_info, as.numeric)
     if (chk_file("refweightfile")) {
-        stockfile$refweightfile <-
-            read_gadget_refweightfile(stockfile$refweightfile,
-                                      path = path)
+        refweightfile <-
+            list(refweightfile =
+                     read_gadget_refweightfile(stockfile$refweightfile,
+                                               path = path))
+    } else {
+        refweightfile <- NULL
     }
     if (chk_file("growthandeatlengths")) {
-        stockfile$growthandeatlengths <-
-            read_gadget_stock_len_aggfile(stockfile$growthandeatlengths,
-                                          path = path)
+        growthandeatlengths <-
+            list(growthandeatlengths =
+                  read_gadget_stock_len_aggfile(stockfile$growthandeatlengths,
+                                                path = path))
+    } else {
+        growthandeatlengths <- NULL
+    }
+    if (chk_cmp("doesgrow")) {
+        growth_st <- get_index("doesgrow", names(stockfile)) + 1
+        growth_end <- get_index("naturalmortality", names(stockfile)) - 1
+        growth <- list(growth = stockfile[growth_st:growth_end])
+    } else {
+        growth <- NULL
+    }
+    if (chk_file("naturalmortality")) {
+        nat_mort <-
+            list(naturalmortality = stockfile[get_index("naturalmortality",
+                                                         names(stockfile))])
+    } else {
+        nat_mort <- NULL
     }
     if (chk_cmp("iseaten")) {
-        stockfile$preylengths <-
-            read_gadget_preylengths(stockfile$preylength,
-                                    path = path)
+        prey <-
+            list(prey = list(
+                preylengths = read_gadget_preylengths(stockfile$preylengths,
+                                                      path = path),
+                energycontent = ifelse(check_names("^energycontent$",
+                                                   stockfile),
+                                       stockfile$energycontent,
+                                       1)
+            ))
+    } else {
+        prey <- NULL
+    }
+    if (chk_cmp("doeseat")) {
+        predator_st <- get_index("doeseat", names(stockfile)) + 1
+        predator_end <- get_index("initialconditions", names(stockfile)) - 1
+        predator <- list(predator = stockfile[predator_st:predator_end])
+    } else {
+        predator <- NULL
     }
     if (check_names("^initialconditions$", stockfile)) {
+        init_cond_st <- get_index("^initialconditions$", names(stockfile))
+        init_cond_end <- get_index("^doesmigrate", names(stockfile)) - 1
+        init_cond <-stockfile[init_cond_st:init_cond_end]
+        init_cond <- init_cond[-get_index("^initialconditions$",
+                                          names(init_cond))]
         init_cond <-
-            stockfile[get_index("^initialconditions$", names(stockfile)):
-                      (get_index("^doesmigrate$", names(stockfile)) - 1)]
-        stockfile$initialconditions <- ""
+            within(init_cond, {
+                minage <- as.numeric(minage)
+                maxage <- as.numeric(maxage)
+                minlength <- as.numeric(minlength)
+                maxlength <- as.numeric(maxlength)
+                dl <- as.numeric(dl)})
         filename <- init_cond[[length(init_cond)]]
         data_dist_type <- names(init_cond)[length(init_cond)]
-        stockfile[[data_dist_type]] <-
+        init_cond[[data_dist_type]] <-
             read_gadget_init_cond(init_cond[[length(init_cond)]],
                                   data_dist_type,
                                   path = path)
+        init_cond <- list(initialconditions = init_cond)
+    } else {
+        init_cond <- NULL
     }
     if (chk_cmp("doesmigrate")) {
         migration <-
             stockfile[get_index("^doesmigrate$", names(stockfile)):
                       (get_index("^doesmature$", names(stockfile)) - 1)]
         yearstep_filename <- migration$yearstepfile
-        stockfile$yearstepfile <-
+        migration$yearstepfile <-
             read_gadget_yearstepfile(stockfile$yearstepfile,
                                      path = path)
         if (check_names("definematrices", migration)) {
-            stockfile$definematrices <-
+            migration$definematrices <-
                 read_gadget_migration_file(stockfile$definematrices,
                                            "matrices", path = path)
         } else if (check_names("defineratios", migration)) {
-            stockfile$defineratios <-
+            migration$defineratios <-
                 read_gadget_migration_file(stockfile$defineratios,
                                            "ratios", path = path)
         }
+        migration <- list(migration = migration)
+    } else {
+        migration <- NULL
     }
     if (chk_cmp("doesmature")) {
-        stockfile$maturityfile <-
-            read_gadget_maturity_file(stockfile$maturityfile,
-                                      path = path)
+        maturity <-
+            list(maturity =
+                     read_gadget_maturity_file(stockfile$maturityfile,
+                                               path = path))
+    } else {
+        maturity <- NULL
+    }
+    if (chk_cmp("doesmove")) {
+        movement_st <- get_index("doesmove", names(stockfile)) + 1
+        movement_end <- get_index("doesrenew", names(stockfile)) - 1
+        movement <- list(movement = stockfile[movement_st:movement_end])
+    } else {
+        movement <- NULL
     }
     if (chk_cmp("doesrenew")) {
-        renewal <- stockfile[get_index("^doesrenew$", names(stockfile)):
-                             (get_index("^doesspawn$", names(stockfile)) - 1)]
+        renewal_st <- get_index("^doesrenew$", names(stockfile)) + 1
+        renewal_end <- get_index("^doesspawn$", names(stockfile)) - 1
+        renewal <- stockfile[renewal_st:renewal_end]
         filename <- renewal[[length(renewal)]]
         data_dist_type <- names(renewal)[length(renewal)]
-        stockfile[[data_dist_type]] <-
+        renewal[[data_dist_type]] <-
             read_gadget_renewal(filename,
                                 data_dist_type,
                                 path = path)
+        renewal <- list(renewal = renewal)
+    } else {
+        renewal <- NULL
     }
     if (chk_cmp("doesspawn")) {
-        stockfile$spawnfile <-
-            read_gadget_spawnfile(stockfile$spawnfile,
-                                  path = path)
+        spawning <-
+            list(spawning =
+                     read_gadget_spawnfile(stockfile$spawnfile,
+                                           path = path))
+    } else {
+        spawning <- NULL
     }
     if (chk_cmp("doesstray")) {
-        stockfile$strayfile <-
-            read_gadget_strayfile(stockfile$strayfile,
-                                  path = path)
+        straying <-
+            list(straying = read_gadget_strayfile(stockfile$strayfile,
+                                                  path = path))
+    } else {
+        straying <- NULL
     }
-    return(stockfile)
+    return(c(stockname, stock_info, refweightfile, growthandeatlengths, growth,
+             nat_mort, prey, predator, init_cond, migration, maturity,
+             movement, renewal, spawning, straying))
+}
+
+
+#' Format an object of class \code{gadget_stock} to prepare for writing to file
+#'
+#' This function is used internally by \code{\link{write_gadget_file}},
+#' specifically the method for class \code{gadget_stock}. It formats the various
+#' components of a \code{gadget_stock} stockfile so that it is ready to be
+#' written to file
+#'
+#' @param stockfile
+#'
+#' @return A list with all components appropriately formatted for writing
+#'
+#' @examples
+#' # see created object from ?make_gadget_stockfile
+#' format_stockfile(cod)
+format_stockfile <- function(stockfile) {
+    chk_comp <- function(comp, gad_name, keep_str = FALSE) {
+        if (check_names(comp, stockfile)) {
+            if (comp == "initialconditions") {
+                interrogative <- ""
+            } else {
+                interrogative <- list(1)
+            }
+            if (keep_str) {
+                comp <- c(setNames(interrogative, gad_name), stockfile[comp])
+            } else if (any(grepl("gadget_", class(stockfile[[comp]])))) {
+                comp <- c(setNames(interrogative, gad_name), stockfile[comp])
+            } else if (is.data.frame(stockfile[[comp]])) {
+                comp <- c(setNames(interrogative, gad_name), stockfile[comp])
+            } else {
+                comp <- c(setNames(interrogative, gad_name), stockfile[[comp]])
+            }
+            if ("spawning" %in% names(comp)) {
+                names(comp)[names(comp) == "spawning"] <- "spawnfile"
+            } else if ("straying" %in% names(comp)) {
+                names(comp)[names(comp) == "straying"] <- "strayfile"
+            }
+            return(comp)
+        } else {
+            return(setNames(list(0), gad_name))
+        }
+    }
+    growth <- chk_comp("growth", "doesgrow")
+    nat_mort <- stockfile[["naturalmortality"]]
+    prey <- chk_comp("prey", "iseaten")
+    predator <- chk_comp("predator", "doeseat")
+    init_cond <- chk_comp("initialconditions", "initialconditions")
+    migration <- chk_comp("migration", "doesmigrate")
+    maturity <- chk_comp("maturity", "doesmature")
+    movement <- chk_comp("movement", "doesmove")
+    renewal <- chk_comp("renewal", "doesrenew")
+    spawning <- chk_comp("spawning", "doesspawn", keep_str = TRUE)
+    straying <- chk_comp("straying", "doesstray", keep_str = TRUE)
+    required_args <- stockfile[c("stockname", "livesonareas", "minage",
+                                 "maxage", "minlength", "maxlength", "dl",
+                                 "refweightfile", "growthandeatlengths")]
+    return(structure(c(required_args, growth, nat_mort, prey, predator,
+                       init_cond, migration, maturity, movement, renewal,
+                       spawning, straying),
+                     class = c("gadget_stock", "list")))
 }

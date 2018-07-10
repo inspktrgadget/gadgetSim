@@ -1,6 +1,6 @@
 Package: gadgetSim
 Title: Create Gadget replicates for use in simulation studies
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: "Paul Frater <pnfrater@gmail.com> [aut, cre]"
 Description: This package creates new variants of Gadget models to use as model
     replicates for simulation studies. It takes an already existing Gadget model,

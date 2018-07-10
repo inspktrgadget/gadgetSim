@@ -366,7 +366,7 @@ format_lik_comp <- function(comp, ...) {
 
 #' @rdname likelihood_helper_funs
 check_lik_data <- function(comp, data_cols, lik_type) {
-    if (!(class(comp$data) %in% c("data.frame", "matrix"))) {
+    if (!(any(c("data.frame", "matrix") %in% class(comp$data)))) {
         stop("\n\n", "You must provide data for ",
              sprintf("make_gadget_%s", lik_type),
              " as a data.frame")

@@ -2,11 +2,14 @@
 
 #' Functions to retrieve basic information about Gadget stocks
 #'
-#' @param stocks A list of class \code{gadget_stock} or a list of class \code{gadget_stocks} containing one (or typically more)
+#' @param stocks A list of class \code{gadget_stock} or a list of class
+#' \code{gadget_stocks} containing one (or typically more)
 #' lists of class \code{gadget_stock}
 #' @param what2get Character vector of which component of a stockfile to get.
-#'
-#' @return A vector of values found in the Gadget stock file possibly coerced to numeric if appropriate
+#' @param item Optional. A character vector of a specific item within a
+#' Gadget stockfile component to retrieve
+#' @return A vector of values found in the Gadget stock file possibly coerced to
+#' numeric if appropriate
 #'
 #' @name get_stock_info
 #' @export
@@ -17,19 +20,26 @@
 #' get_stock_areas(cod)
 #' get_stocknames(cod)
 #' get_stock_lengths(cod)
-#' get_stock_anything(cod, "normalparamfile")
+#' get_stock_anything(cod, "spawning")
+#' get_stock_anything(cod, "spawning", item = "recruitment")
 #' get_stock_anything(cod, "dl")
-get_stock_anything <- function(stocks, what2get) {
+get_stock_anything <- function(stocks, what2get, item = NULL) {
     if ("gadget_stock" %in% class(stocks)) {
 		tmp <- tryCatch(as.numeric(stocks[[what2get]]),
 					warning = function(w) return(stocks[[what2get]]),
 					error = function(e) return(stocks[[what2get]])
 				)
-		return(tmp)
+		if (!is.null(item)) {
+		    return(tmp[[item]])
+		} else {
+		    return(tmp)
+		}
 	} else if ("gadget_stocks" %in% class(stocks)) {
-	    return(unique(unlist(lapply(stocks, get_stock_anything, what2get = what2get))))
+	    return(unique(unlist(lapply(stocks, get_stock_anything,
+	                                what2get = what2get))))
 	} else {
-	    stop("You must supply a list of class gadget_stock or gadget_stocks and something to fetch")
+	    stop("You must supply a list of class gadget_stock or gadget_stocks ",
+	         "and something to fetch")
 	}
 }
 
@@ -78,9 +88,11 @@ get_stock_lengths <- function(stocks) {
                    by = as.numeric(stocks$dl)))
 	} else if ("gadget_stocks" %in% class(stocks)) {
         minlength <-
-            min(as.numeric(unique(unlist(lapply(stocks, function(x) x$minlength)))))
+            min(as.numeric(unique(unlist(lapply(stocks,
+                                                function(x) x$minlength)))))
         maxlength <-
-            max(as.numeric(unique(unlist(lapply(stocks, function(x) x$maxlength)))))
+            max(as.numeric(unique(unlist(lapply(stocks,
+                                                function(x) x$maxlength)))))
         dl <-
             min(as.numeric(unique(unlist(lapply(stocks, function(x) x$dl)))))
         return(seq(minlength, maxlength, by = dl))

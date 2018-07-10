@@ -173,7 +173,7 @@ make_gadget_stockfile <- function(...) {
     growthandeatlengths <- check_stock_grw_eat_len(dots)
     growth <- check_stock_growth(dots)
     naturalmortality <- check_stock_m(dots)
-    iseaten <- check_stock_iseaten(dots)
+    prey <- check_stock_iseaten(dots)
     predator <- check_stock_predator(dots)
     initialconditions <- check_stock_initcond(dots)
     migration <- check_stock_migration(dots)
@@ -183,7 +183,7 @@ make_gadget_stockfile <- function(...) {
     spawning <- check_stock_spawning(dots)
     straying <- check_stock_straying(dots)
     out <- c(stock, refweightfile, growthandeatlengths, growth,
-             naturalmortality, iseaten, predator, initialconditions, migration,
+             naturalmortality, prey, predator, initialconditions, migration,
              maturation, movement, renewal, spawning, straying)
     class(out) <- c("gadget_stock", "list")
     return(out)
@@ -227,6 +227,24 @@ make_gadget_spawnfile <- function(stockname, start_year, end_year, ...) {
     return(spawn_params)
 }
 
+#' Create a list of class \code{gadget_strayfile} to add to a Gadget stockfile
+#'
+#' This function creates a list of class \code{gadget_strayfile} that can be
+#' added into a \code{gadget_stock}. The strayfile will then be written as an
+#' attribute at the time of writing
+#'
+#' @param steps Numeric. The steps in which the stock will stray
+#' @param areas Numeric. The areas in which the stock will stray
+#' @param stock_ratios Data.frame or list of the stocks and straying ratios
+#' @param prop_fun Character. The proportionfunction to use
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' make_gadget_strayfile(steps = 1, areas = 1,
+#'                       stock_ratios = data.frame("cod", 1),
+#'                       prop_fun = c("constant", 1))
 make_gadget_strayfile <- function(steps, areas, stock_ratios, prop_fun) {
     if (is.list(stock_ratios)) {
         stock_ratios <- as.data.frame(stock_ratios)
@@ -766,12 +784,13 @@ update_model <- function(mod_obj, comp, item = NULL, ...) {
 
 #' @rdname update_model
 #' @export
-update_stock <- function(mod_obj, stockname, item = NULL, ...) {
+update_stock <- function(mod_obj, stockname, comp, item = NULL, ...) {
     dots <- dots2list(...)
     if (!is.null(item)) {
-        mod_obj$stocks[[stockname]][[item]][names(dots)] <- dots
+        mod_obj$stocks[[stockname]][[comp]][[item]][names(dots)] <- dots
     } else {
-        mod_obj$stocks[[stockname]][names(dots)] <- dots
+        mod_obj$stocks[[stockname]] <-
+            modifyList(mod_obj$stocks[[stockname]], dots)
     }
     return(mod_obj)
 }

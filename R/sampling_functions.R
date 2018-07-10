@@ -165,25 +165,29 @@ strip_age_length_data <- function(stock_data,
             `%>%` <- magrittr::`%>%`
             length_data <-
                 stock_data %>%
-                filter(number > 0) %>%
                 group_by(year, step, area) %>%
                 sample_n(size = length_samples,
-                         replace = TRUE,
-                         weight = number) %>%
-                ungroup() %>%
+                         weight = number,
+                         replace = TRUE) %>%
+                mutate(number = 1) %>%
                 group_by(year, step, area, age, length) %>%
-                summarize(number = n())
+                summarize(number = sum(number))
             age_data <- length_data
-            length_data$age <- "all"
+            length_data <-
+                length_data %>%
+                ungroup() %>%
+                mutate(age = "all") %>%
+                group_by(year, step, area, age, length) %>%
+                summarize(number = sum(number))
             age_data <-
                 age_data %>%
                 group_by(year, step, area) %>%
                 sample_n(size = age_samples,
                          replace = TRUE,
                          weight = number) %>%
-                ungroup() %>%
+                mutate(number = 1) %>%
                 group_by(year, step, area, age, length) %>%
-                summarize(number = n())
+                summarize(number = sum(number))
         } else {
             warning("Sampling by sample number can be somewhat time-intensive ",
                     "consider installing the tidyverse package to speed things",
@@ -241,136 +245,70 @@ strip_age_length_data <- function(stock_data,
         }
         length_data <- stock_data
         length_data$number <- round(length_data$number * length_samples)
-        if (!is.null(age_samples)) {
-            age_data <- length_data
+        age_data <- length_data
+        if (age_samples < 1) {
             age_data$number <- round(age_data$number * age_samples)
-        } else {
-            age_data <- NULL
-        }
-        if (requireNamespace("dplyr", quietly = TRUE)) {
-            `%>%` <- magrittr::`%>%`
-            length_data <-
-                length_data %>%
-                dplyr::group_by(year, step, area, length) %>%
-                dplyr::summarize(number = sum(number)) %>%
-                dplyr::mutate(age = "all") %>%
-                dplyr::select(year, step, area, age, length, number) %>%
-                as.data.frame()
-        } else {
-            length_data <-
-                aggregate(number ~ year + step + area + length,
-                          data = length_data, FUN = sum)
-            length_data$age <- "all"
-            length_data <-
-                subset(length_data,
-                       select = c("year", "step", "area",
-                                  "age", "length", "number"))
-        }
-        age_data <- subset(age_data, select = c("year", "step", "area",
-                                                "age", "length", "number"))
-    }
-
-    return(list(length_data = length_data, age_data = age_data))
-}
-
-
-strip_age_length_data2 <- function(stock_data,
-                                  length_samples = 1, age_samples = 1,
-                                  quiet = FALSE) {
-    if (length_samples > 1) {
-        if (age_samples <= 1) {
-            age_samples <- length_samples * age_samples
-        } else if (age_samples > length_samples) {
-            stop("Age sample number cannot be greater than length ",
-                 "sample number")
-        }
-        # obtain the number of length samples for each year/step/area
-        if (!requireNamespace("dplyr", quietly = TRUE)) {
-            `%>%` <- magrittr::`%>%`
-            length_data <-
-                stock_data %>%
-                filter(number > 0) %>%
-                group_by(year, step, area) %>%
-                sample_n(size = length_samples,
-                         replace = TRUE,
-                         weight = number) %>%
-                ungroup() %>%
-                group_by(year, step, area, age, length) %>%
-                summarize(number = n())
-            age_data <- length_data
-            length_data$age <- "all"
-            age_data <-
-                age_data %>%
-                group_by(year, step, area) %>%
-                sample_n(size = age_samples,
-                         replace = TRUE,
-                         weight = number) %>%
-                ungroup() %>%
-                group_by(year, step, area, age, length) %>%
-                summarize(number = n())
-        } else {
-            warning("Sampling data without dplyr or tidyverse ",
-                    "can be a bit time-consuming. Consider installing either ",
-                    "the tidyverse or dplyr package to speed things up a bit")
-            years <- unique(stock_data$year)
-            steps <- unique(stock_data$step)
-            areas <- unique(stock_data$area)
-            length_data <-
-                do.call("rbind", lapply(years, function(x) {
-                    do.call("rbind", lapply(steps, function(y) {
-                        do.call("rbind", lapply(areas, function(z) {
-                            dat <- subset(stock_data,
-                                          year == x & step == y & area == z)
-                            dat <- dat[sample(rownames(dat),
-                                              size = length_samples,
-                                              replace = TRUE,
-                                              prob = dat$number), ]
-                            return(as.matrix(dat))
+        } else if (age_samples > 1) {
+            if (requireNamespace("dplyr", quietly = TRUE)) {
+                `%>%` <- magrittr::`%>%`
+                age_data <-
+                    age_data %>%
+                    group_by(year, step, area) %>%
+                    sample_n(size = age_samples,
+                             replace = TRUE,
+                             weight = number) %>%
+                    mutate(number = 1) %>%
+                    group_by(year, step, area, age, length) %>%
+                    summarize(number = sum(number))
+            } else {
+                warning("Sampling by sample number can be somewhat ",
+                        "time-intensive consider installing the tidyverse ",
+                        "package to speed things up a bit")
+                years <- unique(stock_data$year)
+                steps <- unique(stock_data$step)
+                areas <- unique(stock_data$area)
+                length_data <-
+                    do.call("rbind", lapply(years, function(x) {
+                        do.call("rbind", lapply(steps, function(y) {
+                            do.call("rbind", lapply(areas, function(z) {
+                                dat <- subset(stock_data,
+                                              year == x & step == y & area == z)
+                                dat <- dat[sample(rownames(dat),
+                                                  size = length_samples,
+                                                  replace = TRUE,
+                                                  prob = dat$number), ]
+                                return(as.matrix(dat))
+                            }))
                         }))
                     }))
-                }))
-            length_data <- as.data.frame(length_data)
-            length_data$number <- 1
-            length_data <-
-                aggregate(number ~ year + step + area + age + length,
-                          data = length_data, FUN = sum)
-            age_data <- length_data
-            length_data$age <- "all"
-            length_data <-
-                do.call("rbind", lapply(years, function(x) {
-                    do.call("rbind", lapply(steps, function(y) {
-                        do.call("rbind", lapply(areas, function(z) {
-                            dat <- subset(length_data,
-                                          year == x & step == y & area == z)
-                            dat <- dat[sample(rownames(dat),
-                                              size = length_samples,
-                                              replace = TRUE,
-                                              prob = dat$number), ]
-                            return(as.matrix(dat))
+                length_data <- as.data.frame(length_data)
+                length_data$number <- 1
+                length_data <-
+                    aggregate(number ~ year + step + area + age + length,
+                              data = length_data, FUN = sum)
+                age_data <- length_data
+                length_data$age <- "all"
+                length_data <-
+                    do.call("rbind", lapply(years, function(x) {
+                        do.call("rbind", lapply(steps, function(y) {
+                            do.call("rbind", lapply(areas, function(z) {
+                                dat <- subset(length_data,
+                                              year == x & step == y & area == z)
+                                dat <- dat[sample(rownames(dat),
+                                                  size = length_samples,
+                                                  replace = TRUE,
+                                                  prob = dat$number), ]
+                                return(as.matrix(dat))
+                            }))
                         }))
                     }))
-                }))
-            age_data <- as.data.frame(age_data)
-            age_data$number <- 1
-            age_data <-
-                aggregate(number ~ year + step + area + age + length,
-                          data = age_data, FUN = sum)
-        }
-    } else if (length_samples <= 1) {
-        if (length_samples == 1 | age_samples == 1) {
-            if (!quiet) {
-                warning("You left one or both of the sampling proportions ",
-                        "at 1, which will not actually strip any data")
+                age_data <- as.data.frame(age_data)
+                age_data$number <- 1
+                age_data <-
+                    aggregate(number ~ year + step + area + age + length,
+                              data = age_data, FUN = sum)
             }
         }
-        length_data <- stock_data
-        length_data$number <- round(length_data$number * length_samples)
-        if (!is.null(age_samples)) {
-            age_data <- length_data
-            age_data$number <- round(age_data$number * age_samples)
-        } else {
-            age_data <- NULL
-        }
         if (requireNamespace("dplyr", quietly = TRUE)) {
             `%>%` <- magrittr::`%>%`
             length_data <-
@@ -381,9 +319,6 @@ strip_age_length_data2 <- function(stock_data,
                 dplyr::select(year, step, area, age, length, number) %>%
                 as.data.frame()
         } else {
-            warning("Sampling data without dplyr or tidyverse ",
-                    "can be a bit time-consuming. Consider installing either ",
-                    "the tidyverse or dplyr package to speed things up a bit")
             length_data <-
                 aggregate(number ~ year + step + area + length,
                           data = length_data, FUN = sum)
@@ -395,16 +330,10 @@ strip_age_length_data2 <- function(stock_data,
         }
         age_data <- subset(age_data, select = c("year", "step", "area",
                                                 "age", "length", "number"))
-    }
 
+    }
     return(list(length_data = length_data, age_data = age_data))
 }
-
-
-
-
-
-
 
 
 #' @rdname sample_gadget

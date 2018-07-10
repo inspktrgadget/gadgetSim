@@ -160,6 +160,7 @@ write_gadget_file.gadget_fleets <- function(gf, file = "Modelfiles/fleet",
 #' @export
 write_gadget_file.gadget_stock <- function(gf, file = gf$stockname,
                                            path = NULL) {
+    gf <- format_stockfile(gf)
     gf <- write_gadget_attributes(gf, path = path)
     stock_args <- collapse_entries(gf)
     stockfile <- paste(names(gf), stock_args, sep = "\t", collapse = "\n")

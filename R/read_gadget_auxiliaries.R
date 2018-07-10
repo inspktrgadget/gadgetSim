@@ -2,23 +2,26 @@
 
 
 
-#' Read auxiliary Gadget files (i.e. data files, aggfiles, auxiliary stockfiles, etc.)
+#' Read auxiliary Gadget files (i.e. data files, aggfiles, auxiliary stockfiles,
+#' etc.)
 #'
-#' This suite of functions are specific to types of Gadget auxiliary stockfiles, with
-#' special attention paid to the various auxiliary stockfiles such as refweightfile,
-#' initial condition and renewal data distribution files, spawnfile, etc. These functions
-#' are for use in \code{\link{check_stockfile}}
+#' This suite of functions are specific to types of Gadget auxiliary stockfiles,
+#' with special attention paid to the various auxiliary stockfiles such as
+#' refweightfile, initial condition and renewal data distribution files,
+#' spawnfile, etc. These functions are for use in \code{\link{check_stockfile}}
 #'
 #' @param file Character. The name of the file to be read
 #' @inheritParams call_gadget
 #'
-#' @return Typically a list with the elements specific to what is needed for each
-#' type of auxiliary file. Aggfiles and data files will often return a data.frame
+#' @return Typically a list with the elements specific to what is needed for
+#' each type of auxiliary file. Aggfiles and data files will often return a
+#' data.frame
 #'
 #' @name read_gadget_aux_files
 #'
 #' @examples
-#' gad_data <- read_gadget_refweightfile("Modelfiles/cod.refweightfile", path = gad_mod_dir)
+#' gad_data <- read_gadget_refweightfile("Modelfiles/cod.refweightfile",
+#'                                       path = gad_mod_dir)
 read_gadget_refweightfile <- function(file, path = NULL) {
     datfile <- readLines(check_path(file))
     return(format_auxiliary_file(datfile, c("length", "weight")))
@@ -52,7 +55,8 @@ read_gadget_init_cond <- function(file, data_dist_type, path = NULL) {
 #' @rdname read_gadget_aux_files
 read_gadget_yearstepfile <- function(file, path = NULL) {
     ys_file <- readLines(check_path(file))
-    return(format_auxiliary_file(ys_file, c("year", "step", "migration_matrix")))
+    return(format_auxiliary_file(ys_file,
+                                 c("year", "step", "migration_matrix")))
 }
 
 #' @rdname read_gadget_aux_files
@@ -63,7 +67,8 @@ read_gadget_migration_file <- function(file, migration_type, path = NULL) {
     mig_mat_ind <- grep("[migrationmatrix]", mig_file, fixed = TRUE)
     mig_file <- make_list_at_index(mig_file, mig_mat_ind)
     # formalized this line of code into a function, but keeping it for a minute
-    #unname(split(mig_file, sort(rep(mig_mat_ind, length(mig_file) / length(mig_mat_ind)))))
+    #unname(split(mig_file,
+    # sort(rep(mig_mat_ind, length(mig_file) / length(mig_mat_ind)))))
     mig_mat_names <-
         unlist(lapply(mig_file, function(x) {
             return(split_ws(x[2])[2])
@@ -76,7 +81,8 @@ read_gadget_migration_file <- function(file, migration_type, path = NULL) {
                     tryCatch(as.numeric(mig_values),
                              warning = function(w) return(mig_values),
                              error = function(e) return(mig_values))
-                return(matrix(mig_values, nrow = sqrt(length(mig_values)), byrow = TRUE))
+                return(matrix(mig_values, nrow = sqrt(length(mig_values)),
+                              byrow = TRUE))
             })
     } else if (migration_type == "ratios") {
         mig_data <-
@@ -84,9 +90,10 @@ read_gadget_migration_file <- function(file, migration_type, path = NULL) {
                 mig_values <- split_ws_list(x[3:length(x)])
                 mig_values <-
                     do.call("rbind", lapply(mig_values, function(y) {
-                        tmp <- tryCatch(as.numeric(mig_values),
-                                        warning = function(w) return(mig_values),
-                                        error = function(e) return(mig_values))
+                        tmp <-
+                            tryCatch(as.numeric(mig_values),
+                                     warning = function(w) return(mig_values),
+                                     error = function(e) return(mig_values))
                         return(data.frame(t(matrix(y))))
                     }))
                 names(mig_values) <- c("from", "to", "ratio")
@@ -110,7 +117,8 @@ read_gadget_maturity_file <- function(file, mat_fun_type, path = NULL) {
     mat_fun_args <-
         switch(mat_fun_type,
                newconstant = c(base_args, "coefficients", "maturitysteps"),
-               newconstantweight = c(base_args, "coefficients", "maturitysteps"),
+               newconstantweight = c(base_args, "coefficients",
+                                     "maturitysteps"),
                fixedlength = c(base_args, "maturitysteps", "maturitylengths"),
                continuous = c(base_args, "coefficients"))
     mat_fun_inds <- get_index(mat_fun_args, matfile)
@@ -141,8 +149,10 @@ read_gadget_spawnfile <- function(file, path = NULL) {
     spawnfile <- readLines(check_path(file))
     spawnfile <- trimws(strip_comments(spawnfile))
     spawnfile <- split_ws(spawnfile)
-    base_args <- c("spawnsteps", "spawnareas", "firstspawnyear", "lastspawnyear")
-    lenfun_args <- c("proportionfunction", "mortalityfunction", "weightlossfunction")
+    base_args <- c("spawnsteps", "spawnareas",
+                   "firstspawnyear", "lastspawnyear")
+    lenfun_args <- c("proportionfunction", "mortalityfunction",
+                     "weightlossfunction")
     if (any(grepl("^onlyparent$", spawnfile))) {
         arg_names <- c(base_args, "onlyparent", lenfun_args)
     } else {
@@ -192,7 +202,9 @@ format_auxiliary_file <- function(aux_file, aux_names) {
             names(out) <- aux_names
             return(out)
         })
-    return(data.frame(do.call("rbind", gadget_auxfile), stringsAsFactors = FALSE))
+    out_data <- data.frame(do.call("rbind", gadget_auxfile),
+                           stringsAsFactors = FALSE)
+    return(setNames(out_data, aux_names))
 }
 
 #' @rdname read_gadget_aux_files
@@ -204,5 +216,7 @@ format_data_dist_file <- function(data_dist_file, data_names) {
             names(out) <- data_names
             return(out)
         })
-    return(data.frame(do.call("rbind", gadget_data_file), stringsAsFactors = FALSE))
+    out_data <- data.frame(do.call("rbind", gadget_data_file),
+                           stringsAsFactors = FALSE)
+    return(setNames(out_data, data_names))
 }
