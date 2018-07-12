@@ -11,6 +11,7 @@
 \alias{write_gadget_file.gadget_params}
 \alias{write_gadget_file.gadget_printfile}
 \alias{write_gadget_file.gadget_likelihood}
+\alias{write_gadget_file.gadget_optinfofile}
 \title{Write Gadget components to file}
 \usage{
 write_gadget_file(gf, file = NULL, path = NULL, output_dir = NULL,
@@ -39,6 +40,9 @@ write_gadget_file(gf, file = NULL, path = NULL, output_dir = NULL,
   fit_dir = NULL)
 
 \method{write_gadget_file}{gadget_likelihood}(gf, file = "likelihood",
+  path = NULL)
+
+\method{write_gadget_file}{gadget_optinfofile}(gf, file = "optinfofile",
   path = NULL)
 }
 \arguments{

@@ -7,7 +7,7 @@
 \alias{check_stock_grw_eat_len}
 \alias{check_stock_growth}
 \alias{check_stock_m}
-\alias{check_stock_iseaten}
+\alias{check_stock_prey}
 \alias{check_stock_predator}
 \alias{check_stock_initcond}
 \alias{check_stock_migration}
@@ -30,8 +30,7 @@ check_stock_growth(dots)
 
 check_stock_m(dots)
 
-check_stock_iseaten(dots, lenaggfile = get("lenaggfile", env =
-  parent.frame()))
+check_stock_prey(dots, lenaggfile = get("lenaggfile", env = parent.frame()))
 
 check_stock_predator(dots)
 
@@ -53,17 +52,20 @@ make_stock_lenaggfile(dots)
 }
 \arguments{
 \item{stockfile}{A list that contains stockfile information such as
-\code{gadget_stockfile_default}, see source code for \code{\link{make_gadget_stockfile}}}
+\code{gadget_stockfile_default}, see source code for
+\code{\link{make_gadget_stockfile}}}
 }
 \value{
-A list that is a subset of \code{stockfile} containing the appropriate names for each
-category being checked
+A list that is a subset of \code{stockfile} containing the
+appropriate names for each category being checked
 }
 \description{
-These are non-exported functions that are only used within \code{\link{make_gadget_stockfile}}.
-Each checks a different aspect of the required arguments to a Gadget stockfile and either
-returns a default value if appropriate or stops function execution if a necessary piece is
-missing and a straightforward default does not exists
+These are non-exported functions that are only used within
+\code{\link{make_gadget_stockfile}}.
+Each checks a different aspect of the required arguments to a Gadget
+stockfile and either returns a default value if appropriate or stops
+function execution if a necessary piece is missing and a straightforward
+default does not exists
 }
 \examples{
 see source code for \\code{\\link{make_gadget_stockfile}}

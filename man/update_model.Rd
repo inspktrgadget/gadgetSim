@@ -8,7 +8,7 @@
 \usage{
 update_model(mod_obj, comp, item = NULL, ...)
 
-update_stock(mod_obj, stockname, item = NULL, ...)
+update_stock(mod_obj, stockname, comp, item = NULL, ...)
 
 update_fleet(mod_obj, fleetname, ...)
 }

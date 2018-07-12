@@ -14,14 +14,15 @@ normalparamfile(...)
 numberfile(...)
 }
 \arguments{
-\item{...}{Arguments necessary for a normalcondfile, a normalparamfile, or a numberfile. See
-initial conditions and renewal in the Gadget User Guide}
+\item{...}{Arguments necessary for a normalcondfile, a normalparamfile, or a
+numberfile. See initial conditions and renewal in the Gadget User Guide}
 }
 \value{
 A data.frame of class normalcondfile, normalparamfile, or numberfile
 }
 \description{
-These functions will produce a data.frame of class normalcondfile, normalparamfile, or numberfile
+These functions will produce a data.frame of class normalcondfile,
+normalparamfile, or numberfile
 }
 \examples{
 normalparamfile(year = 1:10,

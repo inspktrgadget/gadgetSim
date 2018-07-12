@@ -14,7 +14,8 @@
 \alias{read_gadget_strayfile}
 \alias{format_auxiliary_file}
 \alias{format_data_dist_file}
-\title{Read auxiliary Gadget files (i.e. data files, aggfiles, auxiliary stockfiles, etc.)}
+\title{Read auxiliary Gadget files (i.e. data files, aggfiles, auxiliary stockfiles,
+etc.)}
 \usage{
 read_gadget_refweightfile(file, path = NULL)
 
@@ -46,15 +47,17 @@ format_data_dist_file(data_dist_file, data_names)
 \item{path}{Optional. Character vector of path to the directory where Gadget files are located}
 }
 \value{
-Typically a list with the elements specific to what is needed for each
-type of auxiliary file. Aggfiles and data files will often return a data.frame
+Typically a list with the elements specific to what is needed for
+each type of auxiliary file. Aggfiles and data files will often return a
+data.frame
 }
 \description{
-This suite of functions are specific to types of Gadget auxiliary stockfiles, with
-special attention paid to the various auxiliary stockfiles such as refweightfile,
-initial condition and renewal data distribution files, spawnfile, etc. These functions
-are for use in \code{\link{check_stockfile}}
+This suite of functions are specific to types of Gadget auxiliary stockfiles,
+with special attention paid to the various auxiliary stockfiles such as
+refweightfile, initial condition and renewal data distribution files,
+spawnfile, etc. These functions are for use in \code{\link{check_stockfile}}
 }
 \examples{
-gad_data <- read_gadget_refweightfile("Modelfiles/cod.refweightfile", path = gad_mod_dir)
+gad_data <- read_gadget_refweightfile("Modelfiles/cod.refweightfile",
+                                      path = gad_mod_dir)
 }

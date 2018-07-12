@@ -236,6 +236,24 @@ write_gadget_file.gadget_likelihood <- function(gf, file = "likelihood",
     write(likfile, file = check_path(file))
 }
 
+#' @rdname write_gadget_file
+#' @export
+write_gadget_file.gadget_optinfofile <- function(gf, file = "optinfofile",
+                                                 path = NULL) {
+    opt_labs <- names(gf)
+    opt_comps <-
+        lapply(seq_along(gf), function(x) {
+            tmp <- collapse_entries(gf[[x]])
+            out <- paste(paste(names(tmp), tmp, sep = "\t"), collapse = "\n")
+            x_opt_lab <- paste0("[", opt_labs[x], "]")
+            return(paste(c(x_opt_lab, out), collapse = "\n"))
+        })
+    header <- gadgetfile_header("optinfofile")
+    optinfofile <- paste(c(header, paste(opt_comps, collapse = "\n")),
+                         collapse = "\n")
+    write(optinfofile, file = check_path(file))
+}
+
 #' Functions to write attributes of Gadget components to file
 #'
 #' These functions are used within the \code{\link{write_gadget_file}} methods

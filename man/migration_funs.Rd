@@ -27,26 +27,29 @@ format_migration(mig_matrix)
 \item{areas}{Numeric vector of areas in the Gadget model}
 
 \item{prop}{Vector of proportions to use. Can be numeric or character.
-Length must be the same as \eqn{years * steps * areas^2} or a factor of such (or 1)}
+Length must be the same as \eqn{years * steps * areas^2} or a factor of such
+(or 1)}
 
-\item{mig_matrix}{A \code{data.frame} of class "migration_matrix" as produced by
-\code{migration_matrix}}
+\item{mig_matrix}{A \code{data.frame} of class "migration_matrix" as produced
+by \code{migration_matrix}}
 
 \item{A}{\code{data.frame} of class "migration_ratios" as produced by
 \code{migration_ratios}}
 }
 \value{
-\code{migration_*} functions return a data.frame with class the same as the function name.
-\code{format_migration_matrix} returns a list with each element a matrix or data.frame of the
-migration ratios to be used
+\code{migration_*} functions return a data.frame with class the same
+as the function name. \code{format_migration_matrix} returns a list with each
+element a matrix or data.frame of the migration ratios to be used
 }
 \description{
-These functions create and format migration information for a Gadget stockfile. The
-\code{migration_*} functions create a data.frame with class of the same name as the function
-for use in \code{\link{check_stockfile_migration}}. The returned data.frame can then be read into
-\code{format_migration} which will return a list of the correct structure to be written to file.
-These functions will be most useful when migration proportions are not known and are specified as
-a switch in the Gadget model
+These functions create and format migration information for a Gadget
+stockfile. The \code{migration_*} functions create a data.frame with class of
+the same name as the function for use in
+\code{\link{check_stockfile_migration}}. The returned data.frame can then be
+read into \code{format_migration} which will return a list of the correct
+structure to be written to file. These functions will be most useful when
+migration proportions are not known and are specified as a switch in the
+Gadget model
 }
 \examples{
 years <- 1:2

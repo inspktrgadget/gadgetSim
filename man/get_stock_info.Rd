@@ -9,7 +9,7 @@
 \alias{get_stock_lengths}
 \title{Functions to retrieve basic information about Gadget stocks}
 \usage{
-get_stock_anything(stocks, what2get)
+get_stock_anything(stocks, what2get, item = NULL)
 
 get_stock_ages(stocks)
 
@@ -20,13 +20,18 @@ get_stocknames(stocks)
 get_stock_lengths(stocks)
 }
 \arguments{
-\item{stocks}{A list of class \code{gadget_stock} or a list of class \code{gadget_stocks} containing one (or typically more)
+\item{stocks}{A list of class \code{gadget_stock} or a list of class
+\code{gadget_stocks} containing one (or typically more)
 lists of class \code{gadget_stock}}
 
 \item{what2get}{Character vector of which component of a stockfile to get.}
+
+\item{item}{Optional. A character vector of a specific item within a
+Gadget stockfile component to retrieve}
 }
 \value{
-A vector of values found in the Gadget stock file possibly coerced to numeric if appropriate
+A vector of values found in the Gadget stock file possibly coerced to
+numeric if appropriate
 }
 \description{
 Functions to retrieve basic information about Gadget stocks
@@ -37,6 +42,7 @@ get_stock_ages(cod)
 get_stock_areas(cod)
 get_stocknames(cod)
 get_stock_lengths(cod)
-get_stock_anything(cod, "normalparamfile")
+get_stock_anything(cod, "spawning")
+get_stock_anything(cod, "spawning", item = "recruitment")
 get_stock_anything(cod, "dl")
 }

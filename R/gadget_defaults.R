@@ -340,6 +340,55 @@ catchinkilos_likelihood <-
         stocknames = ""
     ), class = c("gadget_catchinkilos_likelihood", "list"))
 
+
+# optinfofile components
+hooke_optinfo <-
+    list(
+        hookeiter = 50000,
+        hookeeps = 1e-04,
+        rho = 0.5,
+        lambda = 0
+    )
+
+simann_optinfo <-
+    list(
+        simanniter = 3e05,
+        simanneps = 1e04,
+        t = 100,
+        rt = 0.85,
+        nt = 2,
+        ns = 5,
+        vm = 1,
+        cstep = 2,
+        lratio = 0.3,
+        uratio = 0.7,
+        check = 4
+    )
+
+bfgs_optinfo <-
+    list(
+        bgfsiter = 50000,
+        bfgseps = 0.01,
+        sigma = 0.01,
+        beta = 0.3,
+        gradacc = 1e-06,
+        gradstep = 0.5,
+        gradeps = 1e-10
+    )
+
+pso_optinfo <-
+    list(
+        goal = 1e-06,
+        psoiter = 1e09
+    )
+
+de_optinfo <-
+    list(
+        goal = 1e-06,
+        iter = 1e09
+    )
+
+
 #' Switch defaults
 #'
 #' These are vectors of the switches that are used in when calling Gadget

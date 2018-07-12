@@ -238,7 +238,7 @@ make_gadget_spawnfile <- function(stockname, start_year, end_year, ...) {
 #' @param stock_ratios Data.frame or list of the stocks and straying ratios
 #' @param prop_fun Character. The proportionfunction to use
 #'
-#' @return
+#' @return A list of class \code{gadget_strayfile}
 #' @export
 #'
 #' @examples
@@ -537,6 +537,58 @@ init_params <- function(df, switch, value, lower, upper, optimize = TRUE) {
     class(df) <- c("gadget_params", "data.frame")
     return(df)
 }
+
+#' Create a Gadget optimization info file
+#'
+#' This function creates a list of class \code{gadget_optinfofile} that can be
+#' used to write to file the components desired for optimization in Gadget.
+#' Arguments to the function can either be left blank for the default; otherwise
+#' they must be named arguments with names corresponding to the optimization
+#' routine desired (see Gadget User Guide. Chapter 11.).
+#'
+#' If the default values provided by gadgetSim are desired, then use a named
+#' argument with "default" (i.e. simann = "default"). Otherwise, you can specify
+#' as many or as few parameters to alter in a list
+#'
+#' @param ... Named list(s) with names corresponding to the optimization type
+#' desired.
+#'
+#' @return A list of class \code{gadget_optinfofile}
+#' @export
+#'
+#' @examples
+#' opt <- make_gadget_optinfofile()
+#' opt <- make_gadget_optinfofile(simann = "default")
+#' opt <- make_gadget_optinfofile(simann = list(simanniter = 10000,
+#'                                              t = 3000),
+#'                                bfgs = list(bfgsiter = 20000))
+make_gadget_optinfofile <- function(...) {
+    dots <- dots2list(...)
+    if (length(dots) == 0) {
+        out <-
+            structure(list(
+                simann = simann_optinfo,
+                bfgs = bfgs_optinfo,
+                hooke = hooke_optinfo
+            ), class = c("gadget_optinfo", "list"))
+        return(out)
+    } else {
+        out <-
+            lapply(seq_along(dots), function(x, nms) {
+                opt_type <- paste(nms[x], "optinfo", sep = "_")
+                default <- getFromNamespace(opt_type, ns = "gadgetSim")
+                if (all(dots[[x]] == "default")) {
+                    return(default)
+                } else {
+                    return(modifyList(default, dots[[x]]))
+                }
+            }, nms = names(dots))
+        return(structure(setNames(out, names(dots)),
+                         class = c("gadget_optinfofile", "list")))
+    }
+}
+
+
 
 
 #' Assemble an entire Gadget model with a single function

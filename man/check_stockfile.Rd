@@ -2,12 +2,13 @@
 % Please edit documentation in R/check_stockfile_functions.R
 \name{check_stockfile}
 \alias{check_stockfile}
-\title{Check and format a Gadget stockfile that is being read}
+\title{Check components of a  Gadget stockfile that is being read}
 \usage{
 check_stockfile(stockfile, path = NULL)
 }
 \arguments{
-\item{stockfile}{The stockfile being read in by \code{\link{read_gadget_stockfile}}}
+\item{stockfile}{The stockfile being read in by
+\code{\link{read_gadget_stockfile}}}
 
 \item{path}{Optional. Character vector of path to the directory where Gadget files are located}
 }
@@ -15,11 +16,11 @@ check_stockfile(stockfile, path = NULL)
 A list the same as the stockfile, but with attributes added for data.
 }
 \description{
-This function will check to see if the various components to a stockfile are present
-during reading and will format those components if present. If a filename is present
-in a various component then this function will read that filename and place the
-appropriate data into an attribute of the stockfile. This function is for use in
-\code{\link{read_gadget_stockfile}}
+This function will check to see if the various components to a stockfile are
+present during reading and will format those components if present. If a
+filename is present in a various component then this function will read that
+filename and place the appropriate data into an attribute of the stockfile.
+This function is for use in \code{\link{read_gadget_stockfile}}
 }
 \examples{
 stockfile <- readLines("gadget_model/cod")
