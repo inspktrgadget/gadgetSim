@@ -382,6 +382,7 @@ read_gadget_stock_std <- function(output_dir, files = NULL, path = NULL) {
         lapply(files2read, function(x) {
             tmp <- read.table(paste(c(output_dir, x), collapse = "/"),
                               sep = "", comment.char = ";",
+                              colClasses = "numeric",
                               stringsAsFactors = FALSE)
             tmp <- setNames(tmp, stock_std_names)
         })

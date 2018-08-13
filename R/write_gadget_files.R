@@ -737,6 +737,15 @@ gadget_sub_dir <- function(sub_dir, path = NULL) {
 }
 
 #' @rdname gadget_sub_dir
+get_gadget_sub_dir <- function(obj) {
+    if (!(is_gadget_sub_dir(obj))) {
+        stop("Object must be of class gadget_sub_dir")
+    } else {
+        return(paste(obj, collapse = "/"))
+    }
+}
+
+#' @rdname gadget_sub_dir
 #' @export
 is_gadget_sub_dir <- function(obj) {
     if ("gadget_sub_dir" %in% class(obj)) {

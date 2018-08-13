@@ -63,42 +63,43 @@ call_gadget <- function(switches = list(s = TRUE, i = "params.in"), path = NULL,
 #' }
 get_stock_std <- function(main = "main", params_file = NULL, path = NULL,
                           fit_dir = "FIT", gadget_exe = "gadget", ...) {
-    if (requireNamespace("Rgadget", quietly = TRUE)) {
-        if (dir.exists(check_path(fit_dir))) {
-            if ("WGTS.Rdata" %in% dir(check_path(fit_dir))) {
-                load(paste(check_path(fit_dir), "WGTS.Rdata", sep = "/"))
-                if (exists("out")) {
-                    got_stock_std <- TRUE
-                    stocks <- unique(out$stock.std$stock)
-                    stock_std <-
-                        lapply(stocks, function(x) {
-                            tmp <- subset(out$stock.std, stock == x)
-                            tmp <- subset(tmp, select = year:biomass.consumed)
-                            names(tmp) <-
-                                c("year", "step", "area", "age", "number", "length",
-                                  "weight", "length.sd", "number.consumed", "biomass.consumed")
-                            return(tmp)
-                        })
-                    stock_std <- setNames(stock_std, stocks)
-                    return(stock_std)
-                } else {
-                    got_stock_std <- FALSE
-                }
-            } else {
-                got_stock_std <- FALSE
-            }
-        } else {
-            got_stock_std <- FALSE
-        }
+    if (is_gadget_sub_dir(path)) {
+        sub_dir_path <- get_gadget_sub_dir(path)
+        sub_dirs <- dir(sub_dir_path)
+        base_path <- path$path
+        reps <-
+            lapply(sub_dirs, function(x) {
+               mainfile <- paste(list(path$sub_dir, x, main),
+                                 collapse = "/")
+               params_file <- paste(list(path$sub_dir, x, params_file),
+                                    collapse = "/")
+               fit_dir <- paste(list(path$sub_dir, x, fit_dir),
+                                collapse = "/")
+               tmp <- get_stock_std(main = mainfile,
+                                    params_file = params_file,
+                                    path = base_path,
+                                    fit_dir = fit_dir)
+               sub_tmp <-
+                   lapply(seq_along(tmp), function(x, nms) {
+                       sub_sub_tmp <- tmp[[x]]
+                       sub_sub_tmp$stock <- nms[x]
+                       return(sub_sub_tmp)
+                   }, nms = names(tmp))
+               tmp <- do.call("rbind", sub_tmp)
+               tmp[path$sub_dir] <- gsub("[a-z]|[[:punct:]]", "", x)
+               return(as.matrix(tmp))
+            })
+        reps <- do.call("rbind", reps)
+        reps <- as.data.frame(reps, stringsAsFactors = FALSE)
+        reps[,1:10] <- as.numeric(as.character(unlist(reps[,1:10])))
+        return(reps)
     } else {
-        got_stock_std <- FALSE
-    }
-    if (!got_stock_std) {
         if (!("gadget_main" %in% class(main))) {
             main <- read_gadget_main(main, path = path)
         }
         check_dir_exists(check_path(fit_dir))
-        stocks <- get_stocknames(read_gadget_stockfiles(main = main, path = path))
+        stocks <- get_stocknames(read_gadget_stockfiles(main = main,
+                                                        path = path))
         dots <- lapply(stocks, function(x) {
             return(list(stockname = x))
         })
@@ -130,7 +131,8 @@ get_stock_std <- function(main = "main", params_file = NULL, path = NULL,
         }
         printfile <-
             make_gadget_printfile(dots, main = main, path = path,
-                                  output_dir = output_dir, aggfile_dir = aggfile_dir)
+                                  output_dir = output_dir,
+                                  aggfile_dir = aggfile_dir)
         write_gadget_file(printfile, file = printfile_name, path = path,
                           output_dir = output_dir, aggfile_dir = aggfile_dir)
         call_gadget(switches = switches, path = path, gadget_exe = gadget_exe,
