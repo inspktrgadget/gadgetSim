@@ -1,0 +1,14 @@
+citHeader("To cite the use of gadgetSim in publications, please use")
+
+title <- "A package for creating simulated datasets from Gadget output"
+citEntry(
+	entry = "misc",
+	author = "Paul Frater",
+	title = paste("gadgetSim:", title),
+	year = "2018",
+	url = "https://github.com/inspktrGadget/gadgetSim",
+	howpublished = "R package - 0.0.2",
+	textVersion = paste("Frater, P.N. 2018. gadgetSim:",
+	                     title,
+	                     ". R package - 0.0.2")
+)
