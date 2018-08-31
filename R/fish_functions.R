@@ -226,7 +226,7 @@ ricker_formula <- function(stockname, params = NULL) {
         lam <- as.vector(params[2])
     } else {
         mu <- c(paste0("#", stockname, ".ricker.mu"))
-        lam <- c(paste0("#", stockname, ".ricker.lam"))
+        lam <- c(paste0("#", stockname, ".ricker.lambda"))
     }
     return(data.frame(fun = "ricker", mu, lam))
 }
@@ -243,7 +243,7 @@ bev_holt_formula <- function(stockname, params = NULL) {
         lam <- as.vector(params[2])
     } else {
         mu <- c(paste0("#", stockname, ".bh.mu"))
-        lam <- c(paste0("#", stockname, ".bh.lam"))
+        lam <- c(paste0("#", stockname, ".bh.lambda"))
     }
     return(data.frame(fun = "bevertonholt", mu, lam))
 }
