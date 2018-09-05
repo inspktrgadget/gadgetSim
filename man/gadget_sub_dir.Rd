@@ -2,10 +2,13 @@
 % Please edit documentation in R/write_gadget_files.R
 \name{gadget_sub_dir}
 \alias{gadget_sub_dir}
+\alias{get_gadget_sub_dir}
 \alias{is_gadget_sub_dir}
 \title{Write out a Gadget sub-directory and return the path to it}
 \usage{
 gadget_sub_dir(sub_dir, path = NULL)
+
+get_gadget_sub_dir(obj)
 
 is_gadget_sub_dir(obj)
 }

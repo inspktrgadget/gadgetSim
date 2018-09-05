@@ -1,5 +1,51 @@
 # functions used in sampling output from gadget
 
+#' Add length groups to Gadget StockStdPrinter output
+#'
+#' @param stock_data A \code{data.frame} of stock data retrieved via
+#' \code{\link{get_stock_std}} or \code{\link{read_gadget_stock_std}}
+#' @param length_groups Numeric vector of length groups to distribute by.
+#' The difference in values probably should be the same as dl in Gadget model
+#' @param keep_zero_counts Logical. Keep year/step/area/age combinations with
+#' no individuals
+#' @param variable Character vector of the variable on which to distribute
+#' length groups. Default is "number". Can be "number.consumed" or
+#' "biomass.consumed"
+#'
+#' Returns a wide \code{data.frame} similar to that of \code{stock_data}, but
+#' with values distributed across each length group which are represented as
+#' each column. The output of \code{add_lengthgroup} is meant to go directly to
+#' \code{\link{survey_gadget}}
+#'
+#' @examples
+#' cod_lendist <- add_lengthgroups(cod_stock_std$cod0, lengrps)
+add_lengthgroups <- function(stock_data, length_groups, variable = "number",
+                             keep_zero_counts = FALSE) {
+    if (length(length_groups) < 2) {
+        stop("Length group should have at least 2 members")
+    }
+    if (!keep_zero_counts) {
+        stock_data <- stock_data[stock_data[,variable] > 0, ]
+    }
+    lengrp_lower <- length_groups[-length(length_groups)]
+    lengrp_upper <- length_groups[-1]
+    len_dist <- function(len) {
+        pnorm(rep(len, each = nrow(stock_data)),
+              stock_data$length,
+              stock_data$length.sd)
+    }
+    stock_number <- rep(stock_data[,variable], times = length(lengrp_upper))
+    stock_len_numbers <-
+        stock_number * (len_dist(lengrp_upper) - len_dist(lengrp_lower))
+    lengrp_names <-
+        list(c(), paste("length", lengrp_lower, lengrp_upper, sep = "_"))
+    lengrp_matrix <-
+        as.data.frame(matrix(stock_len_numbers,
+                             dimnames = lengrp_names,
+                             ncol = length(lengrp_lower)))
+    return(cbind(stock_data, lengrp_matrix))
+}
+
 #' Create length distributions and sample Gadget output
 #'
 #' These functions create length distributions from Gadget StockStdPrinter
@@ -13,31 +59,35 @@
 #' \code{\link{get_stock_std}} or \code{\link{read_gadget_stock_std}}
 #' @param length_groups Numeric vector of length groups to distribute by.
 #' The difference in values probably should be the same as dl in Gadget model
+#' @param survey_suitability Numeric vector the same length as
+#' \code{length_groups} representing the selection probability for each length
+#' in \code{length_groups}
+#' @param survey_sigma Numeric value of multiplicative error to place on samples
+#' @param variable Character vector of the variable on which to distribute
+#' length groups. Default is "number". Can be "number.consumed" or
+#' "biomass.consumed"
 #' @param keep_zero_counts Logical. Keep year/step/area/age combinations with
 #' no individuals
 #'
 #' @details Length-structured population information from Gadget is output as
 #' mean length and standard deviation for each year, step, area, and age
-#' combination. \code{add_lengthgroups} takes output from
+#' combination. \code{survey_gadget} takes output from
 #' \code{\link{get_stock_std}} (or \code{\link{read_gadget_stock_std}}) and
 #' distributes the number for each respective combination into numbers at each
-#' length specified by \code{length_groups}. The return value for
-#' \code{add_lengthgroups} is a wide \code{data.frame} that can then be fed into
-#' \code{survey_gadget}, which simulates surveys given the selectivity provided
-#' in \code{survey_suitability} and error given by \code{survey_sigma}. If it is
-#' desired to have a subsample of length and age data to more closely mimic real
-#' world scenarios, then the output from \code{survey_gadget} can be fed into
-#' \code{strip_age_length_data} and subsamples of length and age data will be
-#' returned according to the given proportions. The entire process can be
-#' replicated \emph{n} number of times using \code{replicate_datasets}
+#' length specified by \code{length_groups}, simulates
+#' surveys given the selectivity provided in \code{survey_suitability} and
+#' error given by \code{survey_sigma}. If it is desired to have a subsample of
+#' length and age data to more closely mimic real world scenarios, then the
+#' output from \code{survey_gadget} can be fed into \code{strip_age_length_data}
+#' and subsamples of length and age data will be returned according to the given
+#' proportions. The entire process can be replicated \emph{n} number of times
+#' using \code{replicate_datasets}
 #'
 #'
-#' @return \code{add_lengthgroup} returns a wide \code{data.frame} similar to
-#' that of \code{stock_data}, but with values distributed across each length
-#' group which are represented as each column. The output of
-#' \code{add_lengthgroup} is meant to go directly to \code{survey_gadget} which
-#' returns a \code{data.frame} similar to \code{stock_data}, but disaggregated
-#' by length. \code{strip_age_length_data} returns a named list of two
+#' @return \code{survey_gadget} returns a \code{data.frame} similar to
+#' \code{stock_data}, but disaggregated by length based on the std. dev. found
+#' in the StockStdPrinter.
+#' \code{strip_age_length_data} returns a named list of two
 #' \code{data.frame}s. One for length data and one for age data.
 #' \code{replicate_datasets} returns a names list of length 3, each element
 #' containing a \code{data.frame} with nrows the number of replications times
@@ -50,61 +100,33 @@
 #'
 #' @examples
 #' path <- system.file(gad_mod_dir, package = "gadgetSim")
-#' cod_stock_std <- get_stock_std(main = "WGTS/main.final",
-#'                                params_file = "WGTS/params.final",
-#'                                path = path, fit_dir = "WGTS")
-#' lengrps <- seq(0.5, 50.5, by = 1)
+#' cod_stock_std <- get_stock_std(main = "main",
+#'                                path = path)
+#' lengrps <- seq(0.5, 150.5, by = 1)
 #' suitability <- logistic_selectivity(lengrps, 0.15, 20, 0.1)
-#' cod_lendist <- add_lengthgroups(cod_stock_std$cod0, lengrps)
-#' cod_samples <- survey_gadget(cod_lendist, lengrps, suitability, 0.1)
+#' cod_samples <- survey_gadget(cod_stock_std$cod, lengrps, suitability, 0.1)
 #' cod_comp_data <-
 #'   strip_age_length_data(cod_samples, length_samples = 0.2, age_samples = 0.2)
 #'
 #' # the above process can be automated n number of times
 #' cod_comp_data <-
-#'     replicate_datasets(cod_stock_std$cod0, lengrps, suitability,
+#'     replicate_datasets(cod_stock_std$cod, lengrps, suitability,
 #'                        survey_sigma = 0.1, length_samples = 0.2,
 #'                        age_samples = 0.2, n = 10)
-add_lengthgroups <- function(stock_data, length_groups,
-                             keep_zero_counts = FALSE) {
-    if (length(length_groups) < 2) {
-        stop("Length group should have at least 2 members")
-    }
-    if (!keep_zero_counts) {
-        stock_data <- stock_data[stock_data$number > 0, ]
-    }
-    lengrp_lower <- length_groups[-length(length_groups)]
-    lengrp_upper <- length_groups[-1]
-    len_dist <- function(len) {
-        pnorm(rep(len, each = nrow(stock_data)),
-              stock_data$length,
-              stock_data$length.sd)
-    }
-    stock_number <- rep(stock_data$number, times = length(lengrp_upper))
-    stock_len_numbers <-
-        stock_number * (len_dist(lengrp_upper) - len_dist(lengrp_lower))
-    lengrp_names <-
-        list(c(), paste("length", lengrp_lower, lengrp_upper, sep = "_"))
-    lengrp_matrix <-
-        as.data.frame(matrix(stock_len_numbers,
-                             dimnames = lengrp_names,
-                             ncol = length(lengrp_lower)))
-    return(cbind(stock_data, lengrp_matrix))
-}
-
-
-#' @rdname sample_gadget
-#' @param survey_suitability Numeric vector the same length as
-#' \code{length_groups} representing the selection probability for each length
-#' in \code{length_groups}
-#' @param survey_sigma Numeric value of multiplicative error to place on samples
-#' @export
 survey_gadget <- function(stock_data, length_groups,
-                          survey_suitability, survey_sigma) {
+                          survey_suitability, survey_sigma,
+                          variable = "number",
+                          keep_zero_counts = FALSE) {
+    stock_data <-
+        add_lengthgroups(stock_data, length_groups = length_groups,
+                         variable = variable,
+                         keep_zero_counts = keep_zero_counts)
     lengrp_lower <- length_groups[-length(length_groups)]
     lengrp_upper <- length_groups[-1]
-    base_names <- grep("^length|^weight$|^number$",
+    base_names <- grep(paste0("^length|^weight$|", sprintf("^%s$", variable)),
                        names(stock_data), value = TRUE, invert = TRUE)
+    var_names <- c("number", "number.consumed", "biomass.consumed")
+    base_names <- base_names[base_names != var_names[variable != var_names]]
     base_data <- stock_data[, base_names, drop = FALSE]
     lengrp_data <-
         lapply(seq_len(length(lengrp_lower)), function(i) {
@@ -113,10 +135,10 @@ survey_gadget <- function(stock_data, length_groups,
             out <- base_data
             out$length <- mean(c(lengrp_upper[[i]], lengrp_lower[[i]]))
             out$weight <- stock_data$weight
-            out$number <-
+            out[variable] <-
                 round(stock_data[, length_col] *
-                (exp(rnorm(nrow(base_data),0,survey_sigma) - survey_sigma/2)) *
-                survey_suitability[[i]])
+                          (exp(rnorm(nrow(base_data),0,survey_sigma) -
+                                   survey_sigma/2)) * survey_suitability[[i]])
             return(out)
         })
     if (requireNamespace("dplyr", quietly = TRUE)) {

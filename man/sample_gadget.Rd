@@ -2,15 +2,13 @@
 % Please edit documentation in R/sampling_functions.R
 \name{sample_gadget}
 \alias{sample_gadget}
-\alias{add_lengthgroups}
 \alias{survey_gadget}
 \alias{strip_age_length_data}
 \alias{replicate_datasets}
 \title{Create length distributions and sample Gadget output}
 \usage{
-add_lengthgroups(stock_data, length_groups, keep_zero_counts = FALSE)
-
-survey_gadget(stock_data, length_groups, survey_suitability, survey_sigma)
+survey_gadget(stock_data, length_groups, survey_suitability, survey_sigma,
+  variable = "number", keep_zero_counts = FALSE)
 
 strip_age_length_data(stock_data, length_samples = 1, age_samples = 1,
   quiet = FALSE)
@@ -26,14 +24,18 @@ replicate_datasets(stock_data, length_groups, survey_suitability, survey_sigma,
 \item{length_groups}{Numeric vector of length groups to distribute by.
 The difference in values probably should be the same as dl in Gadget model}
 
-\item{keep_zero_counts}{Logical. Keep year/step/area/age combinations with
-no individuals}
-
 \item{survey_suitability}{Numeric vector the same length as
 \code{length_groups} representing the selection probability for each length
 in \code{length_groups}}
 
 \item{survey_sigma}{Numeric value of multiplicative error to place on samples}
+
+\item{variable}{Character vector of the variable on which to distribute
+length groups. Default is "number". Can be "number.consumed" or
+"biomass.consumed"}
+
+\item{keep_zero_counts}{Logical. Keep year/step/area/age combinations with
+no individuals}
 
 \item{length_samples}{Numeric. If \code{length_samples} <= 1, that proportion
 of \code{stock_data} will be sampled for each year/step/area combination.
@@ -60,12 +62,10 @@ suppresses this warning.}
 \item{n}{Integer. The number of times to replicate the sampling procedure}
 }
 \value{
-\code{add_lengthgroup} returns a wide \code{data.frame} similar to
-that of \code{stock_data}, but with values distributed across each length
-group which are represented as each column. The output of
-\code{add_lengthgroup} is meant to go directly to \code{survey_gadget} which
-returns a \code{data.frame} similar to \code{stock_data}, but disaggregated
-by length. \code{strip_age_length_data} returns a named list of two
+\code{survey_gadget} returns a \code{data.frame} similar to
+\code{stock_data}, but disaggregated by length based on the std. dev. found
+in the StockStdPrinter.
+\code{strip_age_length_data} returns a named list of two
 \code{data.frame}s. One for length data and one for age data.
 \code{replicate_datasets} returns a names list of length 3, each element
 containing a \code{data.frame} with nrows the number of replications times
@@ -82,34 +82,31 @@ surveys
 \details{
 Length-structured population information from Gadget is output as
 mean length and standard deviation for each year, step, area, and age
-combination. \code{add_lengthgroups} takes output from
+combination. \code{survey_gadget} takes output from
 \code{\link{get_stock_std}} (or \code{\link{read_gadget_stock_std}}) and
 distributes the number for each respective combination into numbers at each
-length specified by \code{length_groups}. The return value for
-\code{add_lengthgroups} is a wide \code{data.frame} that can then be fed into
-\code{survey_gadget}, which simulates surveys given the selectivity provided
-in \code{survey_suitability} and error given by \code{survey_sigma}. If it is
-desired to have a subsample of length and age data to more closely mimic real
-world scenarios, then the output from \code{survey_gadget} can be fed into
-\code{strip_age_length_data} and subsamples of length and age data will be
-returned according to the given proportions. The entire process can be
-replicated \emph{n} number of times using \code{replicate_datasets}
+length specified by \code{length_groups}, simulates
+surveys given the selectivity provided in \code{survey_suitability} and
+error given by \code{survey_sigma}. If it is desired to have a subsample of
+length and age data to more closely mimic real world scenarios, then the
+output from \code{survey_gadget} can be fed into \code{strip_age_length_data}
+and subsamples of length and age data will be returned according to the given
+proportions. The entire process can be replicated \emph{n} number of times
+using \code{replicate_datasets}
 }
 \examples{
 path <- system.file(gad_mod_dir, package = "gadgetSim")
-cod_stock_std <- get_stock_std(main = "WGTS/main.final",
-                               params_file = "WGTS/params.final",
-                               path = path, fit_dir = "WGTS")
-lengrps <- seq(0.5, 50.5, by = 1)
+cod_stock_std <- get_stock_std(main = "main",
+                               path = path)
+lengrps <- seq(0.5, 150.5, by = 1)
 suitability <- logistic_selectivity(lengrps, 0.15, 20, 0.1)
-cod_lendist <- add_lengthgroups(cod_stock_std$cod0, lengrps)
-cod_samples <- survey_gadget(cod_lendist, lengrps, suitability, 0.1)
+cod_samples <- survey_gadget(cod_stock_std$cod, lengrps, suitability, 0.1)
 cod_comp_data <-
   strip_age_length_data(cod_samples, length_samples = 0.2, age_samples = 0.2)
 
 # the above process can be automated n number of times
 cod_comp_data <-
-    replicate_datasets(cod_stock_std$cod0, lengrps, suitability,
+    replicate_datasets(cod_stock_std$cod, lengrps, suitability,
                        survey_sigma = 0.1, length_samples = 0.2,
                        age_samples = 0.2, n = 10)
 }
