@@ -135,7 +135,7 @@ survey_gadget <- function(stock_data, length_groups,
             out <- base_data
             out$length <- mean(c(lengrp_upper[[i]], lengrp_lower[[i]]))
             out$weight <- stock_data$weight
-            out[variable] <-
+            out$number <-
                 round(stock_data[, length_col] *
                           (exp(rnorm(nrow(base_data),0,survey_sigma) -
                                    survey_sigma/2)) * survey_suitability[[i]])
