@@ -2,7 +2,7 @@
 % Please edit documentation in R/make_gadget_files.R
 \name{make_switches}
 \alias{make_switches}
-\title{Turn any character vector into a switch}
+\title{Turn any character vector into a Gadget switch}
 \usage{
 make_switches(...)
 }

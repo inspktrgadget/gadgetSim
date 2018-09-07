@@ -99,6 +99,16 @@ make_gadget_catchdistribution <- function(...,
                            areaagg = areaagg,
                            ageagg = ageagg,
                            lenagg = lenagg)
+    if (comp[["function"]] == "mvn" & check_names("param", comp)) {
+        if (length(comp$param) != comp$lag) {
+            stop("The number of params for mvn must equal lag value")
+        }
+        comp1 <- comp[1:(grep("param", names(comp)) - 1)]
+        comp2 <- comp[(grep("param", names(comp)) + 1):length(comp)]
+        params_list <- comp[[grep("param", names(comp))]]
+        params <- setNames(params_list, rep("param", length(params_list)))
+        comp <- structure(c(comp1, params, comp2), class = c("gadget_catchdistribution_likelihood", "list"))
+    }
     return(comp)
 }
 
@@ -384,7 +394,7 @@ check_lik_data <- function(comp, data_cols, lik_type) {
 check_lik_names <- function(comp, lik_type) {
     lik_template <- getFromNamespace(paste(lik_type, "likelihood", sep = "_"),
                                      ns = "gadgetSim")
-    if (!identical(names(comp), names(rm_null_elements(lik_template)))) {
+    if (!all(names(rm_null_elements(lik_template)) %in% names(comp))) {
         stop(sprintf("%s Required names for %s likelihood are not correct",
                      "\n", lik_type))
     }

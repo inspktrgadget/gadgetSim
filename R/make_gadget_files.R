@@ -848,6 +848,8 @@ update_stock <- function(mod_obj, stockname, comp, item = NULL, ...) {
 }
 
 #' @rdname update_model
+#' @param fleetname Character. The name of the fleet already present in a Gadget
+#' model to either update or remove
 #' @export
 update_fleet <- function(mod_obj, fleetname, ...) {
     dots <- dots2list(...)
@@ -859,8 +861,39 @@ update_fleet <- function(mod_obj, fleetname, ...) {
     return(mod_obj)
 }
 
+#' @rdname update_model
+#' @param fleet List of type \code{gadget_fleet} or \code{gadget_fleets} to
+#' be added to Gadget model
+#' @export
+add_fleet <- function(mod_obj, fleet) {
+    if (!any(c("gadget_fleet", "gadget_fleets") %in% class(fleet))) {
+        stop("Fleet must be of type gadget_fleet or gadget_fleets")
+    }
+    fleet_n <- length(mod_obj$fleets)
+    fleets <- c(mod_obj$fleets, fleet)
+    mod_obj$fleets <- structure(fleets, class = c("gadget_fleets", "list"))
+    return(mod_obj)
+}
 
-#' Turn any character vector into a switch
+#' @rdname update_model
+#' @export
+rm_fleet <- function(mod_obj, fleetname) {
+    fleets <- mod_obj$fleets
+    fleet2rm_ind <-
+        vapply(seq_along(fleets), function(x) {
+            if (fleets[[x]][[1]] == fleetname) {
+                return(x)
+            } else {
+                return(0)
+            }
+        }, numeric(1))
+    mod_obj$fleets <- structure(mod_obj$fleets[-fleet2rm_ind],
+                                class = c("gadget_fleets", "list"))
+    return(mod_obj)
+}
+
+
+#' Turn any character vector into a Gadget switch
 #'
 #' Character vectors are strictly returned when using
 #' \code{\link{to_gadget_formula}}. This function allows one to explicitly

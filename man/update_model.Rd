@@ -4,6 +4,8 @@
 \alias{update_model}
 \alias{update_stock}
 \alias{update_fleet}
+\alias{add_fleet}
+\alias{rm_fleet}
 \title{Update components of an object of class "gadget_model"}
 \usage{
 update_model(mod_obj, comp, item = NULL, ...)
@@ -11,6 +13,10 @@ update_model(mod_obj, comp, item = NULL, ...)
 update_stock(mod_obj, stockname, comp, item = NULL, ...)
 
 update_fleet(mod_obj, fleetname, ...)
+
+add_fleet(mod_obj, fleet)
+
+rm_fleet(mod_obj, fleetname)
 }
 \arguments{
 \item{mod_obj}{A list of class \code{gadget_model}, see
@@ -22,6 +28,12 @@ etc.)}
 \item{...}{Named arguments corresponding to the appropriate name in the
 respective gadget model component (i.e. for "stocks" the named argument could
 be growthparameters = c(150, 10, 1e-06, 3))}
+
+\item{fleetname}{Character. The name of the fleet already present in a Gadget
+model to either update or remove}
+
+\item{fleet}{List of type \code{gadget_fleet} or \code{gadget_fleets} to
+be added to Gadget model}
 }
 \value{
 A list of class \code{gadget_model} the same as that of
