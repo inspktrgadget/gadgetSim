@@ -570,7 +570,7 @@ make_gadget_optinfofile <- function(...) {
                 simann = simann_optinfo,
                 bfgs = bfgs_optinfo,
                 hooke = hooke_optinfo
-            ), class = c("gadget_optinfo", "list"))
+            ), class = c("gadget_optinfofile", "list"))
         return(out)
     } else {
         out <-
