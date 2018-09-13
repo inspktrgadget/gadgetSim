@@ -122,7 +122,7 @@ check_stock_m <- function(dots) {
 #' @rdname check_stockfile_funs
 check_stock_prey <-
     function(dots, lenaggfile = get("lenaggfile", env = parent.frame())) {
-    if (check_names("^prey", dots)) {
+    if (check_names("^prey", dots) | check_names("^iseaten", dots)) {
         if (all(c("preylengths", "energycontent") %in% names(dots$prey))) {
             filename <- sprintf("Aggfiles/%s.preylengths", dots$stock$stockname)
             prey <-
@@ -152,7 +152,7 @@ check_stock_prey <-
 
 #' @rdname check_stockfile_funs
 check_stock_predator <- function(dots) {
-    if (check_names("^doeseat", dots)) {
+    if (check_names("^doeseat", dots) | check_names("^predator", dots)) {
         req_names <- c("suitability", "preference",
                        "maxconsumption", "halffeedingvalue")
         if (!all(req_names %in%

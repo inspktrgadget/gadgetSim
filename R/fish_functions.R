@@ -25,7 +25,7 @@
 #' length <- vb(125, 0.15, -0.5, age)
 #' wt <- lw(length, 1e-06, 3)
 vb <- function(linf, k, t0, age) {
-    linf * (1 - exp(-k * (age - t0)))
+    return(linf * (1 - exp(-k * (age - t0))))
 }
 
 #' @rdname growth_funs

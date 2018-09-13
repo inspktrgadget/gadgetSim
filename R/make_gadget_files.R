@@ -173,7 +173,7 @@ make_gadget_stockfile <- function(...) {
     growthandeatlengths <- check_stock_grw_eat_len(dots)
     growth <- check_stock_growth(dots)
     naturalmortality <- check_stock_m(dots)
-    prey <- check_stock_iseaten(dots)
+    prey <- check_stock_prey(dots)
     predator <- check_stock_predator(dots)
     initialconditions <- check_stock_initcond(dots)
     migration <- check_stock_migration(dots)
@@ -183,8 +183,10 @@ make_gadget_stockfile <- function(...) {
     spawning <- check_stock_spawning(dots)
     straying <- check_stock_straying(dots)
     out <- c(stock, refweightfile, growthandeatlengths, growth,
-             naturalmortality, prey, predator, initialconditions, migration,
-             maturation, movement, renewal, spawning, straying)
+             list(naturalmortality = naturalmortality),
+             prey, predator,
+             initialconditions, migration, maturation, movement, renewal,
+             spawning, straying)
     class(out) <- c("gadget_stock", "list")
     return(out)
 }

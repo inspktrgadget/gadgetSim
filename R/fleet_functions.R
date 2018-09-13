@@ -44,7 +44,7 @@
 #' legend("topleft", legend = c("logistic", "exponential_l50", "gamma",
 #'                               "andersen_fleet", "constant", "straightline"),
 #'        col = c(1, "red", 2, 3, 4, 5), lty = c(1,2,1,1,1,1))
-constant_selectivity <- function(lengths, alpha) {
+constant_selectivity <- function(lengths, alpha = 1) {
     if (alpha > 1) {
         stop("If alpha is >1 you increase the population rather than sample it")
     }
@@ -89,6 +89,7 @@ gamma_selectivity <- function(lengths, alpha, beta, gamma) {
     selectivity <-
         ((lengths / ((alpha - 1) * beta * gamma)) ^ (alpha - 1)) *
         exp(alpha - 1 - (lengths / (beta * gamma)))
+	return(selectivity)
 }
 
 
@@ -150,10 +151,10 @@ make_exponential_suit <- function(fleet, stock,
                                   params = list("alpha", "beta",
                                                 "gamma", "delta"),
                                   param_names = NULL) {
-        return(make_fleet_suit(fleet = fleet, stock = stock,
-                               fun = "exponential", params = params,
-                               param_names = param_names))
-    }
+    return(make_fleet_suit(fleet = fleet, stock = stock,
+						   fun = "exponential", params = params,
+                           param_names = param_names))
+}
 
 #' @rdname suit_formulas
 #' @export
@@ -387,7 +388,7 @@ ssb_rec_curve <- function(fish_mort, nat_mort, ages,
         pmat_at_age <-
             do.call(mat_fun, c(mat_params, list(length = length_at_age)))
         f_at_age <- do.call(sel_fun, c(list(lengths = length_at_age),
-                                       sel_params, max_prop = 1)) * x
+                                       sel_params)) * x
         z_at_age <- f_at_age + nat_mort
         z_temp <- c(0, z_at_age[1:(length(z_at_age) - 1)])
         ssb <- sum(weight_at_age * pmat_at_age * exp(-cumsum(z_temp)))
