@@ -140,7 +140,7 @@ write_gadget_file.gadget_fleets <- function(gf, file = "Modelfiles/fleet",
                                          collapse = "\n"))
                         } else {
                             stop("Suitability in gadget_fleet should be",
-                                 "entered as a data.frame")
+                                 " entered as a data.frame")
                         }
                     } else {
                         return(paste(c(nms[y], x[[y]]), collapse = "\t"))

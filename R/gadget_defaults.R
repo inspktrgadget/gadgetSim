@@ -370,7 +370,7 @@ simann_optinfo <-
 
 bfgs_optinfo <-
     list(
-        bgfsiter = 50000,
+        bfgsiter = 50000,
         bfgseps = 0.01,
         sigma = 0.01,
         beta = 0.3,
