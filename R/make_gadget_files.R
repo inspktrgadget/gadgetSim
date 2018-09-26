@@ -826,25 +826,40 @@ make_gadget_model <- function(...) {
 #' mod <- read_gadget_model(path = path)
 #' new_mod <- update_model(mod, "stocks",
 #'                         growthparameters = c(150, 10, 1e-06, 3))
-update_model <- function(mod_obj, comp, item = NULL, ...) {
-    dots <- dots2list(...)
-    if (!is.null(item)) {
-        mod_obj[[comp]][[item]][names(dots)] <- dots
+update_model <- function(mod_obj, comp, item = NULL, ..., rm_item = FALSE) {
+    if (rm_item) {
+        if (is.null(item)) {
+            stop("You must specify an item in order to remove it.")
+        }
+        mod_obj[[comp]][[item]] <- NULL
     } else {
-        mod_obj[[comp]][names(dots)] <- dots
+        dots <- dots2list(...)
+        if (!is.null(item)) {
+            mod_obj[[comp]][[item]][names(dots)] <- dots
+        } else {
+            mod_obj[[comp]][names(dots)] <- dots
+        }
     }
     return(mod_obj)
 }
 
 #' @rdname update_model
 #' @export
-update_stock <- function(mod_obj, stockname, comp, item = NULL, ...) {
-    dots <- dots2list(...)
-    if (!is.null(item)) {
-        mod_obj$stocks[[stockname]][[comp]][[item]][names(dots)] <- dots
+update_stock <- function(mod_obj, stockname, comp, item = NULL, ...,
+                         rm_item = FALSE) {
+    if (rm_item) {
+        if (is.null(item)) {
+            stop("You must specify an item in order to remove it.")
+        }
+        mod_obj$stocks[[stockname]][[comp]][[item]] <- NULL
     } else {
-        mod_obj$stocks[[stockname]] <-
-            modifyList(mod_obj$stocks[[stockname]], dots)
+        dots <- dots2list(...)
+        if (!is.null(item)) {
+            mod_obj$stocks[[stockname]][[comp]][[item]][names(dots)] <- dots
+        } else {
+            mod_obj$stocks[[stockname]] <-
+                modifyList(mod_obj$stocks[[stockname]], dots)
+        }
     }
     return(mod_obj)
 }
