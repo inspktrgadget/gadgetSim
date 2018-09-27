@@ -356,8 +356,9 @@ hooke_optinfo <-
 simann_optinfo <-
     list(
         simanniter = 3e05,
-        simanneps = 1e-04,
-        t = 100,
+        scale = 1,
+        simanneps = 1e-03,
+        t = 3e06,
         rt = 0.85,
         nt = 2,
         ns = 5,
