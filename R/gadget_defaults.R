@@ -355,10 +355,10 @@ hooke_optinfo <-
 
 simann_optinfo <-
     list(
-        simanniter = 3e05,
+        simanniter = 300000,
         scale = 1,
         simanneps = 1e-03,
-        t = 3e06,
+        t = 3000000,
         rt = 0.85,
         nt = 2,
         ns = 5,
