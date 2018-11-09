@@ -139,6 +139,9 @@ get_stock_std <- function(main = "main", params_file = NULL, path = NULL,
                     print_out = FALSE, print_err = FALSE)
         stock_std <-
             read_gadget_stock_std(output_dir = output_dir, path = path)
+		if (length(stock_std) == 1) {
+			stock_std <- stock_std[[1]]
+		}
         return(stock_std)
     }
 }
