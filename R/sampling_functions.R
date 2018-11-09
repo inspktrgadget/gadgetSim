@@ -200,7 +200,8 @@ strip_age_length_data <- function(stock_data,
                 ungroup() %>%
                 mutate(age = "all") %>%
                 group_by(year, step, area, age, length) %>%
-                summarize(number = sum(number))
+                summarize(number = sum(number)) %>%
+                filter(number > 0)
             age_data <-
                 age_data %>%
                 group_by(year, step, area) %>%
@@ -209,7 +210,8 @@ strip_age_length_data <- function(stock_data,
                          weight = number) %>%
                 mutate(number = 1) %>%
                 group_by(year, step, area, age, length) %>%
-                summarize(number = sum(number))
+                summarize(number = sum(number)) %>%
+                filter(number > 0)
         } else {
             warning("Sampling by sample number can be somewhat time-intensive ",
                     "consider installing the tidyverse package to speed things",
@@ -257,6 +259,10 @@ strip_age_length_data <- function(stock_data,
             age_data <-
                 aggregate(number ~ year + step + area + age + length,
                           data = age_data, FUN = sum)
+            length_data <- subset(length_data, number > 0)
+            rownames(length_data) <- 1:nrow(length_data)
+            age_data <- subset(age_data, number > 0)
+            rownames(age_data) <- 1:nrow(age_data)
         }
     } else if (length_samples <= 1) {
         if (length_samples == 1 | age_samples == 1) {
@@ -273,6 +279,7 @@ strip_age_length_data <- function(stock_data,
         } else if (age_samples > 1) {
             if (requireNamespace("dplyr", quietly = TRUE)) {
                 `%>%` <- magrittr::`%>%`
+                length_data <- filter(length_data, number > 0)
                 age_data <-
                     age_data %>%
                     group_by(year, step, area) %>%
@@ -281,7 +288,8 @@ strip_age_length_data <- function(stock_data,
                              weight = number) %>%
                     mutate(number = 1) %>%
                     group_by(year, step, area, age, length) %>%
-                    summarize(number = sum(number))
+                    summarize(number = sum(number)) %>%
+                    filter(number > 0)
             } else {
                 warning("Sampling by sample number can be somewhat ",
                         "time-intensive consider installing the tidyverse ",
@@ -329,6 +337,10 @@ strip_age_length_data <- function(stock_data,
                 age_data <-
                     aggregate(number ~ year + step + area + age + length,
                               data = age_data, FUN = sum)
+                length_data <- subset(length_data, number > 0)
+                rownames(length_data) <- 1:nrow(length_data)
+                age_data <- subset(age_data, number > 0)
+                rownames(age_data) <- 1:nrow(age_data)
             }
         }
         if (requireNamespace("dplyr", quietly = TRUE)) {
@@ -339,7 +351,12 @@ strip_age_length_data <- function(stock_data,
                 dplyr::summarize(number = sum(number)) %>%
                 dplyr::mutate(age = "all") %>%
                 dplyr::select(year, step, area, age, length, number) %>%
+                filter(number > 0) %>%
                 as.data.frame()
+            age_data <-
+                age_data %>%
+                select(year, step, area, age, length, number) %>%
+                filter(number > 0)
         } else {
             length_data <-
                 aggregate(number ~ year + step + area + length,
@@ -349,10 +366,13 @@ strip_age_length_data <- function(stock_data,
                 subset(length_data,
                        select = c("year", "step", "area",
                                   "age", "length", "number"))
+            length_data <- subset(length_data, number > 0)
+            rownames(length_data) <- 1:nrow(length_data)
+            age_data <- subset(age_data, select = c("year", "step", "area",
+                                                    "age", "length", "number"))
+            age_data <- subset(age_data, number > 0)
+            rownames(age_data) <- 1:nrow(age_data)
         }
-        age_data <- subset(age_data, select = c("year", "step", "area",
-                                                "age", "length", "number"))
-
     }
     return(list(length_data = length_data, age_data = age_data))
 }
