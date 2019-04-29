@@ -34,7 +34,8 @@ add_lengthgroups <- function(stock_data, length_groups, variable = "number",
               stock_data$length,
               stock_data$length.sd)
     }
-    stock_number <- rep(stock_data[,variable], times = length(lengrp_upper))
+    stock_number <- rep(stock_data[,variable, drop = TRUE], 
+                        times = length(lengrp_upper))
     stock_len_numbers <-
         stock_number * (len_dist(lengrp_upper) - len_dist(lengrp_lower))
     lengrp_names <-
