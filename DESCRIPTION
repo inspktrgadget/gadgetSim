@@ -5,7 +5,7 @@ Authors@R: "Paul Frater <pnfrater@gmail.com> [aut, cre]"
 Description: This package creates new variants of Gadget models to use as model
     replicates for simulation studies. It takes an already existing Gadget model,
     reads model output,and creates sampled-like index, age, and length data to run simulations on.
-Depends: R (>= 3.4.2)
+Depends: R (>= 3.3.0)
 License: MIT + file LICENSE
 LazyData: true
 Author: Paul Frater
