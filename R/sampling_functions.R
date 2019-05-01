@@ -178,7 +178,7 @@ strip_age_length_data <- function(stock_data,
                                   quiet = FALSE) {
     if (length_samples > 1) {
         if (age_samples <= 1) {
-            age_samples <- length_samples * age_samples
+            age_samples <- round(length_samples * age_samples)
         } else if (age_samples > length_samples) {
             stop("Age sample number cannot be greater than length ",
                  "sample number")
