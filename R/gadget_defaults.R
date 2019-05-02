@@ -355,7 +355,7 @@ hooke_optinfo <-
 
 simann_optinfo <-
     list(
-        simanniter = 300000,
+        simanniter = 2000,
         scale = 1,
         simanneps = 1e-03,
         t = 3000000,
@@ -371,7 +371,7 @@ simann_optinfo <-
 
 bfgs_optinfo <-
     list(
-        bfgsiter = 50000,
+        bfgsiter = 20000,
         bfgseps = 0.01,
         sigma = 0.01,
         beta = 0.3,
